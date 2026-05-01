@@ -28,9 +28,9 @@ pip install -r requirements.txt
 # 4. 启动 FastAPI 服务
 uvicorn app.main:app --reload
 ```
-服务启动完成后，可在浏览器打开可视化 API 说明：http://127.0.0.1:8000/docs
+服务启动完成后，可在浏览器打开可视化 API 说明：http://127.0.0.1:8000/docs    
 
-##4.自动化测试与工程规范  
+## 4.自动化测试与工程规范  
 系统已集成基础的自动化集成测试，并在意图识别服务上实现了 深度网络请求的 Mock (打桩)。 在 PowerShell 中执行以下命令进行自检：
 ```powershell
 # 1. 激活虚拟环境
