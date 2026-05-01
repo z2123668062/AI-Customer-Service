@@ -36,3 +36,20 @@ class ChatResponse(BaseModel):
     reply: str = Field(..., description="系统回复内容")
     history_count: int = Field(default=0, ge=0, description="当前会话消息数量")
     trace_id: Optional[str] = Field(default=None, description="请求追踪ID，可选")
+
+
+class RouterResult(BaseModel):
+    """
+    AI 路由器返回的结构化结果
+    """
+    # Literal 限制了 intent 只能是这三种字符串中的某一个，类似 Java 的 Enum
+    intent: Literal["kb_qa", "chitchat", "tool"] = Field(
+        ...,
+        description="问题意图。kb_qa: 知识库问答, chitchat: 闲聊, tool: 需要调用工具"
+    )
+
+    # 提取的关键字列表，默认给个空列表
+    keywords: list[str] = Field(
+        default_factory=list,
+        description="从用户提问中提取的关键信息，用于后续的知识库检索或工具调用"
+    )
