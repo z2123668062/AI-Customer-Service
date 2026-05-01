@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe78520b-9053-4325-856c-5687fc395ec2" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/conftest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/v1/endpoints/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/v1/endpoints/chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/router_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/router_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_health.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_health.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +114,7 @@
       <workItem from="1777636291160" duration="865000" />
       <workItem from="1777637699807" duration="1044000" />
       <workItem from="1777638832481" duration="123000" />
-      <workItem from="1777638985256" duration="5583000" />
+      <workItem from="1777638985256" duration="5960000" />
     </task>
     <servers />
   </component>
