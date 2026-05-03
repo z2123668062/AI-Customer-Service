@@ -2,6 +2,8 @@ from fastapi import APIRouter
 from app.models.schemas import ChatRequest, ChatResponse
 from app.core.memory import add_message, get_history_count
 from app.services.router_service import analyze_intent
+# 【核心新增】：导入咱们刚写好的知识库查询函数
+from app.services.rag_service import query_knowledge
 
 
 # 这里创建一个“路由器”，它的作用是把请求分发到对应的函数里
@@ -34,9 +36,16 @@ async def chat_endpoint(request: ChatRequest):
         # 闲聊处理分支（目前我们还是写死回复，后面会专门做闲聊生成模块）
         reply_content = f"系统判定你正在：闲聊。检测到的关键词是：{router_result.keywords}"
 
+
     elif router_result.intent == "kb_qa":
         # 查知识库处理分支
-        reply_content = f"系统判定你要查：知识库。我准备拿着关键词 {router_result.keywords} 去数据库搜寻答案。"
+        try:
+            # 直接把路由器提取的关键词传给 RAG 服务
+            # 如果一切顺利，reply_content 就会是大模型结合文档回复的人话
+            reply_content = query_knowledge(request.message)
+        except Exception as e:
+            # 兜底机制：万一没上传文档，或者 ChromaDB 还没初始化成功，不至于让前端看到 500 报错
+            reply_content = f"抱歉，我在翻阅公司知识库时遇到了点问题：{str(e)}"
 
     elif router_result.intent == "tool":
         # 工具调用处理分支
