@@ -4,7 +4,7 @@ from app.core.memory import add_message, get_history_count
 from app.services.router_service import analyze_intent
 # 【核心新增】：导入咱们刚写好的知识库查询函数
 from app.services.rag_service import query_knowledge
-
+from app.services.tool_service import execute_tool_call
 
 # 这里创建一个“路由器”，它的作用是把请求分发到对应的函数里
 router = APIRouter()
@@ -30,6 +30,12 @@ async def chat_endpoint(request: ChatRequest):
     # 这一步有点像 SpringAOP 里的前置过滤，或者网关（Gateway）里的路由判定
     # await 的意思是挂起，等待远程智谱或者DeepSeek那边的服务器把JSON结果返回给我们
     router_result = await analyze_intent(request.message)
+    # 【新增调试日志】：直接在控制台打出路由器判断出来的分类结果！
+    print(f"\n======================================")
+    print(f"🧐 [路由器大脑判定结果] ==>")
+    print(f"意图 (Intent): {router_result.intent}")
+    print(f"提出关键字 (Keywords): {router_result.keywords}")
+    print(f"======================================\n")
 
     # 3. 根据路由器判断出来的数据（此时它已经是我们的实体对象）编写业务分支
     if router_result.intent == "chitchat":
@@ -49,7 +55,7 @@ async def chat_endpoint(request: ChatRequest):
 
     elif router_result.intent == "tool":
         # 工具调用处理分支
-        reply_content = f"系统判定你想要：调工具。你需要我帮你用外部工具操作这些：{router_result.keywords}。"
+        reply_content = execute_tool_call(request.message)
 
     else:
         # 兜底的异常判断处理

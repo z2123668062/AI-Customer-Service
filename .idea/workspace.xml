@@ -5,13 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe78520b-9053-4325-856c-5687fc395ec2" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/data/uploads/company_policy.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/v1/endpoints/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/v1/endpoints/chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/rag_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/rag_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/services/router_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/router_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/tool_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/tool_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +22,7 @@
     </persistenceIdMap>
   </component>
   <component name="CopilotUserSelectedChatMode">
-    <option name="chatModeId" value="Ask" />
+    <option name="chatModeId" value="Agent" />
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
@@ -122,7 +120,7 @@
       <workItem from="1777637699807" duration="1044000" />
       <workItem from="1777638832481" duration="123000" />
       <workItem from="1777638985256" duration="6293000" />
-      <workItem from="1777707551686" duration="13569000" />
+      <workItem from="1777707551686" duration="19580000" />
     </task>
     <servers />
   </component>
