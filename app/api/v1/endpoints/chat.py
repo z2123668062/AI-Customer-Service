@@ -1,11 +1,14 @@
+import logging
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter
 from app.models.schemas import ChatRequest, ChatResponse
 from app.core.memory import add_message, get_history_count
-from app.services.router_service import analyze_intent
 # 【核心新增】：导入咱们刚写好的知识库查询函数
 from app.services.rag_service import query_knowledge
 from app.services.tool_service import execute_tool_call
-
+from app.services.safety_service import check_input_safety, get_safety_rejection_message
+import uuid
+from app.services.router_service import analyze_intent, generate_chitchat
 # 这里创建一个“路由器”，它的作用是把请求分发到对应的函数里
 router = APIRouter()
 
@@ -18,6 +21,15 @@ async def chat_endpoint(request: ChatRequest):
     第一期我们先做最简单的“固定回显”，先不接大模型。
     现在第二期，我们用智谱的免费模型判断一下类型
     """
+
+    trace_id = uuid.uuid4().hex  # 生成类似 8f5b8c9d... 的字符串
+    logger.info(f"[Trace: {trace_id}] 收到新会话请求: session={request.session_id}, msg={request.message}")
+
+    #合规检查
+    is_safe=await check_input_safety(request.message)
+    if not is_safe:
+        reject_msg=await get_safety_rejection_message()
+        return ChatResponse(session_id=request.session_id,reply=reject_msg,history_count=get_history_count(request.session_id),trace_id=trace_id)
 
     # 1. 记住用户刚说的话
     add_message(
@@ -37,10 +49,10 @@ async def chat_endpoint(request: ChatRequest):
     print(f"提出关键字 (Keywords): {router_result.keywords}")
     print(f"======================================\n")
 
-    # 3. 根据路由器判断出来的数据（此时它已经是我们的实体对象）编写业务分支
+    # 3. 根据路由器判断出来的数据编写业务分支
     if router_result.intent == "chitchat":
-        # 闲聊处理分支（目前我们还是写死回复，后面会专门做闲聊生成模块）
-        reply_content = f"系统判定你正在：闲聊。检测到的关键词是：{router_result.keywords}"
+        # 闲聊处理分支：不再写死，而是真正调用大模型
+        reply_content = await generate_chitchat(request.message)
 
 
     elif router_result.intent == "kb_qa":
@@ -56,6 +68,13 @@ async def chat_endpoint(request: ChatRequest):
     elif router_result.intent == "tool":
         # 工具调用处理分支
         reply_content = execute_tool_call(request.message)
+    elif router_result.intent == "complaint":
+        reply_text="十分抱歉给您带来不便！我已经记录了您的问题并请求转接人工客服，请您稍作等待..."
+        return ChatResponse(
+            session_id=request.session_id,
+            reply=reply_text,
+            history_count=get_history_count(request.session_id),
+            trace_id=trace_id)
 
     else:
         # 兜底的异常判断处理
@@ -74,5 +93,6 @@ async def chat_endpoint(request: ChatRequest):
     return ChatResponse(
         session_id=request.session_id,
         reply=reply_content,
-        history_count=current_count
+        history_count=current_count,
+        trace_id=trace_id
     )

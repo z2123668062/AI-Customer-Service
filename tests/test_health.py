@@ -29,7 +29,8 @@ def test_health_check_returns_ok():
 # 意思是：拦截掉 app.api.v1.endpoints.chat 里面导入的那个 analyze_intent 函数，
 # 把它替换成一个可以自己设返回值的假对象（AsyncMock）。
 @patch("app.api.v1.endpoints.chat.analyze_intent", new_callable=AsyncMock)
-def test_chat_endpoint_stores_and_replies(mock_analyze_intent):
+@patch("app.api.v1.endpoints.chat.generate_chitchat", new_callable=AsyncMock)
+def test_chat_endpoint_stores_and_replies(mock_generate_chitchat, mock_analyze_intent):
     """测试咱们修真版（接入路由后）的聊天大闭环"""
 
     # 【重点修改2】手动给这根“桩”设定一个假的返回死数据。
@@ -39,6 +40,8 @@ def test_chat_endpoint_stores_and_replies(mock_analyze_intent):
         intent="chitchat",
         keywords=["自动化", "测试"]
     )
+
+    mock_generate_chitchat.return_value = "哈哈，测试闲聊回复，包含关键字：测试"
 
     test_session = "test_auto_001"
     payload = {

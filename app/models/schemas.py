@@ -42,10 +42,9 @@ class RouterResult(BaseModel):
     """
     AI 路由器返回的结构化结果
     """
-    # Literal 限制了 intent 只能是这三种字符串中的某一个，类似 Java 的 Enum
-    intent: Literal["kb_qa", "chitchat", "tool"] = Field(
+    intent: Literal["kb_qa", "chitchat", "tool", "complaint"] = Field(
         ...,
-        description="问题意图。kb_qa: 知识库问答, chitchat: 闲聊, tool: 需要调用工具"
+        description="问题意图。kb_qa: 知识库问答, chitchat: 闲聊, tool: 需要调用工具, complaint: 投诉或强烈不满"
     )
 
     # 提取的关键字列表，默认给个空列表
