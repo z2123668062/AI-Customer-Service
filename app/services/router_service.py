@@ -2,10 +2,12 @@ import json
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 from app.models.schemas import RouterResult
-from app.core.config import ZHIPU_API_KEY
+from app.core.config import settings
+from app.models.schemas import ChatMessage
+from typing import List
 
 client = AsyncOpenAI(
-    api_key=ZHIPU_API_KEY,
+    api_key=settings.ZHIPU_API_KEY,
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 
@@ -58,24 +60,27 @@ async def analyze_intent(user_input: str) -> RouterResult:
 
 # app/services/router_service.py 底部增加：
 
-async def generate_chitchat(user_input: str) -> str:
-    """真正的闲聊生成器"""
-    # 解决不够生动、太简短的关键：Prompt System 人设设定
+async def generate_chitchat(history: List[ChatMessage]) -> str:
+    """带有全量记忆的真正闲聊生成器"""
     system_prompt = (
         "你是一个热情、有同理心、幽默的 AI 客服助手。"
-        "哪怕用户只是简单的打招呼，你也应该像老朋友一样给予温暖且字数丰富生动的回应。"
+        "如果有用户告诉你名字，一定要记住它。如果有连续对话，一定要结合之前的对话回答哦。"
     )
 
+    # 第一句话必选 System prompt
     messages: list[ChatCompletionMessageParam] = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_input}
+        {"role": "system", "content": system_prompt}
     ]
+
+    # 将 Redis 存下来的所有记忆循环导入大模型的上下文中！
+    for msg in history:
+        messages.append({"role": msg.role, "content": msg.content})
 
     try:
         response = await client.chat.completions.create(
             model="glm-4-flash",
             messages=messages,
-            temperature=0.7  # 0表示严谨死板，0.7表示有一定的自由发散创造力
+            temperature=0.7
         )
         return response.choices[0].message.content
     except Exception as e:

@@ -8,7 +8,7 @@ os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext, Settings
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.llms.openai_like import OpenAILike
-from app.core.config import ZHIPU_API_KEY
+from app.core.config import settings
 
 # 【核心修改】：导入本地 HuggingFace 向量模型组件
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -19,7 +19,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 ZHIPU_BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
 
 Settings.llm = OpenAILike(
-    api_key=ZHIPU_API_KEY,
+    api_key=settings.ZHIPU_API_KEY,
     api_base=ZHIPU_BASE_URL,
     model="glm-4-flash",
     is_chat_model=True

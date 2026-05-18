@@ -1,10 +1,10 @@
 import json
-from app.core.config import ZHIPU_API_KEY
+from app.core.config import settings
 from openai import OpenAI
 
 # 初始化我们用来做工具调用的客户端
 client = OpenAI(
-    api_key=ZHIPU_API_KEY,
+    api_key=settings.ZHIPU_API_KEY,
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 
