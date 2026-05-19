@@ -29,35 +29,64 @@ Settings.llm = OpenAILike(
 # BAAI/bge-small-zh-v1.5 是中文界公认的小而美的开源向量模型
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-zh-v1.5")
 
+# 单例模式，全局数据库单例
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+data_dir = os.path.join(base_dir, "data")
+upload_dir = os.path.join(data_dir, "uploads")
+db_dir = os.path.join(data_dir, "chroma_db")
+GLOBAL_DB_CLIENT = chromadb.PersistentClient(path=db_dir)
 
-# ================= 2. 知识库加载与查询逻辑 =================
+# ================= 2. 知识库加载与查询逻辑（分离重构） =================
 
-def build_or_load_index():
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_dir = os.path.join(base_dir, "data")
-    upload_dir = os.path.join(data_dir, "uploads")
-    db_dir = os.path.join(data_dir, "chroma_db")
+def _get_vector_store_and_context():
+    """复用的辅助函数：找到 ChromaDB 实例并连上去"""
 
-    db_client = chromadb.PersistentClient(path=db_dir)
-
-    # 因为换了新模型（数字维数变了），为了防止和刚刚调智谱失败残留的废库冲突，我们换个新表名！
-    chroma_collection = db_client.get_or_create_collection("local_company_knowledge")
+    chroma_collection = GLOBAL_DB_CLIENT.get_or_create_collection("local_company_knowledge")
 
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+
+    return vector_store, upload_dir
+
+
+def build_knowledge_base():
+    """
+    冷任务：只给管理员用的专属重建函数。
+    读取全量文档，重新 Embedding 写入库中。
+    """
+    vector_store, upload_dir = _get_vector_store_and_context()
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
+    print("=== [开始离线构建任务] ===")
     documents = SimpleDirectoryReader(upload_dir).load_data()
     print(f"成功读取到 {len(documents)} 个文档片段，正在交由本地模型转化为数字存入库中...")
 
+    # 发起致命重算！这里会耗时极长，但它只在后台跑，无所谓。
     index = VectorStoreIndex.from_documents(
         documents,
         storage_context=storage_context
     )
+    print("=== [离线构建任务完成] ===")
+    return True
+
+
+def get_readonly_index():
+    """
+    热任务底层支持：拿出现成的库，不重新查硬盘读文件，光速返回索引！
+    """
+    vector_store, _ = _get_vector_store_and_context()
+
+    # 核心改动：from_vector_store 替代了 from_documents，纯天然无污染读取
+    index = VectorStoreIndex.from_vector_store(
+        vector_store=vector_store
+    )
     return index
 
 
-def query_knowledge(question:str) -> str:
-    index = build_or_load_index()
+def query_knowledge(question: str) -> str:
+    """热任务：用户在高低并发下调用的查询"""
+    # 1. 闪电拿库 (毫秒级)
+    index = get_readonly_index()
+    # 2. 查询
     query_engine = index.as_query_engine()
     response = query_engine.query(question)
     return f"{str(response)}\n\n[来源：系统私有知识库]"
