@@ -18,3 +18,12 @@ garbage/
 
 #忽略日志文件
 logs/
+
+#忽略数据库文件
+*.db
+*.sqlite
+*.mysql
+data/
+
+#忽略docker相关文件
+docker-compose.yml

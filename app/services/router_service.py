@@ -74,7 +74,9 @@ async def generate_chitchat(history: List[ChatMessage]) -> str:
 
     # 将 Redis 存下来的所有记忆循环导入大模型的上下文中！
     for msg in history:
-        messages.append({"role": msg.role, "content": msg.content})
+        # 只放合法的文字，如果为空直接跳过（智谱对空 content 极度敏感会报1214）
+        if msg.content.strip():
+            messages.append({"role": msg.role, "content": msg.content})
 
     try:
         response = await client.chat.completions.create(
@@ -84,4 +86,4 @@ async def generate_chitchat(history: List[ChatMessage]) -> str:
         )
         return response.choices[0].message.content
     except Exception as e:
-        return "不好意思，我刚才走神了，你能再说一遍吗？"
+        return f"不好意思，我刚才走神了，你能再说一遍吗？崩溃原因：{str(e)}"

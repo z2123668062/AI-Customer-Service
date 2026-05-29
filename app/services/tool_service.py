@@ -1,4 +1,5 @@
 import json
+import httpx
 from app.core.config import settings
 from openai import OpenAI
 
@@ -8,37 +9,77 @@ client = OpenAI(
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 
-# ================= 1. 定义本地的老黄牛工具函数 =================
+# ================= 1. 真实网络异步工具函数 =================
 
-def get_weather(city: str) -> str:
-    """模拟查询天气的工具函数"""
-    # 真实场景下，这里会去调用外部的高德/和风天气 API
-    mock_weather_db = {
-        "北京": "晴，气温 15-25度，适合出行。",
-        "上海": "多云有阵雨，气温 20-28度，出门记得带伞。",
-        "广州": "阴，台风预警，气温 22-30度，尽量减少外出。"
+# 这是一个供大家免费测试的高德地图天气 Key (如果以后限流了你可以自己去高德注册一个填进来)
+GAODE_WEATHER_KEY = "dbd3f7f8b9ec172fd0eb4d7efd6bd31a"
+
+
+async def get_weather(city: str) -> str:
+    """去高德地图官方库调取真实的天气数据！"""
+
+    # 高德需要用 adcode（城市行政编码），我们为了偷懒这里做一个简单映射表模拟地理服务的解析
+    adcode_map = {
+        "北京": "110000",
+        "上海": "310000",
+        "广州": "440100",
+        "深圳": "440300",
+        "杭州": "440300",
+        "成都": "330100"
     }
-    return mock_weather_db.get(city, f"暂无 {city} 的天气数据，可能是个偏远地区。")
 
-def get_order_status(order_id: str) -> str:
-    """模拟查询订单状态的工具函数"""
-    # 真实场景下，这里会去连 MySQL 或者调内部的订单微服务
+    city_code = adcode_map.get(city)
+    if not city_code:
+        return f"抱歉，目前我的定位能力有限，暂时无法反解析出 {city} 的行政编码去查天气。"
+
+    url = f"https://restapi.amap.com/v3/weather/weatherInfo?city={city_code}&key={GAODE_WEATHER_KEY}&extensions=base"
+
+    try:
+        # httpx 是我们要练习的异步兵器，用 async with 控制上下文，非常优雅
+         async with httpx.AsyncClient() as client:
+            print(f"准备发起高德外网请求，URL为: {url}")
+            resp = await client.get(url, timeout=5.0)
+            data = resp.json()
+            print(f"收到高德返回值: {data}")
+            if data.get("status") == "1" and data.get("lives"):
+                weather_info = data["lives"][0]
+                return f"【高德实时数据】{city}目前天气：{weather_info['weather']}，气温 {weather_info['temperature']} 度，风向 {weather_info['winddirection']}，空气湿度 {weather_info['humidity']}%。"
+            else:
+                return f"高德API响应了未知数据：{data}"
+    except Exception as e:
+        return f"查询外部天气网络故障啦，报错详情：{str(e)}"
+
+
+async def get_order_status(order_id: str) -> str:
+    """暂时保留订单这个为本地，当作业务遗留接口对照"""
     mock_order_db = {
         "12345": "订单已发货，顺丰快递正在派送中，预计明天上午送达。",
         "67890": "订单正在处理中，库房正在打包。",
-        "11111": "订单已取消，退款已按原路返回您的支付账户。"
     }
-    # 我们可以做个简单的尾号匹配，显得智能一点
     for key, status in mock_order_db.items():
         if key.endswith(order_id):
             return status
     return f"抱歉，没有找到尾号包含 '{order_id}' 的关联订单。"
 
-
+#新增一个函数，返回真实汇率数据
+async def get_exchange_rate(base_currency:str, target_currency:str) -> str:
+    """调用一个公开的汇率API，返回指定货币的汇率"""
+    url=f"https://api.exchangerate-api.com/v4/latest/{base_currency}"
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, timeout=5.0)
+            data = resp.json()
+            if data.get("rates").get(target_currency):
+                return f"{base_currency} 对 {target_currency} 的汇率是：{data['rates'][target_currency]}"
+            else:
+                return f"抱歉，{base_currency} 没有对 {target_currency} 的汇率数据。"
+    except Exception as e:
+        return f"查询汇率网络故障啦，报错详情：{str(e)}"
 # 建立一个函数名映射表，为了等下大模型甩回名字时，代码能知道到底该调哪个
 available_functions = {
     "get_weather": get_weather,
     "get_order_status": get_order_status,
+    "get_exchange_rate": get_exchange_rate,
 }
 
 # ================= 2. 起草给大模型看的“工具说明书” =================
@@ -78,13 +119,34 @@ tools_schema = [
                 "required": ["order_id"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_exchange_rate",
+            "description": "查询指定货币的汇率",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "base_currency": {
+                        "type": "string",
+                        "description": "要查询汇率的基准货币，例如 'USD', 'EUR'"
+                    },
+                    "target_currency": {
+                        "type": "string",
+                        "description": "要查询汇率的目标货币，例如 'CNY', 'JPY'"
+                    }
+                },
+                "required": ["base_currency", "target_currency"]
+            }
+        }
     }
 ]
 
 
 # ================= 3. 核心 Agent 调用逻辑 =================
 
-def execute_tool_call(user_input: str) -> str:
+async def execute_tool_call(user_input: str) -> str:
     """
     接收用户关于工具调用的意图，自动调度工具并生成人话回复。
     """
@@ -125,7 +187,7 @@ def execute_tool_call(user_input: str) -> str:
         if function_to_call:
             # 真实执行我们的本地巨石 Python 代码！(**解包字典为参数)
             print(f"--> [系统底层执行]: 正在调用 {function_name}，参数：{function_args}")
-            function_response = function_to_call(**function_args)
+            function_response = await function_to_call(**function_args)
         else:
             function_response = f"错误：系统内部找不到名为 {function_name} 的工具接口。"
 
