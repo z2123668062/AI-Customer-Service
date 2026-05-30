@@ -9,9 +9,17 @@ class ChatRecord(Base):
 
     # 主键自增
     id = Column(Integer, primary_key=True, index=True)
-    # 给 session_id 加索引 (index=True)，因为我们总要“按 session_id 查历史”
+    user_id = Column(Integer, index=True, nullable=True, comment="用户ID")
     session_id = Column(String(255), index=True, comment="会话标识")
     role = Column(String(50), comment="用户还是AI")
     content = Column(Text, comment="聊天内容")
     # 让数据库自动打上时间戳
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(255), unique=True, index=True, nullable=False, comment="用户名")
+    password_hash = Column(String(255), nullable=False, comment="密码哈希值")
+    phone = Column(String(20), nullable=True, index=True, comment="手机号")
     created_at = Column(DateTime(timezone=True), server_default=func.now())

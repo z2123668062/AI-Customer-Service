@@ -2,7 +2,7 @@ import logging
 from fastapi import Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi import FastAPI
-from app.api.v1.endpoints import chat,kb
+from app.api.v1.endpoints import chat, kb, auth, sessions
 from fastapi.responses import JSONResponse
 app=FastAPI(
     title="智路由AI客服系统",
@@ -28,6 +28,16 @@ app.include_router(
     kb.router,
     prefix="/api/v1/kb",
     tags=["知识库管理"]
+)
+app.include_router(
+    auth.router,
+    prefix="/api/v1/auth",
+    tags=["用户认证"]
+)
+app.include_router(
+    sessions.router,
+    prefix="/api/v1/sessions",
+    tags=["会话管理"]
 )
 
 

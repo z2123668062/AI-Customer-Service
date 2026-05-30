@@ -12,7 +12,7 @@ client = OpenAI(
 # ================= 1. 真实网络异步工具函数 =================
 
 # 这是一个供大家免费测试的高德地图天气 Key (如果以后限流了你可以自己去高德注册一个填进来)
-GAODE_WEATHER_KEY = "dbd3f7f8b9ec172fd0eb4d7efd6bd31a"
+GAODE_WEATHER_KEY = "dce5bfc828baadff21f9049e2f054916"
 
 
 async def get_weather(city: str) -> str:
@@ -24,8 +24,8 @@ async def get_weather(city: str) -> str:
         "上海": "310000",
         "广州": "440100",
         "深圳": "440300",
-        "杭州": "440300",
-        "成都": "330100"
+        "杭州": "330100",
+        "成都": "510100"
     }
 
     city_code = adcode_map.get(city)
@@ -36,7 +36,7 @@ async def get_weather(city: str) -> str:
 
     try:
         # httpx 是我们要练习的异步兵器，用 async with 控制上下文，非常优雅
-         async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
             print(f"准备发起高德外网请求，URL为: {url}")
             resp = await client.get(url, timeout=5.0)
             data = resp.json()
