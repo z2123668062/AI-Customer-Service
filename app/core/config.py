@@ -7,9 +7,17 @@ class Settings(BaseSettings):
     DEBUG_MODE: bool = True  # Pydantic会自动把 .env 里的 "True"/"1"/"true" 转成布尔值
 
     # ================= API 密钥 =================
-    # 后面的没有等号，说明这是“必填项”，如果在 .env 里没配，程序启动直接报错
+    # 后面的没有等号，说明这是"必填项"，如果在 .env 里没配，程序启动直接报错
     ZHIPU_API_KEY: str
     DATABASE_URL: str
+    JWT_SECRET_KEY: str
+    GAODE_WEATHER_KEY: str = ""
+    ADMIN_TOKEN: str
+
+    # ================= 中间件连接配置 =================
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
 
     # ================= 运行参数 =================
     # 给定了一个默认值，如果在 .env 里不写，就默认用 3 和 10.0

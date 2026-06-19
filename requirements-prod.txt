@@ -1,14 +1,3 @@
-# ================================
-# 依赖清单已拆分为：
-#   requirements-prod.txt  → 运行时依赖
-#   requirements-dev.txt   → 开发与测试依赖
-# ================================
-# 以下为合并版（供一键安装用）：
-#   pip install -r requirements.txt
-# 如只需生产依赖：
-#   pip install -r requirements-prod.txt
-# ================================
-
 fastapi==0.136.0
 uvicorn==0.45.0
 pydantic==2.13.3

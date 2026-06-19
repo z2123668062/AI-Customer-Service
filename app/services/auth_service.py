@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.models.domain import User
 from app.core.memory import redis_client
 
-JWT_SECRET_KEY = settings.ZHIPU_API_KEY[::-1]
+JWT_SECRET_KEY = settings.JWT_SECRET_KEY
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 24
 SMS_CODE_EXPIRE_SECONDS = 300

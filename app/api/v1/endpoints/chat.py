@@ -1,5 +1,5 @@
 from app.core.logging import logger
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Header
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Header, Request
 from app.models.schemas import ChatRequest, ChatResponse
 from app.core.memory import add_message, get_history_count
 from app.services.rag_service import query_knowledge
@@ -23,8 +23,9 @@ async def chat_endpoint(
     request: ChatRequest,
     background_tasks: BackgroundTasks,
     authorization: str = Header(default=None),
+    fastapi_request: Request = None,
 ):
-    trace_id = uuid.uuid4().hex
+    trace_id = fastapi_request.state.trace_id if fastapi_request else uuid.uuid4().hex
 
     user_id = None
     if authorization and authorization.startswith("Bearer "):
@@ -32,12 +33,15 @@ async def chat_endpoint(
         if payload:
             user_id = payload["user_id"]
 
+    if fastapi_request:
+        fastapi_request.state.session_id = request.session_id
+
     user_label = f"user={user_id}" if user_id else "anonymous"
     logger.info(f"[Trace: {trace_id}] 收到新会话请求: {user_label}, session={request.session_id}, msg={request.message}")
 
     lock_key = f"lock:order:{user_id or 'anon'}:{request.session_id}"
     lock = redis_client.lock(name=lock_key, timeout=5)
-    acquired = lock.acquire(blocking=False)
+    acquired = await lock.acquire(blocking=False)
     if not acquired:
         logger.warning(f"[Trace: {trace_id}] 会话 {request.session_id} 的请求过于频繁，已被锁定。")
         raise HTTPException(
@@ -46,10 +50,10 @@ async def chat_endpoint(
         )
 
     user_id_for_limit = user_id or 0
-    if not check_chat_limit(user_id_for_limit):
+    if not await check_chat_limit(user_id_for_limit):
         logger.warning(f"[Trace: {trace_id}] 用户 {user_label} 触发聊天限流。")
         try:
-            lock.release()
+            await lock.release()
         except Exception:
             pass
         raise HTTPException(
@@ -62,13 +66,13 @@ async def chat_endpoint(
         if not is_safe:
             reject_msg = await get_safety_rejection_message()
             try:
-                lock.release()
+                await lock.release()
             except Exception:
                 pass
             return ChatResponse(session_id=request.session_id, reply=reject_msg,
-                                history_count=get_history_count(request.session_id, user_id), trace_id=trace_id)
+                                history_count=await get_history_count(request.session_id, user_id), trace_id=trace_id)
 
-        add_message(request.session_id, role="user", content=request.message, user_id=user_id)
+        await add_message(request.session_id, role="user", content=request.message, user_id=user_id)
 
         router_result = await analyze_intent(request.message)
         logger.info(f"[Trace: {trace_id}] 语义路由结果: intent={router_result.intent}, keywords={router_result.keywords}")
@@ -80,8 +84,13 @@ async def chat_endpoint(
                 final_full_reply = ""
 
                 if router_result.intent == "chitchat":
-                    history_from_redis = get_history(request.session_id, user_id)
-                    reply_content = await generate_chitchat(history_from_redis)
+                    history_from_redis = await get_history(request.session_id, user_id)
+                    try:
+                        reply_content = await asyncio.wait_for(
+                            generate_chitchat(history_from_redis), timeout=15
+                        )
+                    except asyncio.TimeoutError:
+                        reply_content = "抱歉，我思考得有点久了，请再问一遍试试？"
 
                     for char in reply_content:
                         yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
@@ -90,18 +99,29 @@ async def chat_endpoint(
 
                 elif router_result.intent == "kb_qa":
                     try:
-                        reply_content = query_knowledge(request.message)
+                        reply_content = await asyncio.wait_for(
+                            query_knowledge(request.message), timeout=10
+                        )
                         for char in reply_content:
                             yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
                             final_full_reply += char
                             await asyncio.sleep(0.02)
+                    except asyncio.TimeoutError:
+                        error_msg = "抱歉，知识库查询超时了，请稍后再试。"
+                        yield f"data: {{\"event\": \"error\", \"content\": \"{error_msg}\"}}\n\n"
+                        final_full_reply = error_msg
                     except Exception as e:
                         error_msg = f"抱歉，知识库遇见故障：{str(e)}"
                         yield f"data: {{\"event\": \"error\", \"content\": \"{error_msg}\"}}\n\n"
                         final_full_reply = error_msg
 
                 elif router_result.intent == "tool":
-                    reply_content = await execute_tool_call(request.message)
+                    try:
+                        reply_content = await asyncio.wait_for(
+                            execute_tool_call(request.message), timeout=15
+                        )
+                    except asyncio.TimeoutError:
+                        reply_content = "抱歉，查询外部服务超时了，请稍后再试。"
                     for char in reply_content:
                         yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
                         final_full_reply += char
@@ -122,13 +142,13 @@ async def chat_endpoint(
 
                 yield f"data: {{\"event\": \"done\", \"content\": \"\"}}\n\n"
 
-                add_message(request.session_id, role="assistant", content=final_full_reply, user_id=user_id)
-                background_tasks.add_task(save_record_to_db, request.session_id, "user", request.message)
-                background_tasks.add_task(save_record_to_db, request.session_id, "assistant", final_full_reply)
+                await add_message(request.session_id, role="assistant", content=final_full_reply, user_id=user_id)
+                background_tasks.add_task(save_record_to_db, request.session_id, "user", request.message, user_id)
+                background_tasks.add_task(save_record_to_db, request.session_id, "assistant", final_full_reply, user_id)
 
             finally:
                 try:
-                    lock.release()
+                    await lock.release()
                 except Exception:
                     pass
 
@@ -136,7 +156,7 @@ async def chat_endpoint(
 
     except Exception:
         try:
-            lock.release()
+            await lock.release()
         except Exception:
             pass
         raise

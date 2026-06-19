@@ -15,6 +15,7 @@ __pycache__/
 
 #忽略个人测试文件
 garbage/
+exercises/
 
 #忽略日志文件
 logs/

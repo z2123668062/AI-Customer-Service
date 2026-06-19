@@ -4,7 +4,7 @@ from app.models.domain import ChatRecord
 from app.core.logging import logger
 
 
-async def save_record_to_db(session_id: str, role: str, content: str):
+async def save_record_to_db(session_id: str, role: str, content: str, user_id: int = None):
     """甩手掌柜任务：把一条聊天记录存入 MySQL 归档"""
     try:
         # async with 会自动帮我们开启会话，并且在结束时安全关闭（归还连接池）
@@ -13,7 +13,8 @@ async def save_record_to_db(session_id: str, role: str, content: str):
             new_record = ChatRecord(
                 session_id=session_id,
                 role=role,
-                content=content
+                content=content,
+                user_id=user_id
             )
             # 2. 扔进会话
             db.add(new_record)

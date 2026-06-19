@@ -1,18 +1,18 @@
 import json
 import httpx
 from app.core.config import settings
-from openai import OpenAI
+from openai import AsyncOpenAI
+
 
 # 初始化我们用来做工具调用的客户端
-client = OpenAI(
+client = AsyncOpenAI(
     api_key=settings.ZHIPU_API_KEY,
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 
 # ================= 1. 真实网络异步工具函数 =================
 
-# 这是一个供大家免费测试的高德地图天气 Key (如果以后限流了你可以自己去高德注册一个填进来)
-GAODE_WEATHER_KEY = "dce5bfc828baadff21f9049e2f054916"
+GAODE_WEATHER_KEY = settings.GAODE_WEATHER_KEY
 
 
 async def get_weather(city: str) -> str:
@@ -157,7 +157,7 @@ async def execute_tool_call(user_input: str) -> str:
     ]
 
     # 注意这里的 tools=tools_schema，这是告诉大模型：你拥有这些超能力！
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model="glm-4-flash",
         messages=messages,
         tools=tools_schema
@@ -202,7 +202,7 @@ async def execute_tool_call(user_input: str) -> str:
         )
 
     # 第二回合：拿着刚刚执行完的客观数据，再找大模型做最后的“话术包装”
-    second_response = client.chat.completions.create(
+    second_response = await client.chat.completions.create(
         model="glm-4-flash",
         messages=messages,
     )

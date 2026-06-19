@@ -1,5 +1,8 @@
 import os
 import qdrant_client
+import asyncio
+
+
 
 # 【重点新增】：给那些在网络墙内的同学，设置国内的 HuggingFace 镜像站，保证光速下载本地模型
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
@@ -134,7 +137,7 @@ def get_readonly_index():
     return index
 
 
-def query_knowledge(question: str) -> str:
+async def query_knowledge(question: str) -> str:
     """热任务：用户在高低并发下调用的查询"""
     # 1. 闪电拿库 (毫秒级)
     index = get_readonly_index()
@@ -147,5 +150,5 @@ def query_knowledge(question: str) -> str:
         node_postprocessors=[RERANKER_MODEL]
     )
     # 3. 开始执行流水线：10进 -> 重排计分 -> 取2 -> 给大模型组织人话
-    response = query_engine.query(question)
+    response = await asyncio.to_thread(query_engine.query, question)
     return f"{str(response)}\n\n[来源：系统经过精准重排提取]"

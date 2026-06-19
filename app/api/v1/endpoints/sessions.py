@@ -21,9 +21,9 @@ def _get_user_id(authorization: str = Header(...)) -> int:
 
 @router.post("/", response_model=SessionResponse)
 async def create_session(req: SessionCreateRequest, user_id: int = Depends(_get_user_id)):
-    if not check_session_limit(user_id):
+    if not await check_session_limit(user_id):
         raise HTTPException(status_code=429, detail="创建会话太频繁了，请稍后再试。")
-    session = session_service.create_session(user_id, req.title or "新对话")
+    session = await session_service.create_session(user_id, req.title or "新对话")
     return SessionResponse(
         session_id=session["session_id"],
         title=session["title"],
@@ -33,7 +33,7 @@ async def create_session(req: SessionCreateRequest, user_id: int = Depends(_get_
 
 @router.get("/", response_model=list[SessionResponse])
 async def list_sessions(user_id: int = Depends(_get_user_id)):
-    sessions = session_service.list_sessions(user_id)
+    sessions = await session_service.list_sessions(user_id)
     return [SessionResponse(
         session_id=s["session_id"],
         title=s.get("title", "新对话"),
@@ -43,7 +43,7 @@ async def list_sessions(user_id: int = Depends(_get_user_id)):
 
 @router.patch("/{session_id}")
 async def update_session(session_id: str, req: SessionUpdateRequest, user_id: int = Depends(_get_user_id)):
-    ok = session_service.update_session_title(user_id, session_id, req.title)
+    ok = await session_service.update_session_title(user_id, session_id, req.title)
     if not ok:
         raise HTTPException(status_code=404, detail="会话不存在")
     return {"message": "更新成功"}
@@ -51,5 +51,5 @@ async def update_session(session_id: str, req: SessionUpdateRequest, user_id: in
 
 @router.delete("/{session_id}")
 async def delete_session(session_id: str, user_id: int = Depends(_get_user_id)):
-    session_service.delete_session(user_id, session_id)
+    await session_service.delete_session(user_id, session_id)
     return {"message": "删除成功"}
