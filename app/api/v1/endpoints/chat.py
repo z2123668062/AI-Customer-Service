@@ -7,6 +7,7 @@ from app.services.tool_service import execute_tool_call
 from app.services.safety_service import check_input_safety, get_safety_rejection_message
 import uuid
 from app.services.router_service import analyze_intent, generate_chitchat
+from app.services.clarification_service import generate_clarification, CLARIFICATION_CONFIDENCE_THRESHOLD
 from app.core.memory import get_history, redis_client
 from app.services.history_service import save_record_to_db
 from app.services.auth_service import decode_token
@@ -75,7 +76,29 @@ async def chat_endpoint(
         await add_message(request.session_id, role="user", content=request.message, user_id=user_id)
 
         router_result = await analyze_intent(request.message)
-        logger.info(f"[Trace: {trace_id}] 语义路由结果: intent={router_result.intent}, keywords={router_result.keywords}")
+        logger.info(f"[Trace: {trace_id}] 语义路由结果: intent={router_result.intent}, keywords={router_result.keywords}, confidence={router_result.confidence}")
+
+        if router_result.confidence < CLARIFICATION_CONFIDENCE_THRESHOLD:
+            logger.info(f"[Trace: {trace_id}] 置信度过低({router_result.confidence})，进入意图澄清流程")
+
+            async def clarification_stream():
+                try:
+                    yield f"data: {{\"event\": \"status\", \"content\": \"正在确认您的意图...\"}}\n\n"
+                    clarification = await generate_clarification(request.message, router_result)
+                    for char in clarification:
+                        yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
+                        await asyncio.sleep(0.01)
+                    yield f"data: {{\"event\": \"done\", \"content\": \"\"}}\n\n"
+
+                    await add_message(request.session_id, role="assistant", content=clarification, user_id=user_id)
+                    background_tasks.add_task(save_record_to_db, request.session_id, "assistant", clarification, user_id)
+                finally:
+                    try:
+                        await lock.release()
+                    except Exception:
+                        pass
+
+            return StreamingResponse(clarification_stream(), media_type="text/event-stream")
 
         async def stream_generator():
             try:

@@ -85,3 +85,9 @@ class RouterResult(BaseModel):
         default_factory=list,
         description="从用户提问中提取的关键信息，用于后续的知识库检索或工具调用"
     )
+    confidence: float = Field(
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+        description="置信度分数，0-1之间，表示路由判断的确定程度"
+    )

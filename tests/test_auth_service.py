@@ -8,7 +8,10 @@ from app.models.domain import User
 async def test_register_user_success():
     """测试注册新用户——数据库返回 None（用户名不存在），应成功创建用户"""
     with patch("app.services.auth_service.AsyncSessionLocal") as mock_session_factory:
-        mock_session = AsyncMock()
+        mock_session = MagicMock()
+        mock_session.execute = AsyncMock()
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session_factory.return_value.__aenter__.return_value = mock_session
 
         # 用 MagicMock 而非 AsyncMock——scalar_one_or_none 是同步方法
@@ -27,7 +30,10 @@ async def test_register_user_success():
 async def test_register_user_duplicate():
     """测试注册已存在的用户名——应抛出 ValueError"""
     with patch("app.services.auth_service.AsyncSessionLocal") as mock_session_factory:
-        mock_session = AsyncMock()
+        mock_session = MagicMock()
+        mock_session.execute = AsyncMock()
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session_factory.return_value.__aenter__.return_value = mock_session
 
         # 模拟已存在的用户
@@ -44,7 +50,8 @@ async def test_register_user_duplicate():
 async def test_login_user_success():
     """测试登录——正确的用户名和密码应返回用户"""
     with patch("app.services.auth_service.AsyncSessionLocal") as mock_session_factory:
-        mock_session = AsyncMock()
+        mock_session = MagicMock()
+        mock_session.execute = AsyncMock()
         mock_session_factory.return_value.__aenter__.return_value = mock_session
 
         password_hash = auth_service.hash_password("correct_password")
@@ -62,7 +69,8 @@ async def test_login_user_success():
 async def test_login_user_wrong_password():
     """测试登录——错误密码应抛出 ValueError"""
     with patch("app.services.auth_service.AsyncSessionLocal") as mock_session_factory:
-        mock_session = AsyncMock()
+        mock_session = MagicMock()
+        mock_session.execute = AsyncMock()
         mock_session_factory.return_value.__aenter__.return_value = mock_session
 
         password_hash = auth_service.hash_password("correct_password")

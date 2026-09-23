@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     API_TIMEOUT: float = 10.0
     DB_CONNECT_RETRIES: int
 
+    # ================= 语义路由 =================
+    CLARIFICATION_CONFIDENCE_THRESHOLD: float = 0.6
+
     # 获取当前 config.py 文件所在的文件夹的上一级（即 app 文件夹）的上一级（即根目录 E:\AI_Agent）
     # 这样无论你在哪里运行任何测试脚本，系统都能精确定位到根目录的 .env
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

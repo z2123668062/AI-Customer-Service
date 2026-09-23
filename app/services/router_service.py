@@ -1,4 +1,6 @@
+from app.core.logging import logger
 import json
+import re
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 from app.models.schemas import RouterResult
@@ -12,15 +14,27 @@ client = AsyncOpenAI(
 )
 
 
+INTENT_RULES = [
+    (r"汇率|币种|兑换|汇率查询|货币转换", "tool", ["汇率"]),
+    (r"天气|温度|下雨|晴天|台风|气温|下雨吗", "tool", ["天气"]),
+    (r"查订单|订单号|物流|快递|尾号\d+|包裹", "tool", ["订单"]),
+    (r"报销|请假|考勤|出差|制度|规定|流程|怎么申请|怎么办", "kb_qa", ["制度咨询"]),
+    (r"投诉|举报|投诉电话|经理|转人工|客服电话|投诉你", "complaint", ["投诉"]),
+    (r"^(你好|您好|嗨|hi|hello|hey|早|晚上好|下午好|在吗|在不在)$", "chitchat", ["打招呼"]),
+]
+
+
 async def analyze_intent(user_input: str) -> RouterResult:
-    """
-    语义路由器：根据用户的输入，分析意图提取关键字
-    """
+    # 前置正则规则匹配：高频确定性意图直接返回，不走 LLM
+    for pattern, intent, keywords in INTENT_RULES:
+        if re.search(pattern, user_input, re.IGNORECASE):
+            logger.warning(f"前置规则匹配到意图：{intent}，关键词：{keywords}，命中的规则：{pattern}")
+            return RouterResult(intent=intent, keywords=keywords, confidence=1.0)
 
     system_prompt = """
     你是一个极其严格的网络请求路由器。你必须阅读用户的输入，并输出符合下面 JSON 结构的分析结果。
 
-    你的 JSON 必须严格包含 "intent" 和 "keywords" 两个字段。
+    你的 JSON 必须严格包含 "intent"、"keywords" 和 "confidence" 三个字段。
     
     "intent" 字段的取值规范极其严格，只能是以下四种的其中之一：
     - "tool": 当用户的话语中出现【查天气、看订单、退款进度、发邮件、创建日程、查汇率、货币兑换】等需要你系统去执行查询和操作动作时。
@@ -28,20 +42,28 @@ async def analyze_intent(user_input: str) -> RouterResult:
     - "complaint": 当用户的表达中充满【愤怒、指责、投诉意图】，或者明确要求【见真人、转人工、经理出来】时。
     - "chitchat": 当用户进行与具体业务毫无关联的【打招呼】，情感平淡且不符合上述几条时。
 
+    "confidence" 字段是一个 0 到 1 之间的浮点数，表示你对该意图判断的确定程度：
+    - 1.0: 完全确定，用户意图极其明确
+    - 0.8-0.9: 比较确定，有足够的线索支撑判断
+    - 0.6-0.7: 基本确定，但存在一些模糊空间
+    - 0.4-0.5: 不太确定，用户表述模糊或可能有多个意图
+    - 0.0-0.3: 几乎无法判断，用户输入信息不足
+
     【示例】
     用户：你好客服，帮忙查个急件订单，尾号是 67890 那个到哪儿了
-    输出：{"intent": "tool", "keywords": ["67890", "急件", "查订单"]}
+    输出：{"intent": "tool", "keywords": ["67890", "急件", "查订单"], "confidence": 1.0}
     用户：美元兑人民币汇率多少
-    输出：{"intent": "tool", "keywords": ["美元", "人民币", "汇率"]}
+    输出：{"intent": "tool", "keywords": ["美元", "人民币", "汇率"], "confidence": 0.9}
     用户：你们这什么破公司，这么久还不发货！叫你们经理出来！
-    输出：{"intent": "complaint", "keywords": ["不发货", "转人工", "投诉"]}
+    输出：{"intent": "complaint", "keywords": ["不发货", "转人工", "投诉"], "confidence": 0.95}
     用户：你们公司出差怎么报销？
-    输出：{"intent": "kb_qa", "keywords": ["出差", "报销"]}
+    输出：{"intent": "kb_qa", "keywords": ["出差", "报销"], "confidence": 0.8}
+    用户：那个东西怎么弄啊
+    输出：{"intent": "kb_qa", "keywords": ["咨询"], "confidence": 0.4}
 
     请严格只返回合格的 JSON，不能有任何说明！
     """
 
-    # 加上类型声明消除 IDE 警告
     messages: list[ChatCompletionMessageParam] = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"用户输入内容如下:\n{user_input}"}
