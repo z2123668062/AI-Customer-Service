@@ -2,6 +2,16 @@ import json
 import httpx
 from app.core.config import settings
 from openai import AsyncOpenAI
+from app.core.memory import redis_client
+
+
+TOOL_CACHE_TTL_SECONDS = 300
+
+
+def _cache_key(function_name: str, args: dict) -> str:
+    sorted_args = sorted(args.items())
+    params_str = json.dumps(sorted_args, ensure_ascii=False, separators=(",", ":"))
+    return f"tool_cache:{function_name}:{params_str}"
 
 
 # 初始化我们用来做工具调用的客户端
@@ -15,7 +25,7 @@ client = AsyncOpenAI(
 GAODE_WEATHER_KEY = settings.GAODE_WEATHER_KEY
 
 
-async def get_weather(city: str) -> str:
+async def _get_weather_impl(city: str) -> str:
     """去高德地图官方库调取真实的天气数据！"""
 
     # 高德需要用 adcode（城市行政编码），我们为了偷懒这里做一个简单映射表模拟地理服务的解析
@@ -50,7 +60,7 @@ async def get_weather(city: str) -> str:
         return f"查询外部天气网络故障啦，报错详情：{str(e)}"
 
 
-async def get_order_status(order_id: str) -> str:
+async def _get_order_status_impl(order_id: str) -> str:
     """暂时保留订单这个为本地，当作业务遗留接口对照"""
     mock_order_db = {
         "12345": "订单已发货，顺丰快递正在派送中，预计明天上午送达。",
@@ -62,7 +72,7 @@ async def get_order_status(order_id: str) -> str:
     return f"抱歉，没有找到尾号包含 '{order_id}' 的关联订单。"
 
 #新增一个函数，返回真实汇率数据
-async def get_exchange_rate(base_currency:str, target_currency:str) -> str:
+async def _get_exchange_rate_impl(base_currency:str, target_currency:str) -> str:
     """调用一个公开的汇率API，返回指定货币的汇率"""
     url=f"https://api.exchangerate-api.com/v4/latest/{base_currency}"
     try:
@@ -75,6 +85,40 @@ async def get_exchange_rate(base_currency:str, target_currency:str) -> str:
                 return f"抱歉，{base_currency} 没有对 {target_currency} 的汇率数据。"
     except Exception as e:
         return f"查询汇率网络故障啦，报错详情：{str(e)}"
+# 带 Redis 结果缓存的封装层：命中直接返回，未命中才真实执行工具
+async def get_weather(city: str) -> str:
+    cache_key = _cache_key("get_weather", {"city": city})
+    cached = await redis_client.get(cache_key)
+    if cached is not None:
+        return cached
+    result = await _get_weather_impl(city)
+    if "目前天气" in result:
+        await redis_client.setex(cache_key, TOOL_CACHE_TTL_SECONDS, result)
+    return result
+
+
+async def get_order_status(order_id: str) -> str:
+    cache_key = _cache_key("get_order_status", {"order_id": order_id})
+    cached = await redis_client.get(cache_key)
+    if cached is not None:
+        return cached
+    result = await _get_order_status_impl(order_id)
+    if "没有找到" not in result:
+        await redis_client.setex(cache_key, TOOL_CACHE_TTL_SECONDS, result)
+    return result
+
+
+async def get_exchange_rate(base_currency: str, target_currency: str) -> str:
+    cache_key = _cache_key("get_exchange_rate", {"base_currency": base_currency, "target_currency": target_currency})
+    cached = await redis_client.get(cache_key)
+    if cached is not None:
+        return cached
+    result = await _get_exchange_rate_impl(base_currency, target_currency)
+    if "汇率是" in result:
+        await redis_client.setex(cache_key, TOOL_CACHE_TTL_SECONDS, result)
+    return result
+
+
 # 建立一个函数名映射表，为了等下大模型甩回名字时，代码能知道到底该调哪个
 available_functions = {
     "get_weather": get_weather,
