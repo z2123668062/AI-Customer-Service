@@ -1,185 +1,63 @@
-from app.core.logging import logger
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Header, Request
-from app.models.schemas import ChatRequest, ChatResponse
-from app.core.memory import add_message, get_history_count
-from app.services.rag_service import query_knowledge
-from app.services.tool_service import execute_tool_call
-from app.services.safety_service import check_input_safety, get_safety_rejection_message
-import uuid
-from app.services.router_service import analyze_intent, generate_chitchat
-from app.services.clarification_service import generate_clarification, CLARIFICATION_CONFIDENCE_THRESHOLD
-from app.core.memory import get_history, redis_client
-from app.services.history_service import save_record_to_db
-from app.services.auth_service import decode_token
-from app.services.ratelimit_service import check_chat_limit
-from fastapi.responses import StreamingResponse
+"""HTTP/SSE 适配层：只负责请求解析、SSE 流式包装与日志。
+
+编排逻辑（锁/显式识别/记忆读取/组装包/生成/归档/写路径/埋点）全部在
+app/services/chat_pipeline.py。
+
+事件序列（E12 定稿）：status（思考中）→ [meta（"本轮记忆"可视化，可选）]
+→ message×N（逐字符）→ done。meta 的 content 为对象（非字符串）。
+"""
 import asyncio
+import json
+import uuid
+
+from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse
+
+from app.core.logging import logger
+from app.models.schemas import ChatRequest
+from app.services import chat_pipeline
 
 router = APIRouter()
 
+# 单轮总超时（含记忆读取 + LLM 生成 + 归档）
+TURN_TIMEOUT = 30.0
 
-# @router.post 就是告诉 FastAPI：这是一个接收数据（Post）的接口
+
+def _sse(event: str, content="") -> str:
+    """构造一条 SSE 事件（JSON 序列化，天然转义引号与换行；content 可为对象）。"""
+    return f"data: {json.dumps({'event': event, 'content': content}, ensure_ascii=False)}\n\n"
+
+
 @router.post("/")
-async def chat_endpoint(
-    request: ChatRequest,
-    background_tasks: BackgroundTasks,
-    authorization: str = Header(default=None),
-    fastapi_request: Request = None,
-):
-    trace_id = fastapi_request.state.trace_id if fastapi_request else uuid.uuid4().hex
+async def chat_endpoint(request: ChatRequest, fastapi_request: Request = None):
+    trace_id = getattr(fastapi_request.state, "trace_id", uuid.uuid4().hex) if fastapi_request else uuid.uuid4().hex
+    logger.info(f"[Trace: {trace_id}] 收到消息: session={request.session_id}, msg={request.message}")
 
-    user_id = None
-    if authorization and authorization.startswith("Bearer "):
-        payload = decode_token(authorization[7:])
-        if payload:
-            user_id = payload["user_id"]
-
-    if fastapi_request:
-        fastapi_request.state.session_id = request.session_id
-
-    user_label = f"user={user_id}" if user_id else "anonymous"
-    logger.info(f"[Trace: {trace_id}] 收到新会话请求: {user_label}, session={request.session_id}, msg={request.message}")
-
-    lock_key = f"lock:order:{user_id or 'anon'}:{request.session_id}"
-    lock = redis_client.lock(name=lock_key, timeout=5)
-    acquired = await lock.acquire(blocking=False)
-    if not acquired:
-        logger.warning(f"[Trace: {trace_id}] 会话 {request.session_id} 的请求过于频繁，已被锁定。")
-        raise HTTPException(
-            status_code=409,
-            detail="系统正在处理您的上一条消息，请不要频繁点击哦~"
-        )
-
-    user_id_for_limit = user_id or 0
-    if not await check_chat_limit(user_id_for_limit):
-        logger.warning(f"[Trace: {trace_id}] 用户 {user_label} 触发聊天限流。")
+    async def stream_generator():
+        yield _sse("status", "正在思考...")
+        memory_meta = None
         try:
-            await lock.release()
-        except Exception:
-            pass
-        raise HTTPException(
-            status_code=429,
-            detail="请求太频繁了，请稍后再试。"
-        )
+            outcome = await asyncio.wait_for(
+                chat_pipeline.handle_message(request.session_id, request.message, trace_id=trace_id),
+                timeout=TURN_TIMEOUT,
+            )
+            reply = outcome.reply
+            memory_meta = outcome.memory_meta
+        except asyncio.TimeoutError:
+            logger.warning(f"[Trace: {trace_id}] 生成超时")
+            reply = "抱歉，我思考得有点久了，请再说一遍试试？"
+        except Exception as e:
+            logger.error(f"[Trace: {trace_id}] 处理失败: {e}")
+            reply = "抱歉，我这边出了点故障，请稍后再试。"
 
-    try:
-        is_safe = await check_input_safety(request.message)
-        if not is_safe:
-            reject_msg = await get_safety_rejection_message()
-            try:
-                await lock.release()
-            except Exception:
-                pass
-            return ChatResponse(session_id=request.session_id, reply=reject_msg,
-                                history_count=await get_history_count(request.session_id, user_id), trace_id=trace_id)
+        # meta 先于正文下发（前端据此渲染"本轮记忆"条；异常路径无 meta）
+        if memory_meta:
+            yield _sse("meta", memory_meta)
 
-        await add_message(request.session_id, role="user", content=request.message, user_id=user_id)
+        # 逐字符推送（保留原系统的打字机视觉效果）
+        for char in reply:
+            yield _sse("message", char)
+            await asyncio.sleep(0.01)
+        yield _sse("done")
 
-        router_result = await analyze_intent(request.message)
-        logger.info(f"[Trace: {trace_id}] 语义路由结果: intent={router_result.intent}, keywords={router_result.keywords}, confidence={router_result.confidence}")
-
-        if router_result.confidence < CLARIFICATION_CONFIDENCE_THRESHOLD:
-            logger.info(f"[Trace: {trace_id}] 置信度过低({router_result.confidence})，进入意图澄清流程")
-
-            async def clarification_stream():
-                try:
-                    yield f"data: {{\"event\": \"status\", \"content\": \"正在确认您的意图...\"}}\n\n"
-                    clarification = await generate_clarification(request.message, router_result)
-                    for char in clarification:
-                        yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
-                        await asyncio.sleep(0.01)
-                    yield f"data: {{\"event\": \"done\", \"content\": \"\"}}\n\n"
-
-                    await add_message(request.session_id, role="assistant", content=clarification, user_id=user_id)
-                    background_tasks.add_task(save_record_to_db, request.session_id, "assistant", clarification, user_id)
-                finally:
-                    try:
-                        await lock.release()
-                    except Exception:
-                        pass
-
-            return StreamingResponse(clarification_stream(), media_type="text/event-stream")
-
-        async def stream_generator():
-            try:
-                yield f"data: {{\"event\": \"status\", \"content\": \"正在处理您的[{router_result.intent}]请求...\"}}\n\n"
-
-                final_full_reply = ""
-
-                if router_result.intent == "chitchat":
-                    history_from_redis = await get_history(request.session_id, user_id)
-                    try:
-                        reply_content = await asyncio.wait_for(
-                            generate_chitchat(history_from_redis), timeout=15
-                        )
-                    except asyncio.TimeoutError:
-                        reply_content = "抱歉，我思考得有点久了，请再问一遍试试？"
-
-                    for char in reply_content:
-                        yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
-                        final_full_reply += char
-                        await asyncio.sleep(0.01)
-
-                elif router_result.intent == "kb_qa":
-                    try:
-                        reply_content = await asyncio.wait_for(
-                            query_knowledge(request.message), timeout=10
-                        )
-                        for char in reply_content:
-                            yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
-                            final_full_reply += char
-                            await asyncio.sleep(0.02)
-                    except asyncio.TimeoutError:
-                        error_msg = "抱歉，知识库查询超时了，请稍后再试。"
-                        yield f"data: {{\"event\": \"error\", \"content\": \"{error_msg}\"}}\n\n"
-                        final_full_reply = error_msg
-                    except Exception as e:
-                        error_msg = f"抱歉，知识库遇见故障：{str(e)}"
-                        yield f"data: {{\"event\": \"error\", \"content\": \"{error_msg}\"}}\n\n"
-                        final_full_reply = error_msg
-
-                elif router_result.intent == "tool":
-                    try:
-                        reply_content = await asyncio.wait_for(
-                            execute_tool_call(request.message), timeout=15
-                        )
-                    except asyncio.TimeoutError:
-                        reply_content = "抱歉，查询外部服务超时了，请稍后再试。"
-                    for char in reply_content:
-                        yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
-                        final_full_reply += char
-                        await asyncio.sleep(0.01)
-
-                elif router_result.intent == "complaint":
-                    reply_text = "十分抱歉给您带来不便！我已经记录了您的问题并请求转接人工客服，请您稍作等待..."
-                    for char in reply_text:
-                        yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
-                        final_full_reply += char
-                        await asyncio.sleep(0.05)
-                else:
-                    fallback_msg = "我不太明白你的意思。"
-                    for char in fallback_msg:
-                        yield f"data: {{\"event\": \"message\", \"content\": \"{char}\"}}\n\n"
-                        final_full_reply += char
-                        await asyncio.sleep(0.01)
-
-                yield f"data: {{\"event\": \"done\", \"content\": \"\"}}\n\n"
-
-                await add_message(request.session_id, role="assistant", content=final_full_reply, user_id=user_id)
-                background_tasks.add_task(save_record_to_db, request.session_id, "user", request.message, user_id)
-                background_tasks.add_task(save_record_to_db, request.session_id, "assistant", final_full_reply, user_id)
-
-            finally:
-                try:
-                    await lock.release()
-                except Exception:
-                    pass
-
-        return StreamingResponse(stream_generator(), media_type="text/event-stream")
-
-    except Exception:
-        try:
-            await lock.release()
-        except Exception:
-            pass
-        raise
+    return StreamingResponse(stream_generator(), media_type="text/event-stream")

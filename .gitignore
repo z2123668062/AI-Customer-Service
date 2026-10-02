@@ -26,5 +26,8 @@ logs/
 *.mysql
 data/
 
+#忽略 QA 运行产物（跑一次生成一次，正式结论以 qa_v1/ANALYSIS.md 为准）
+qa_v1/records/
+
 #忽略docker相关文件
 docker-compose.yml

@@ -1,25 +1,25 @@
 # app/services/history_service.py
+"""消息归档：把一轮对话明文永久写入 messages 表。
+
+"原文永久保留"是硬规定：记忆的摘要压缩（换出）是有损的，原文才是真相（系统设计 §5 硬规定）。
+失败只记日志，不影响回复（E12：返回新消息 id 供显式通道暂存——失败返回 None）。
+"""
 from app.core.database import AsyncSessionLocal
-from app.models.domain import ChatRecord
 from app.core.logging import logger
+from app.models.domain import Message
 
 
-async def save_record_to_db(session_id: str, role: str, content: str, user_id: int = None):
-    """甩手掌柜任务：把一条聊天记录存入 MySQL 归档"""
+async def save_record_to_db(session_id: str, role: str, content: str) -> int | None:
+    """把一条聊天记录写入 messages 归档表，返回自增 id（失败 None——调用方降级处理）。"""
     try:
-        # async with 会自动帮我们开启会话，并且在结束时安全关闭（归还连接池）
+        # async with 自动开启会话并在结束时安全归还连接池
         async with AsyncSessionLocal() as db:
-            # 1. 实例化我们的 ORM 模型
-            new_record = ChatRecord(
-                session_id=session_id,
-                role=role,
-                content=content,
-                user_id=user_id
-            )
-            # 2. 扔进会话
-            db.add(new_record)
-            # 3. 提交事务，真正执行 INSERT SQL 语句
+            message = Message(session_id=session_id, role=role, content=content)
+            db.add(message)
+            await db.flush()          # 拿到自增 id（commit 前）
+            message_id = message.id
             await db.commit()
-
+            return message_id
     except Exception as e:
-        logger.error(f"存入 MySQL 归档失败! 会话:{session_id}, 错误:{e}")
+        logger.error(f"存入归档失败! 会话:{session_id}, 错误:{e}")
+        return None

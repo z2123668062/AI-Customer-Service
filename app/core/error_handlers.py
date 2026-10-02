@@ -18,12 +18,8 @@ _STATUS_CODE_MAP = {
 def _module_from_path(path: str) -> str:
     if "/chat" in path:
         return "chat_endpoint"
-    if "/auth" in path:
-        return "auth_endpoint"
-    if "/kb" in path:
-        return "kb_endpoint"
-    if "/sessions" in path:
-        return "session_endpoint"
+    if "/memory" in path:
+        return "memory_endpoint"
     return "system"
 
 

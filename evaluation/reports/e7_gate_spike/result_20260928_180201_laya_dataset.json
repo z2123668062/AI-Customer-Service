@@ -1,0 +1,1366 @@
+{
+  "meta": {
+    "backend": "laya(PyPI 0.3.21, multilingual checkpoint, torch CPU)",
+    "hf_endpoint": "https://hf-mirror.com",
+    "mapping_rules": {
+      "noul": "prob>= 0.5 -> yes",
+      "choice": "take choice field",
+      "score": "argmax(probabilities) -> low/mid/high"
+    },
+    "dataset": "evaluation\\spikes\\e7_gate\\dataset.jsonl",
+    "dataset_sha256_12": "f97da05330f1",
+    "n_samples": 46,
+    "repeat": 1,
+    "warmup_ms": 21590.2,
+    "run_at": "20260928_180201",
+    "retry": 0,
+    "task_specs": {
+      "page_fault": {
+        "type": "noul",
+        "instructions": "用户当前消息是否需要调取该用户的长期历史记忆（过往对话中保存的关于本人的信息、经历、偏好、状态、约定）才能正确回应？引用了过去发生的事、用户说过的话，或需要用户的个人信息才能回答 → 需要记忆（高概率）；寒暄闲聊、通用知识问答、当场可完成的生成/翻译/计算任务、仅『可以更个性化』但当场就能正确回应的 → 不需要记忆（低概率）。",
+        "criteria": null
+      },
+      "supersede": {
+        "type": "choice",
+        "instructions": "新出现的信息与已有旧记忆卡片属于哪种关系？",
+        "criteria": {
+          "unrelated": "主题不同，互不影响",
+          "coexist": "补充或新增，两者可同时成立（含：主题相邻但属性不同、意向或计划尚未落实、同一对象的新事件）",
+          "supersede": "新信息改写了旧卡片的同一属性，使旧内容过期失效"
+        }
+      },
+      "backfill": {
+        "type": "noul",
+        "instructions": "事件 A 与事件 B 之间是否存在明确、可定向的因果关系（能具体写成一句『因为……所以……』）？只有时间相邻、主题相似但无法给出明确因果解释，或因果方向无法确定的 → 不存在因果关系（低概率）。",
+        "criteria": null
+      },
+      "shortlist": {
+        "type": "score",
+        "instructions": "候选记忆卡片与用户当前问题的相关程度属于哪一档？",
+        "criteria": [
+          "不相关：对回答无帮助，甚至存在误导（如已被取代的旧状态、主题相邻但意图无关）",
+          "部分相关：有助于裁剪或补充回答（背景、偏好倾向），但不是回答所必需",
+          "高度相关：直接决定或直接构成回答的关键内容（关键事实、直接素材、关键约束）"
+        ]
+      }
+    }
+  },
+  "stats": {
+    "page_fault": {
+      "label": "缺页判定（是否需要回源）",
+      "n": 16,
+      "valid_n": 16,
+      "accuracy": 0.5,
+      "effective_accuracy": 0.5,
+      "parse_success_rate": 1.0,
+      "failsafe_rate": 0.0,
+      "latency_p50_ms": 1087.8,
+      "latency_p95_ms": 1479.7,
+      "avg_answer_confidence": 0.9095,
+      "avg_input_tokens": 143.3125,
+      "by_difficulty": {
+        "v1": {
+          "n": 16,
+          "accuracy": 0.5
+        }
+      },
+      "dangerous_miss": 0,
+      "safe_extra": 8
+    },
+    "supersede": {
+      "label": "取代判定（无关/并存/取代）",
+      "n": 15,
+      "valid_n": 15,
+      "accuracy": 0.3333,
+      "effective_accuracy": 0.3333,
+      "parse_success_rate": 1.0,
+      "failsafe_rate": 0.0,
+      "latency_p50_ms": 738.1,
+      "latency_p95_ms": 952.1,
+      "avg_answer_confidence": 0.6976,
+      "avg_input_tokens": 111.8,
+      "by_difficulty": {
+        "v1": {
+          "n": 15,
+          "accuracy": 0.3333
+        }
+      },
+      "confusion": {
+        "supersede→coexist": 5,
+        "coexist→unrelated": 1,
+        "unrelated→coexist": 4
+      },
+      "missed_supersede": 5,
+      "wrong_supersede": 0
+    },
+    "backfill": {
+      "label": "回填判定（是否存在因果）",
+      "n": 15,
+      "valid_n": 15,
+      "accuracy": 0.6667,
+      "effective_accuracy": 0.6667,
+      "parse_success_rate": 1.0,
+      "failsafe_rate": 0.0,
+      "latency_p50_ms": 694.4,
+      "latency_p95_ms": 831.9,
+      "avg_answer_confidence": 0.6986,
+      "avg_input_tokens": 110.6667,
+      "by_difficulty": {
+        "v1": {
+          "n": 15,
+          "accuracy": 0.6667
+        }
+      },
+      "dangerous_connect": 2,
+      "missed_link": 3
+    }
+  },
+  "stability": {
+    "repeat": 1,
+    "overall": null,
+    "by_task": {},
+    "unstable_ids": []
+  },
+  "records": [
+    {
+      "task": "page_fault",
+      "id": "pf_01",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "显式记忆钩子+专有指向",
+      "input": {
+        "query": "你还记得我住在哪个城市吗？"
+      },
+      "latency_ms": 1159.8,
+      "routing_model": "multilingual",
+      "input_tokens": 143,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9661,
+      "detail": {
+        "prob_yes": 0.9661
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_02",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "上次+专有名词回忆",
+      "input": {
+        "query": "我上次跟你说的那家火锅店叫什么名字来着？"
+      },
+      "latency_ms": 1003.2,
+      "routing_model": "multilingual",
+      "input_tokens": 148,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9284,
+      "detail": {
+        "prob_yes": 0.9284
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_03",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "之前提过=历史钩子",
+      "input": {
+        "query": "我女儿今年上几年级了，我之前提过吧？"
+      },
+      "latency_ms": 981.3,
+      "routing_model": "multilingual",
+      "input_tokens": 148,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9477,
+      "detail": {
+        "prob_yes": 0.9477
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_04",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "指向已存目标卡",
+      "input": {
+        "query": "帮我看看我之前定的健身目标完成得怎么样了"
+      },
+      "latency_ms": 1150.6,
+      "routing_model": "multilingual",
+      "input_tokens": 146,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9428,
+      "detail": {
+        "prob_yes": 0.9428
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_05",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "健康事实回忆",
+      "input": {
+        "query": "我之前说过我对什么过敏来着？"
+      },
+      "latency_ms": 996.0,
+      "routing_model": "multilingual",
+      "input_tokens": 143,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9811,
+      "detail": {
+        "prob_yes": 0.9811
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_06",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "时间词+因果回忆",
+      "input": {
+        "query": "上个月我提到要换工作，你还记得原因吗？"
+      },
+      "latency_ms": 1011.6,
+      "routing_model": "multilingual",
+      "input_tokens": 147,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9341,
+      "detail": {
+        "prob_yes": 0.9341
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_07",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "隐式引用已存偏好",
+      "input": {
+        "query": "按我平时的口味偏好，帮我推荐一家餐厅"
+      },
+      "latency_ms": 1127.1,
+      "routing_model": "multilingual",
+      "input_tokens": 146,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9422,
+      "detail": {
+        "prob_yes": 0.9422
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_08",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "专有实体回忆",
+      "input": {
+        "query": "我老板叫什么名字来着？"
+      },
+      "latency_ms": 1132.4,
+      "routing_model": "multilingual",
+      "input_tokens": 142,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9728,
+      "detail": {
+        "prob_yes": 0.9728
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_09",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "闲聊/实时信息，无历史钩子",
+      "input": {
+        "query": "今天天气怎么样？"
+      },
+      "latency_ms": 999.0,
+      "routing_model": "multilingual",
+      "input_tokens": 139,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.8476,
+      "detail": {
+        "prob_yes": 0.8476
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_10",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "纯生成任务",
+      "input": {
+        "query": "帮我写一首关于春天的诗"
+      },
+      "latency_ms": 1125.7,
+      "routing_model": "multilingual",
+      "input_tokens": 142,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.951,
+      "detail": {
+        "prob_yes": 0.951
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_11",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "常识问答",
+      "input": {
+        "query": "1 加 1 等于几？"
+      },
+      "latency_ms": 1049.9,
+      "routing_model": "multilingual",
+      "input_tokens": 143,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.8654,
+      "detail": {
+        "prob_yes": 0.8654
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_12",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "寒暄",
+      "input": {
+        "query": "你好呀，在吗？"
+      },
+      "latency_ms": 982.6,
+      "routing_model": "multilingual",
+      "input_tokens": 141,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.901,
+      "detail": {
+        "prob_yes": 0.901
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_13",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "闲聊",
+      "input": {
+        "query": "讲个笑话吧"
+      },
+      "latency_ms": 1313.3,
+      "routing_model": "multilingual",
+      "input_tokens": 139,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9474,
+      "detail": {
+        "prob_yes": 0.9474
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_14",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "工具型任务，无需记忆",
+      "input": {
+        "query": "帮我把这段英文翻译成中文：Hello world"
+      },
+      "latency_ms": 1900.0,
+      "routing_model": "multilingual",
+      "input_tokens": 145,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9819,
+      "detail": {
+        "prob_yes": 0.9819
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_15",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "通用知识问答",
+      "input": {
+        "query": "番茄炒蛋怎么做？"
+      },
+      "latency_ms": 1339.6,
+      "routing_model": "multilingual",
+      "input_tokens": 140,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.5256,
+      "detail": {
+        "prob_yes": 0.5256
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "page_fault",
+      "id": "pf_16",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "情感反馈，无检索需求",
+      "input": {
+        "query": "谢谢你，你真棒！"
+      },
+      "latency_ms": 868.9,
+      "routing_model": "multilingual",
+      "input_tokens": 141,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9165,
+      "detail": {
+        "prob_yes": 0.9165
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_01",
+      "gold": "supersede",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "同一属性(住址)变更",
+      "input": {
+        "old_card": "用户住在上海浦东。",
+        "new_info": "用户上周搬到了北京朝阳。"
+      },
+      "latency_ms": 711.8,
+      "routing_model": "multilingual",
+      "input_tokens": 111,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.7734,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.134,
+          "coexist": 0.7734,
+          "supersede": 0.0926
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_02",
+      "gold": "supersede",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "同一属性(雇主)变更",
+      "input": {
+        "old_card": "用户在腾讯工作。",
+        "new_info": "用户下个月入职字节跳动。"
+      },
+      "latency_ms": 744.7,
+      "routing_model": "multilingual",
+      "input_tokens": 110,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.8907,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.0751,
+          "coexist": 0.8907,
+          "supersede": 0.0342
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_03",
+      "gold": "supersede",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "同一属性(手机号)变更",
+      "input": {
+        "old_card": "用户的手机号是 138-0000-1111。",
+        "new_info": "用户换了新号码 139-2222-3333。"
+      },
+      "latency_ms": 929.0,
+      "routing_model": "multilingual",
+      "input_tokens": 135,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.5022,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.2444,
+          "coexist": 0.5022,
+          "supersede": 0.2535
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_04",
+      "gold": "supersede",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "同一目标数值修订",
+      "input": {
+        "old_card": "用户的目标是年底减重到 70 公斤。",
+        "new_info": "用户把减重目标改成了 65 公斤。"
+      },
+      "latency_ms": 728.6,
+      "routing_model": "multilingual",
+      "input_tokens": 122,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.809,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.0956,
+          "coexist": 0.809,
+          "supersede": 0.0954
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_05",
+      "gold": "supersede",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "偏好翻转",
+      "input": {
+        "old_card": "用户喜欢喝美式咖啡。",
+        "new_info": "用户说现在戒咖啡了，改喝茶。"
+      },
+      "latency_ms": 851.9,
+      "routing_model": "multilingual",
+      "input_tokens": 114,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.459,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.1176,
+          "coexist": 0.459,
+          "supersede": 0.4234
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_06",
+      "gold": "coexist",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "同类新增，两者并存",
+      "input": {
+        "old_card": "用户养了一只叫咪咪的猫。",
+        "new_info": "用户又养了一只叫旺财的狗。"
+      },
+      "latency_ms": 769.6,
+      "routing_model": "multilingual",
+      "input_tokens": 117,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.5173,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.3845,
+          "coexist": 0.5173,
+          "supersede": 0.0982
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "supersede",
+      "id": "sup_07",
+      "gold": "coexist",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "技能叠加",
+      "input": {
+        "old_card": "用户会说英语。",
+        "new_info": "用户还会说日语。"
+      },
+      "latency_ms": 1005.9,
+      "routing_model": "multilingual",
+      "input_tokens": 106,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.5769,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.3856,
+          "coexist": 0.5769,
+          "supersede": 0.0376
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "supersede",
+      "id": "sup_08",
+      "gold": "coexist",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "两段经历并存",
+      "input": {
+        "old_card": "用户去过日本旅游。",
+        "new_info": "用户去过泰国旅游。"
+      },
+      "latency_ms": 906.4,
+      "routing_model": "multilingual",
+      "input_tokens": 108,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "unrelated",
+      "confidence": 0.759,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.759,
+          "coexist": 0.1855,
+          "supersede": 0.0556
+        }
+      },
+      "effective_decision": "unrelated",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_09",
+      "gold": "coexist",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "家庭成员并存，非替换",
+      "input": {
+        "old_card": "用户有一个女儿。",
+        "new_info": "用户有一个儿子。"
+      },
+      "latency_ms": 744.5,
+      "routing_model": "multilingual",
+      "input_tokens": 104,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.9342,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.0353,
+          "coexist": 0.9342,
+          "supersede": 0.0305
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "supersede",
+      "id": "sup_10",
+      "gold": "coexist",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "多爱好并存",
+      "input": {
+        "old_card": "用户喜欢周末爬山。",
+        "new_info": "用户也喜欢周末游泳。"
+      },
+      "latency_ms": 738.1,
+      "routing_model": "multilingual",
+      "input_tokens": 108,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.6375,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.2469,
+          "coexist": 0.6375,
+          "supersede": 0.1156
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "supersede",
+      "id": "sup_11",
+      "gold": "unrelated",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "住址与口味无关",
+      "input": {
+        "old_card": "用户住在上海。",
+        "new_info": "用户喜欢吃辣。"
+      },
+      "latency_ms": 667.3,
+      "routing_model": "multilingual",
+      "input_tokens": 105,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.643,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.2791,
+          "coexist": 0.643,
+          "supersede": 0.0779
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_12",
+      "gold": "unrelated",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "工作与宠物无关",
+      "input": {
+        "old_card": "用户在做一个 Python 项目。",
+        "new_info": "用户养了一只猫。"
+      },
+      "latency_ms": 652.0,
+      "routing_model": "multilingual",
+      "input_tokens": 108,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.5542,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.2985,
+          "coexist": 0.5542,
+          "supersede": 0.1474
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_13",
+      "gold": "unrelated",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "生日与新爱好无关",
+      "input": {
+        "old_card": "用户的生日是 5 月。",
+        "new_info": "用户最近在学吉他。"
+      },
+      "latency_ms": 698.6,
+      "routing_model": "multilingual",
+      "input_tokens": 110,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.6973,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.2094,
+          "coexist": 0.6973,
+          "supersede": 0.0934
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_14",
+      "gold": "unrelated",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "偏好与行程无关",
+      "input": {
+        "old_card": "用户喜欢看科幻电影。",
+        "new_info": "用户下周要出差去广州。"
+      },
+      "latency_ms": 684.5,
+      "routing_model": "multilingual",
+      "input_tokens": 112,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "coexist",
+      "confidence": 0.7585,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.1046,
+          "coexist": 0.7585,
+          "supersede": 0.1368
+        }
+      },
+      "effective_decision": "coexist",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "supersede",
+      "id": "sup_15",
+      "gold": "unrelated",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "健康与财产无关",
+      "input": {
+        "old_card": "用户对花生过敏。",
+        "new_info": "用户的车是白色特斯拉。"
+      },
+      "latency_ms": 687.0,
+      "routing_model": "multilingual",
+      "input_tokens": 107,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "unrelated",
+      "confidence": 0.9512,
+      "detail": {
+        "probabilities": {
+          "unrelated": 0.9512,
+          "coexist": 0.0411,
+          "supersede": 0.0077
+        }
+      },
+      "effective_decision": "unrelated",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_01",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "健康诱因→行为",
+      "input": {
+        "event_a": "用户开始每天早上跑步。",
+        "event_b": "用户体检发现血脂偏高，医生建议多运动。"
+      },
+      "latency_ms": 817.0,
+      "routing_model": "multilingual",
+      "input_tokens": 115,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.6597,
+      "detail": {
+        "prob_yes": 0.6597
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_02",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "问题→购置",
+      "input": {
+        "event_a": "用户买了一台除湿机。",
+        "event_b": "用户抱怨家里最近特别潮湿，衣服晾不干。"
+      },
+      "latency_ms": 818.3,
+      "routing_model": "multilingual",
+      "input_tokens": 116,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.5966,
+      "detail": {
+        "prob_yes": 0.5966
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_03",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "计划→准备",
+      "input": {
+        "event_a": "用户开始学习西班牙语。",
+        "event_b": "用户计划明年去西班牙长期出差。"
+      },
+      "latency_ms": 689.7,
+      "routing_model": "multilingual",
+      "input_tokens": 110,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.799,
+      "detail": {
+        "prob_yes": 0.201
+      },
+      "effective_decision": "no",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "backfill",
+      "id": "bf_04",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "通勤变化→作息调整",
+      "input": {
+        "event_a": "用户把闹钟提前到早上 6 点。",
+        "event_b": "用户换了新工作，通勤时间变长了。"
+      },
+      "latency_ms": 685.9,
+      "routing_model": "multilingual",
+      "input_tokens": 118,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.6664,
+      "detail": {
+        "prob_yes": 0.3336
+      },
+      "effective_decision": "no",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "backfill",
+      "id": "bf_05",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "健康→取消行程",
+      "input": {
+        "event_a": "用户取消了周末的聚餐。",
+        "event_b": "用户感冒发烧了。"
+      },
+      "latency_ms": 662.3,
+      "routing_model": "multilingual",
+      "input_tokens": 109,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.717,
+      "detail": {
+        "prob_yes": 0.717
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_06",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "环境→应对",
+      "input": {
+        "event_a": "用户开始用降噪耳机办公。",
+        "event_b": "用户搬到了临街的新公寓，很吵。"
+      },
+      "latency_ms": 722.5,
+      "routing_model": "multilingual",
+      "input_tokens": 114,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.5701,
+      "detail": {
+        "prob_yes": 0.4299
+      },
+      "effective_decision": "no",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "backfill",
+      "id": "bf_07",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "家庭事件→行为改变",
+      "input": {
+        "event_a": "用户开始戒烟。",
+        "event_b": "用户的妻子怀孕了。"
+      },
+      "latency_ms": 598.8,
+      "routing_model": "multilingual",
+      "input_tokens": 106,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.8082,
+      "detail": {
+        "prob_yes": 0.8082
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_08",
+      "gold": "yes",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "问题→购置",
+      "input": {
+        "event_a": "用户买了新的遮光窗帘。",
+        "event_b": "用户抱怨卧室早上太亮影响睡眠。"
+      },
+      "latency_ms": 727.3,
+      "routing_model": "multilingual",
+      "input_tokens": 112,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.9231,
+      "detail": {
+        "prob_yes": 0.9231
+      },
+      "effective_decision": "yes",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_09",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "时间相邻但无因果",
+      "input": {
+        "event_a": "用户买了一台新电脑。",
+        "event_b": "用户周末去了动物园。"
+      },
+      "latency_ms": 698.3,
+      "routing_model": "multilingual",
+      "input_tokens": 108,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.7147,
+      "detail": {
+        "prob_yes": 0.2853
+      },
+      "effective_decision": "no",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_10",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "两状态无关",
+      "input": {
+        "event_a": "用户喜欢吃川菜。",
+        "event_b": "用户在学游泳。"
+      },
+      "latency_ms": 691.7,
+      "routing_model": "multilingual",
+      "input_tokens": 106,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.5093,
+      "detail": {
+        "prob_yes": 0.4907
+      },
+      "effective_decision": "no",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_11",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "无因果",
+      "input": {
+        "event_a": "用户养了一只猫。",
+        "event_b": "用户最近在读一本历史书。"
+      },
+      "latency_ms": 694.4,
+      "routing_model": "multilingual",
+      "input_tokens": 109,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.7004,
+      "detail": {
+        "prob_yes": 0.7004
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "backfill",
+      "id": "bf_12",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "无因果",
+      "input": {
+        "event_a": "用户换了新发型。",
+        "event_b": "用户负责的项目上线了。"
+      },
+      "latency_ms": 737.9,
+      "routing_model": "multilingual",
+      "input_tokens": 109,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "yes",
+      "confidence": 0.8928,
+      "detail": {
+        "prob_yes": 0.8928
+      },
+      "effective_decision": "yes",
+      "correct": false,
+      "binary_correct": false,
+      "effective_correct": false
+    },
+    {
+      "task": "backfill",
+      "id": "bf_13",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "无因果",
+      "input": {
+        "event_a": "用户订了去三亚的机票。",
+        "event_b": "用户昨天修好了自行车。"
+      },
+      "latency_ms": 669.2,
+      "routing_model": "multilingual",
+      "input_tokens": 111,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.6396,
+      "detail": {
+        "prob_yes": 0.3604
+      },
+      "effective_decision": "no",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_14",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "无因果",
+      "input": {
+        "event_a": "用户报了健身房。",
+        "event_b": "用户买了一盆多肉植物。"
+      },
+      "latency_ms": 863.5,
+      "routing_model": "multilingual",
+      "input_tokens": 108,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.6166,
+      "detail": {
+        "prob_yes": 0.3834
+      },
+      "effective_decision": "no",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    },
+    {
+      "task": "backfill",
+      "id": "bf_15",
+      "gold": "no",
+      "difficulty": "v1",
+      "trap": "",
+      "rationale": "无因果",
+      "input": {
+        "event_a": "用户在学钢琴。",
+        "event_b": "用户上周去超市买了很多菜。"
+      },
+      "latency_ms": 684.8,
+      "routing_model": "multilingual",
+      "input_tokens": 109,
+      "valid": true,
+      "fail_reason": null,
+      "decision": "no",
+      "confidence": 0.6659,
+      "detail": {
+        "prob_yes": 0.3341
+      },
+      "effective_decision": "no",
+      "correct": true,
+      "binary_correct": true,
+      "effective_correct": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+# Streamlit 主题配置（E11）——与 frontend/theme.py 的配色常量对齐
+# 运行目录须为 AI-Customer-Service（streamlit 从工作目录读 .streamlit/config.toml）
+[theme]
+primaryColor = "#6C5CE7"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F6F5FB"
+textColor = "#1F1F2E"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
