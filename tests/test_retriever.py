@@ -51,8 +51,7 @@ def _semantic(monkeypatch, hits=()):
 
 @pytest.fixture(autouse=True)
 def clean_pool(monkeypatch):
-    """每测试独立快表 + 默认 full 档（off/flat 用例自行覆盖）+ 解除全局钩子 / 熔断状态。"""
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "full")
+    """每测试独立快表 + 解除全局钩子 / 熔断状态。"""
     monkeypatch.setattr(retriever, "_semantic_down_until", 0.0)
     pool.clear()
     pool.register_fault_hook(None)
@@ -130,58 +129,7 @@ def test_build_l2_keywords_stop_chars_english_dedup_and_limit():
 
 
 # ================================
-# 分档调度：off / flat
-# ================================
-
-@pytest.mark.asyncio
-async def test_off_mode_returns_empty_without_touching_anything(db_session, monkeypatch):
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "off")
-
-    async def boom(*args, **kwargs):
-        raise AssertionError("off 档不应触碰任何依赖")
-    monkeypatch.setattr(gate, "judge_page_fault", boom)
-    monkeypatch.setattr(pool, "by_entities", boom)
-
-    result = await retrieve("任何话", session=db_session, now=NOW)
-    assert result.candidates == []
-    assert result.trace["triage"] is None and result.trace["merged_count"] == 0
-
-
-@pytest.mark.asyncio
-async def test_flat_semantic_candidates_and_triage(db_session, monkeypatch):
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "flat")
-
-    async def boom(*args, **kwargs):
-        raise AssertionError("flat 档无分诊")
-    monkeypatch.setattr(gate, "judge_page_fault", boom)
-
-    card = await store.create_card(db_session, kind="entity", content="住上海")
-    await db_session.commit()
-    _semantic(monkeypatch, [(card.id, 0.72)])
-
-    result = await retrieve("我住在哪", session=db_session)
-    [c] = result.candidates
-    assert c.routes == frozenset({"semantic"}) and c.semantic_score == 0.72
-    assert result.trace["triage"] == "hit"
-    assert result.trace["gate"] is None                    # flat 无分诊详情
-    assert result.trace["candidates"]["semantic"] == 1
-
-
-@pytest.mark.asyncio
-async def test_flat_no_hits_fault_and_missing_card_filtered(db_session, monkeypatch):
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "flat_raw")
-    _semantic(monkeypatch)                                 # 全空
-
-    empty = await retrieve("我住在哪", session=db_session)
-    assert empty.candidates == [] and empty.trace["triage"] == "fault"
-
-    _semantic(monkeypatch, [(9999, 0.9)])                  # 命中但 DB 无此卡 → 过滤
-    ghost = await retrieve("我住在哪", session=db_session)
-    assert ghost.candidates == [] and ghost.trace["triage"] == "fault"
-
-
-# ================================
-# full 档：分诊短路（skip）
+# 分诊短路（skip）
 # ================================
 
 @pytest.mark.asyncio

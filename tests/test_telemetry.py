@@ -43,18 +43,9 @@ def test_emit_writes_daily_jsonl(tele_dir):
     assert rec["health"]["injected_count"] == 2
 
 
-def test_record_carries_config_snapshot(tele_dir):
-    telemetry.emit_trace(trace_id="t-cfg")
-    (rec,) = _read_lines(_today_file(tele_dir))
-    assert rec["config"]["preset"] == settings.PRESET
-    assert rec["config"]["model"] == settings.LLM_MODEL
-    assert rec["config"]["hash"] == settings.snapshot_hash()
-    assert rec["ts"]  # 时间戳非空
-
-
-def test_b2_empty_record_still_written(tele_dir):
-    """B2 基线：候选/注入为空集，也必须落盘（基线样本进数据集）。"""
-    ok = telemetry.emit_trace(trace_id="t-b2", chain={"triage": "skip", "injected": []},
+def test_empty_record_still_written(tele_dir):
+    """没有召回的一轮：候选/注入为空集，也必须落盘（可观测性不能有空洞）。"""
+    ok = telemetry.emit_trace(trace_id="t-empty", chain={"triage": "skip", "injected": []},
                               health={"injected_count": 0})
     assert ok is True
     (rec,) = _read_lines(_today_file(tele_dir))

@@ -1,18 +1,16 @@
 # app/services/long_term_memory/extractor.py
-"""写路径 · 抽取器（E8）：消息批次 → 结构化卡片草稿（CardDraft）——只抽不管。
+"""写路径 · 抽取器：消息批次 → 结构化卡片草稿（CardDraft）——只抽不管。
 
 职责单一：读消息、调 LLM、产出**草稿**；不做归位/去重/落库（writer 的事）。
 两通道共用一个抽取器：
 - 被动通道 extract_batch(messages)：consolidator 按水位取批调用；
-- 显式通道 extract_explicit(entries)：显式消息单独优先抽取（writer 落库时打 source=explicit）；
-- B4′ 形态 build_raw_chunks(messages)：不调 LLM，按 RAW_CHUNK_SIZE 切块直建（零抽取零结构）。
+- 显式通道 extract_explicit(entries)：显式消息单独优先抽取（writer 落库时打 source=explicit）。
 
-降级纪律（与 gate 同风格——“抽取挂了系统照转”）：
+降级纪律（与 gate 同风格——"抽取挂了系统照转"）：
 - 批次分段抽取（每段 _SEGMENT_SIZE 条）；某段失败 → 丢弃该段（warn），其余段继续；
 - 全部段失败 → 返回 None（调用方不推进水位 = 整批重试，宁重勿漏）；
 - 部分段失败 → 返回成功段产出（水位正常推进；失败段消息可经 messages 重抽，宁缺不重）。
 
-prompt 版本：EXTRACT_PROMPT_VERSION（config）；改 prompt 必须改版本号（换实验条件，随快照登记）。
 模型调用模式与 gate 一致：约束输出（json_object）失败 → 纯 prompt 重试 1 次 → 判定为失败。
 """
 from __future__ import annotations
@@ -202,29 +200,6 @@ async def extract_explicit(entries: Sequence[dict[str, Any]]) -> list[CardDraft]
     if not entries:
         return []
     return await _extract_once(_EXPLICIT_HINT + _render_entries(entries))
-
-
-def build_raw_chunks(messages: Sequence[Message], *, chunk_size: int | None = None) -> list[CardDraft]:
-    """B4′ 形态：原文切块直建（零抽取零结构）——不调 LLM。
-
-    规则：按角色前缀拼接消息文本流，聚合到接近 chunk_size 字符切块；每块一张 event 草稿
-    （source 由调用方定）。块文本不截断（保证原文可回放）。
-    """
-    size = chunk_size or settings.RAW_CHUNK_SIZE
-    if size <= 0:
-        size = 200
-    blocks: list[str] = []
-    current = ""
-    for m in messages:
-        piece = f"{'用户' if m.role == 'user' else '助手'}：{m.content}"
-        if current and len(current) + 1 + len(piece) > size:
-            blocks.append(current)
-            current = piece
-        else:
-            current = f"{current}\n{piece}" if current else piece
-    if current:
-        blocks.append(current)
-    return [CardDraft(kind="event", content=b) for b in blocks]
 
 
 _PUNCT_RE = re.compile(r"[\s，。！？、,.!?;；:：\"'“”‘’()（）\-—~～]+")

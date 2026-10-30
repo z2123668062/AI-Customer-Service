@@ -249,27 +249,23 @@ with tab_log:
 # ------------------------------------------------------------
 with tab_demo:
     st.markdown("#### ▶️ 手动触发淘汰巡检")
-    st.caption("扫描全部有效记忆 → 按确定性规则判定下架：目标卡超过宽限期、偏好卡衰减到阈值以下。"
-               "消融档位（EVICT_ENABLED=False）下自动跳过。")
+    st.caption("扫描全部有效记忆 → 按确定性规则判定下架：目标卡超过宽限期、偏好卡衰减到阈值以下。")
     if st.button("运行淘汰巡检", type="primary"):
         try:
             report = api_client.run_evict()
         except ApiError as exc:
             st.error(str(exc))
         else:
-            if report.get("skipped"):
-                st.warning(report["skipped"])
+            d1, d2, d3 = st.columns(3)
+            d1.metric("扫描卡数", report.get("scanned", 0))
+            d2.metric("本次下架", report.get("evicted", 0))
+            stage = report.get("stage_ms", {})
+            d3.metric("耗时（ms）", round(sum(stage.values()), 1))
+            if report.get("details"):
+                st.dataframe(pd.DataFrame(report["details"]),
+                             use_container_width=True, hide_index=True)
             else:
-                d1, d2, d3 = st.columns(3)
-                d1.metric("扫描卡数", report.get("scanned", 0))
-                d2.metric("本次下架", report.get("evicted", 0))
-                stage = report.get("stage_ms", {})
-                d3.metric("耗时（ms）", round(sum(stage.values()), 1))
-                if report.get("details"):
-                    st.dataframe(pd.DataFrame(report["details"]),
-                                 use_container_width=True, hide_index=True)
-                else:
-                    st.success("本次没有需要下架的卡（规则：目标过期 / 偏好衰减）。")
+                st.success("本次没有需要下架的卡（规则：目标过期 / 偏好衰减）。")
 
     st.divider()
     st.markdown("#### 🎬 操作演示指引")

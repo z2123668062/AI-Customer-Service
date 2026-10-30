@@ -122,19 +122,8 @@ async def test_event_time_invalid_keeps_card(llm):
 
 
 # ================================
-# B4′ 原文切块 / 批内去重（纯函数）
+# 批内去重（纯函数）
 # ================================
-
-def test_build_raw_chunks_splits_by_size():
-    msgs = [_msg(1, "user", "A" * 80), _msg(2, "assistant", "B" * 80), _msg(3, "user", "C" * 80)]
-    chunks = extractor.build_raw_chunks(msgs, chunk_size=100)
-    assert len(chunks) == 3
-    assert all(c.kind == "event" for c in chunks)
-    assert chunks[0].content.startswith("用户：") and chunks[1].content.startswith("助手：")
-
-    merged = extractor.build_raw_chunks(msgs, chunk_size=200)
-    assert len(merged) == 2                                    # 两条 80 字符合成一块（≤200）
-
 
 def test_dedupe_drafts_normalizes_punct_and_case():
     drafts = [

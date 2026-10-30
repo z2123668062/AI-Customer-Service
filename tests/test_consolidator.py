@@ -1,7 +1,7 @@
-"""consolidator 写入编排单测（E8；D23 全局水位重构）：触发判断 / 批抽取 / 显式通道 / 启动补偿 / 空闲收口。
+"""consolidator 写入编排单测：触发判断 / 批抽取 / 显式通道 / 启动补偿 / 空闲收口。
 
 - stack：独立库（db_maker）+ 假抽取（FakeExtract）+ 假 Redis + 独立 journal 临时文件
-  （journal._journal_file 注入）+ 判定旁路（GATE_ENABLED=False → fail-safe，不触网）
+  （journal._journal_file 注入）+ 判定假件（gate 两函数返回保守方向，不触网）
   + QDRANT_ENABLED=False（提交不等向量面）；
 - 后台任务模式真实：note_activity / startup_scan / reap 拉起任务后，用 wait_idle() 等完再断言；
 - 水位断言**直读 journal 文件**（read_watermark——真相在文件，不经内存缓存）；
@@ -45,16 +45,22 @@ class FakeExtract:
 
 @pytest_asyncio.fixture
 async def stack(db_maker, fake_redis, monkeypatch, tmp_path):
-    """写路径测试栈：独立库 + 假抽取 + 假 Redis + 独立 journal 文件 + 判定旁路（不触网）。"""
+    """写路径测试栈：独立库 + 假抽取 + 假 Redis + 独立 journal 文件 + 判定假件（不触网）。"""
     fake_llm = FakeExtract()
     monkeypatch.setattr(consolidator, "SessionFactory", db_maker)
     monkeypatch.setattr(consolidator.extractor, "extract_batch", fake_llm.extract_batch)
     monkeypatch.setattr(consolidator.extractor, "extract_explicit", fake_llm.extract_explicit)
     monkeypatch.setattr(explicit, "_redis", fake_redis)
     monkeypatch.setattr(journal, "_journal_file", str(tmp_path / "extract_journal.log"))
-    monkeypatch.setattr(settings, "WRITE_MODE", "cards")
-    monkeypatch.setattr(settings, "SUPERSEDE_ENABLED", True)
-    monkeypatch.setattr(settings, "GATE_ENABLED", False)     # 旁路（fail-safe：coexist / no）
+
+    async def _fake_supersede(old_card, new_info):      # fail-safe 方向：宁并存不误取代
+        return SimpleNamespace(decision="coexist", confidence=0.0)
+
+    async def _fake_backfill(event_a, event_b):         # fail-safe 方向：不连线
+        return SimpleNamespace(decision="no", confidence=0.0)
+
+    monkeypatch.setattr(gate, "judge_supersede", _fake_supersede)
+    monkeypatch.setattr(gate, "judge_backfill", _fake_backfill)
     monkeypatch.setattr(settings, "QDRANT_ENABLED", False)
     monkeypatch.setattr(settings, "EXTRACT_WATERMARK_ROUNDS", 4)
     monkeypatch.setattr(settings, "EXTRACT_IDLE_TIMEOUT_MINUTES", 30)
@@ -353,34 +359,8 @@ async def test_reap_idle_skips_when_caught_up(stack, db_maker):
 
 
 # ================================
-# ⑥ 档位与端到端
+# ⑥ 端到端
 # ================================
-
-@pytest.mark.asyncio
-async def test_write_disabled_short_circuits(stack, db_maker, monkeypatch):
-    monkeypatch.setattr(settings, "WRITE_MODE", "off")
-    await _append_bulk(db_maker, "s1", 8)
-    assert await consolidator.note_activity(session_id="s1") is None
-    assert (await consolidator.startup_scan())["action"] == "off"
-    assert await consolidator.reap_idle_sessions() is False
-    assert await consolidator.backfill() == 0
-    await consolidator.wait_idle()
-    assert stack.llm.batch_calls == []
-
-
-@pytest.mark.asyncio
-async def test_raw_chunks_mode_builds_plain_cards(stack, db_maker, monkeypatch):
-    monkeypatch.setattr(settings, "WRITE_MODE", "raw_chunks")
-    await _append_bulk(db_maker, "s1", 8, prefix="消息内容")
-    assert await consolidator.note_activity(session_id="s1") == "rounds"
-    await consolidator.wait_idle()
-
-    assert stack.llm.batch_calls == []                           # B4′：零抽取零判定
-    cards = await _cards(db_maker)
-    assert cards and all(c.kind == "event" for c in cards)
-    assert all(c.content.startswith(("用户：", "助手：")) for c in cards)
-    assert _watermark() == 8
-
 
 @pytest.mark.asyncio
 async def test_supersede_chain_end_to_end(stack, db_maker, monkeypatch):

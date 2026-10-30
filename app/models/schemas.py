@@ -124,7 +124,6 @@ class EvictRunResponse(BaseModel):
     evicted: int = Field(default=0, description="本次下架数")
     details: list[dict] = Field(default_factory=list, description="每卡下架理由")
     stage_ms: dict[str, float] = Field(default_factory=dict, description="各阶段耗时")
-    skipped: Optional[str] = Field(default=None, description="消融跳过时说明")
 
 
 class EvictLogResponse(BaseModel):

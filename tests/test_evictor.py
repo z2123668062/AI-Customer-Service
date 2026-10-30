@@ -17,9 +17,8 @@ NOW = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)
 
 @pytest.fixture
 def sandbox(monkeypatch, tmp_path):
-    """隔离：Qdrant 关闭 + 日志指向 tmp + 消融档位默认开 + 清池钩子。"""
+    """隔离：Qdrant 关闭 + 日志指向 tmp + 清池钩子。"""
     monkeypatch.setattr(settings, "QDRANT_ENABLED", False)
-    monkeypatch.setattr(settings, "EVICT_ENABLED", True)
     monkeypatch.setattr(settings, "EVICT_LOG_PATH", str(tmp_path / "evict_log.jsonl"))
     store.register_pool_hook(None)
     yield
@@ -128,17 +127,8 @@ async def test_sweep_only_scans_active(sandbox, db_session):
 
 
 # ================================
-# 消融跳过 / 日志 / 快照
+# 日志
 # ================================
-
-@pytest.mark.asyncio
-async def test_sweep_skips_when_disabled(sandbox, monkeypatch, db_session):
-    await _mk(db_session, "过期目标", subtype="goal", event_time=NOW - timedelta(days=99))
-    monkeypatch.setattr(settings, "EVICT_ENABLED", False)
-    report = await evictor.sweep(db_session, now=NOW)
-    assert report["evicted"] == 0
-    assert "skipped" in report and "EVICT_ENABLED" in report["skipped"]
-
 
 @pytest.mark.asyncio
 async def test_sweep_logs_and_reads_back(sandbox, db_session):
@@ -160,10 +150,3 @@ async def test_log_fail_open(sandbox, monkeypatch, db_session):
     await _mk(db_session, "过期目标", subtype="goal", event_time=NOW - timedelta(days=40))
     report = await evictor.sweep(db_session, now=NOW)                # 日志写失败不回退淘汰
     assert report["evicted"] == 1
-
-
-def test_snapshot_contains_evict_params():
-    snap = settings.experiment_snapshot()
-    assert snap["evict_goal_grace_days"] == settings.EVICT_GOAL_GRACE_DAYS
-    assert snap["evict_pref_halflife_days"] == settings.EVICT_PREF_HALFLIFE_DAYS
-    assert snap["evict_min_score"] == settings.EVICT_MIN_SCORE

@@ -1,17 +1,14 @@
-"""埋点与回溯日志（E3 实装）：记忆系统实验数据的唯一来源。
+"""运行指标日志：把每轮对话的链路与耗时落盘为一条 JSONL 记录（可观测性，不参与决策）。
 
-职责：把每次请求的记忆全链路落盘为一条 JSONL 记录，三组字段——
-    chain  链路组：分诊 / 命中 / 缺页 / 三入口 / 顺线 / 精筛分 / 注入卡 / 引用
+三组字段——
+    chain  链路组：分诊结果 / 命中卡 / 缺页层级 / 注入卡 / 写路径触发原因
     cost   成本组：各阶段耗时 / LLM 调用数 / token
-    health 健康度组：命中 / 缺页 / 注入数 / 精筛顶分 / 水位落后（原始字段；
-           聚合指标（命中率/缺页率/回源率等）由 P1 离线计算，公式见 docs/配置与埋点文档.md）
+    health 健康度组：注入数 / 精筛顶分 / 水位落后
 
-设计约束（E3 定稿）：
+设计约束：
 - 只写不读：单向输出，不参与线上请求决策；
 - JSONL 按天分文件：{TELEMETRY_DIR}/telemetry-YYYY-MM-DD.jsonl（UTF-8，一行一条）；
-- 记忆开关全关（B1/B2 档位）时同样记录，候选/注入为空集——基线样本也要进数据集；
-- fail-open：写盘失败只告警、绝不打断主链路；写盘为同步追加（单用户单进程，开销可忽略）；
-- 每条记录自带配置快照 + 指纹（D10：实验条件绑定），离线回放器（P1）只读本目录。
+- fail-open：写盘失败只告警、绝不打断主链路；写盘为同步追加（单用户单进程，开销可忽略）。
 """
 from __future__ import annotations
 
@@ -49,7 +46,6 @@ def build_trace_record(*, trace_id: str, session_id: str | None = None,
         "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "trace_id": trace_id,
         "session_id": session_id,
-        "config": {**settings.experiment_snapshot(), "hash": settings.snapshot_hash()},
         "chain": chain or {},
         "cost": cost or {},
         "health": health or {},

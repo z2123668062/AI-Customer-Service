@@ -20,10 +20,7 @@ DB / 快表 / 向量三面一次一致。
 
 日志：EVICT_LOG_PATH（JSONL，fail-open——写失败只告警，淘汰结果不回退）；每条含
 card_id / kind / subtype / rule / reason / score / evidence——面板"淘汰日志"的数据源，
-也是"记忆不越界 / 可归因"评测维度的证据。
-
-消融闸门：EVICT_ENABLED=False（B1~B4′ 档位）→ sweep 直接跳过（三触发口统一口径，
-面板/评测不会绕开消融条件）。
+也是"记忆不越界 / 可归因"的证据。
 """
 from __future__ import annotations
 
@@ -160,14 +157,11 @@ async def sweep(session: AsyncSession, *, now: datetime | None = None) -> dict[s
     """全量巡检一次：判定 → 批量下架 → 三面同步 → 淘汰日志；返回报告。
 
     报告：{"scanned": 扫描数, "evicted": 下架数, "details": [每卡理由],
-           "stage_ms": {"scan"/"judge"/"apply"}, "skipped": 消融跳过时说明}。
+           "stage_ms": {"scan"/"judge"/"apply"}}。
 
-    时钟注入 now（默认 UTC 当前）——评测可传固定时钟复现衰减判定（确定性纪律）。
+    时钟注入 now（默认 UTC 当前）——测试可传固定时钟复现衰减判定（确定性纪律）。
     会话由调用方持有（端点为请求会话 / lifespan 用会话工厂）；本函数内部提交一次。
     """
-    if not settings.EVICT_ENABLED:
-        return {"scanned": 0, "evicted": 0, "details": [], "stage_ms": {},
-                "skipped": "EVICT_ENABLED=False（消融档位，跳过）"}
     now = _ensure_utc(now) or datetime.now(timezone.utc)
     t0 = time.perf_counter()
 

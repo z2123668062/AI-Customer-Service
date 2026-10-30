@@ -136,16 +136,6 @@ async def test_plan_batch_no_supersede_on_coexist(fake_gate):
 
 
 @pytest.mark.asyncio
-async def test_plan_batch_supersede_disabled(fake_gate, monkeypatch):
-    monkeypatch.setattr(settings, "SUPERSEDE_ENABLED", False)
-    cands = writer.Candidates(supersede={0: [
-        writer.CardSnapshot(id=10, kind="entity", subtype="identity", content="旧", entities=()),
-    ]})
-    plan = await writer.plan_batch(drafts=[_draft()], candidates=cands)
-    assert plan.supersedes == {} and fake_gate.supersede_calls == []
-
-
-@pytest.mark.asyncio
 async def test_plan_batch_backfill_claims_once(fake_gate):
     fake_gate.default_backfill = ("yes", 0.9)
     cands = writer.Candidates(backfill=[

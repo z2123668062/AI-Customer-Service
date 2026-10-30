@@ -18,7 +18,6 @@ from app.services.long_term_memory import store
 def api(db_session, monkeypatch, tmp_path):
     """测试用 ASGI 客户端：依赖覆盖 + 外部面隔离。"""
     monkeypatch.setattr(settings, "QDRANT_ENABLED", False)
-    monkeypatch.setattr(settings, "EVICT_ENABLED", True)
     monkeypatch.setattr(settings, "EVICT_LOG_PATH", str(tmp_path / "evict_log.jsonl"))
     monkeypatch.setattr(settings, "EDIT_LOG_PATH", str(tmp_path / "edit_log.jsonl"))
     store.register_pool_hook(None)

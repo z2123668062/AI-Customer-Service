@@ -1,4 +1,4 @@
-"""聊天主管线（编排层）——E12 主链路定稿。
+"""聊天主管线（编排层）。
 
 编排顺序（定稿）：
     会话锁 → 显式指令识别 → 记忆读取（缺页链）→ 组装包 → 生成 → 写回热层
@@ -6,15 +6,13 @@
 不做任何内容拦截（原安全过滤器已删除，见决策记录 D16）。
 
 关键口径：
-- 记忆读取前置且强制（黑盒接入点，系统设计 §4）：保证 H1/H2 实验变量确定性；
-  `RETRIEVAL_MODE=off` = B2 基线（纯滑动窗口聊天）；
-- 组装包五段由 short_term_memory.assemble_package 组装（纯函数），本模块负责
-  按 CONTEXT_MODE 准备素材：full_history → messages 表（B1）；window/window+memory
-  → 热层窗口（B2~B5）。判重窗口固定取"最近热层窗口"（不含本轮）；
+- 记忆读取前置且强制（黑盒接入点，系统设计 §4）：每轮先检索，再组装、再生成；
+- 组装包五段由 short_term_memory.assemble_package 组装（纯函数），本模块负责准备
+  素材：窗口段取热层窗口，判重窗口同样取"最近热层窗口"（不含本轮）；
 - 写路径（E8 模块，零改动）：显式暂存 push_explicit 需归档后的 message_id；
   note_activity 三触发（水位攒批 / 重要声明 / 显式缓存）不阻塞主链路；
-- 埋点（E3 底座）：一轮一条 trace（chain / cost / health），fail-open 绝不打断对话；
-  `cited` 留 None（P1 回填）；`write_trigger` 为 E12 增补字段（写路径触发原因）。
+- 埋点：一轮一条 trace（chain / cost / health），fail-open 绝不打断对话；
+  `cited` 留 None（引用检测后续补充）；`write_trigger` 为写路径触发原因。
 - HTTP/SSE 适配留在 app/api/v1/endpoints/chat.py（薄适配层，含 meta 事件下发）。
 """
 import asyncio
@@ -24,14 +22,12 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from app.core import short_term_memory as hot_layer
-from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.logging import logger
 from app.core.telemetry import emit_trace
-from app.models.schemas import ChatMessage
 from app.services import generation_service
 from app.services.history_service import save_record_to_db
-from app.services.long_term_memory import consolidator, explicit, injector, reranker, retriever, store
+from app.services.long_term_memory import consolidator, explicit, injector, reranker, retriever
 
 # 会话级进程内锁：同会话请求串行（替代原 Redis 分布式锁；单用户单进程场景足够）
 _session_locks: dict[str, asyncio.Lock] = {}
@@ -78,12 +74,10 @@ async def _retrieve_memory_context(session_id: str, user_message: str, *,
     """记忆黑盒接入点（读）——retriever → reranker → injector 三段一体。
 
     完整链路：分诊 → 抽线索 → 扫快表 → 两级回源 → 顺线 → 精筛 → 注入格式。
-    约定：过门槛返回注入文本（含类型/时间/状态标注）；未过门槛返回 None（"不召回"档位）。
+    约定：过门槛返回注入文本（含类型/时间/状态标注）；未过门槛返回 None（"不召回"）。
     判重取"历史窗口"（window_texts 由调用方取热层窗口，本轮用户消息尚未入窗）。
     降级纪律：检索链路内建（gate / 语义路不抛）；DB 异常向上抛（底座问题必须暴露）。
     """
-    if not settings.memory_read_enabled:
-        return MemoryContext()
     async with AsyncSessionLocal() as session:
         retrieval = await retriever.retrieve(user_message, session=session)
         reranked = await reranker.rerank(user_message, retrieval.candidates)
@@ -100,26 +94,12 @@ async def _retrieve_memory_context(session_id: str, user_message: str, *,
     )
 
 
-async def _load_full_history(session_id: str) -> list[ChatMessage]:
-    """B1 全历史素材：messages 表该会话最近 FULL_HISTORY_MAX_MESSAGES 条（升序）。
-
-    截断策略（如实报告）：超出上限取**最近** N 条——旧消息被窗口截掉；上限与策略
-    登记在配置快照（full_history_max_messages），实验报告须披露。
-    """
-    async with AsyncSessionLocal() as session:
-        rows = await store.list_messages(session, session_id=session_id)
-    tail = rows[-settings.FULL_HISTORY_MAX_MESSAGES:]
-    return [ChatMessage(role=m.role, content=m.content, created_at=m.created_at) for m in tail]
-
-
 # ============================================================
-# meta（"本轮记忆"可视化，E12 前端增强）
+# meta（"本轮记忆"可视化）
 # ============================================================
 
 def _build_memory_meta(mem: MemoryContext) -> dict[str, Any]:
-    """组装 meta：off（读取关闭）/ none（未召回）/ injected（注入 N 条）+ 卡片摘要。"""
-    if not settings.memory_read_enabled:
-        return {"status": "off", "count": 0, "cards": []}
+    """组装 meta：none（未召回）/ injected（注入 N 条）+ 卡片摘要。"""
     injected_ids = mem.injector_trace.get("injected") or []
     if not injected_ids:
         return {"status": "none", "count": 0, "cards": []}
@@ -149,12 +129,10 @@ def _build_memory_meta(mem: MemoryContext) -> dict[str, Any]:
 def _compose_chain(mem: MemoryContext, write_trigger: str | None) -> dict[str, Any]:
     retrieval = mem.retrieval_trace or {}
     chain = {k: v for k, v in retrieval.items() if k != "stage_ms"}
-    if not chain:               # 读关闭档（B1/B2/B3）：显式 skip（P1 聚合口径）
-        chain["triage"] = "skip"
     chain["rerank"] = mem.rerank_trace or None
     chain["injected"] = mem.injector_trace.get("injected") or []
     chain["skipped_window"] = mem.injector_trace.get("skipped_window") or []
-    chain["cited"] = None       # 流内检测 / P1 回填
+    chain["cited"] = None       # 引用检测后续补充
     chain["write_trigger"] = write_trigger
     return chain
 
@@ -237,14 +215,8 @@ async def handle_message(session_id: str, user_message: str, *,
         # ① 显式指令识别（零成本正则；暂存随归档——push_explicit 需要 message_id）
         explicit_hit = explicit.is_explicit(user_message)
 
-        # ② 素材：判重窗口 + 组装窗口（full_history 档不读热层作素材；读开时判重恒定用热层）
-        hot_window: list[ChatMessage] = []
-        if settings.CONTEXT_MODE != "full_history" or settings.memory_read_enabled:
-            hot_window = await hot_layer.get_history(session_id)
-        if settings.CONTEXT_MODE == "full_history":
-            window_for_package = await _load_full_history(session_id)
-        else:
-            window_for_package = hot_window
+        # ② 素材：热层窗口（既是组装包的窗口段，也是记忆判重的比对基准）
+        hot_window = await hot_layer.get_history(session_id)
 
         # ③ 记忆读取（黑盒，服务端强制前置）
         mem = await _retrieve_memory_context(session_id, user_message,
@@ -253,7 +225,7 @@ async def handle_message(session_id: str, user_message: str, *,
         # ④ 组装包五段 → ⑤ 统一生成（全系统唯一 LLM 入口）
         package = hot_layer.assemble_package(
             current_input=user_message,
-            window=window_for_package,
+            window=hot_window,
             memory_context=mem.text,
         )
         gen_t0 = time.perf_counter()

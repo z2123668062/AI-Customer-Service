@@ -1,7 +1,7 @@
 # app/services/long_term_memory/reranker.py
-"""读路径 · 精筛与门控：判定器逐张判档 + 折算硬阈值门 + 排序截断（E10 交付）。
+"""读路径 · 精筛与门控：判定器逐张判档 + 折算硬阈值门 + 排序截断。
 
-复用判定器（gate.judge_shortlist，D19 单一出口）而非专用重排模型（D25）：
+复用判定器（gate.judge_shortlist，单一出口）而非专用重排模型：
 - 判定器给的是**价值档位**（low/mid/high）+ 理由 + 置信度——本环节要的核心判断是
   "这张卡该不该进模型的视野"（治理语义），不是相关性分数："相关但已过期"的卡，
   交叉编码器分不出，判定器能（prompt 内明确"包括已过期的旧状态 → low"）；
@@ -11,12 +11,10 @@
   （"宁可不记，不可记错"铁律的检索侧体现，见系统设计 §4）。
 
 降级纪律：
-- `GATE_ENABLED=False` → **全程旁路**：不判定、不设门，按粗排序直取 top-k——
-  "门控关 = 永远注入 top-k"（B1~B4 消融档位，H2 对照组的净收益由此对照）；
 - gate 契约保证不抛（fail-safe=low → 不注入）；本模块仍对**单卡异常**兜底
   （单卡 low，不拖垮整批——批量判定的失败面隔离）；
-- 排序确定性：折算分降序 → 置信度降序 → 稳定保序（输入序 = E9 粗排序序），
-  无魔法权重（同 D18 哲学）。
+- 排序确定性：折算分降序 → 置信度降序 → 稳定保序（输入序 = 粗排序序），
+  无魔法权重。
 
 接口：`rerank(query, candidates) -> RerankResult`（kept 可能为空）。
 """
@@ -78,16 +76,15 @@ class RerankResult:
 
 def _empty_trace() -> dict[str, Any]:
     return {
-        "mode": None,              # gated / passthrough（GATE_ENABLED=False）
         "threshold": settings.GATE_THRESHOLD,
         "max_cards": settings.INJECT_MAX_CARDS,
-        "judged": 0,               # 实际判定张数（旁路 = 0）
+        "judged": 0,               # 实际判定张数
         "tiers": {"low": 0, "mid": 0, "high": 0},
         "passed": 0,               # 过门槛数（截断前）
         "injected": 0,             # 实际注入数（截断后）
         "truncated": 0,            # 超预算截断数（passed - injected）
-        "items": [],               # 每张判定详情（按最终分降序；旁路不记）
-        "stage_ms": {"rerank": 0.0},   # E12 归并按耗时段
+        "items": [],               # 每张判定详情（按最终分降序）
+        "stage_ms": {"rerank": 0.0},
     }
 
 
@@ -107,15 +104,6 @@ def _to_item(s: ScoredCandidate) -> dict[str, Any]:
 # ============================================================
 # 单卡判定（并发基本单元）
 # ============================================================
-
-def _passthrough(candidate: Candidate) -> ScoredCandidate:
-    """旁路包装（GATE_ENABLED=False）：不判定、不设门，score 保持 0（不参与排序）。"""
-    return ScoredCandidate(
-        candidate=candidate, tier="", score=0.0, confidence=0.0,
-        reason="GATE_ENABLED=False：门控旁路（永远注入 top-k）",
-        origin=gate.ORIGIN_DISABLED, latency_ms=0.0,
-    )
-
 
 async def _judge_one(sem: asyncio.Semaphore, query: str,
                      candidate: Candidate) -> ScoredCandidate:
@@ -144,9 +132,9 @@ async def _judge_one(sem: asyncio.Semaphore, query: str,
 # ============================================================
 
 async def rerank(query: str, candidates: Sequence[Candidate]) -> RerankResult:
-    """精筛主入口（E9 粗排序候选 → 过门槛注入候选）。
+    """精筛主入口（粗排序候选 → 过门槛注入候选）。
 
-    链路：旁路检查 → 并发逐张判定（信号量有界）→ 排序（分↓ / 置信度↓ / 输入序稳定）
+    链路：并发逐张判定（信号量有界）→ 排序（分↓ / 置信度↓ / 输入序稳定）
     → 硬阈值门 → 截断 INJECT_MAX_CARDS。
     """
     t0 = time.perf_counter()
@@ -156,27 +144,17 @@ async def rerank(query: str, candidates: Sequence[Candidate]) -> RerankResult:
         trace["stage_ms"]["rerank"] = round((time.perf_counter() - t0) * 1000, 1)
         return RerankResult([], trace)
 
-    # ① 旁路（消融档位）：不判定、不设门——粗排序直取 top-k
-    if not settings.GATE_ENABLED:
-        kept = [_passthrough(c) for c in candidates[:settings.INJECT_MAX_CARDS]]
-        trace["mode"] = "passthrough"
-        trace["injected"] = len(kept)
-        trace["stage_ms"]["rerank"] = round((time.perf_counter() - t0) * 1000, 1)
-        logger.debug(f"[reranker] 旁路：注入 top-{len(kept)}（候选 {len(candidates)}）")
-        return RerankResult(kept, trace)
-
-    # ② 并发逐张精筛（信号量有界；gather 保序——输入序 = 粗排序序）
+    # ① 并发逐张精筛（信号量有界；gather 保序——输入序 = 粗排序序）
     sem = asyncio.Semaphore(_JUDGE_CONCURRENCY)
     scored = list(await asyncio.gather(*(_judge_one(sem, query, c) for c in candidates)))
 
-    # ③ 排序：最终分降序 → 置信度降序 → 稳定保序（输入粗排序）
+    # ② 排序：最终分降序 → 置信度降序 → 稳定保序（输入粗排序）
     scored.sort(key=lambda s: (-s.score, -s.confidence))
 
-    # ④ 硬阈值门（按含 explicit 加分后的最终分）；⑤ 截断
+    # ③ 硬阈值门（按含 explicit 加分后的最终分）；④ 截断
     passed = [s for s in scored if s.score >= settings.GATE_THRESHOLD]
     kept = passed[:settings.INJECT_MAX_CARDS]
 
-    trace["mode"] = "gated"
     trace["judged"] = len(scored)
     for s in scored:
         if s.tier in trace["tiers"]:

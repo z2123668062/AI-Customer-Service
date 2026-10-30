@@ -1,7 +1,6 @@
-"""E12 主链路联调专属测试：组装包 / 顺序断言 / 埋点字段 / 六档预设 smoke / meta。
+"""主链路联调测试：组装包 / 顺序断言 / 埋点字段 / meta / SSE。
 
-全部依赖 mock（不碰真实 LLM / Redis / 数据库文件）；按档位断言关键分派行为，
-与真实冒烟（六档各一轮 + 埋点落盘核查）互补。
+全部依赖 mock（不碰真实 LLM / Redis / 数据库文件）；按链路断言关键分派行为。
 """
 import json
 from collections import defaultdict
@@ -12,7 +11,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.core import short_term_memory as hot_layer
-from app.core.config import settings
 from app.main import app
 from app.models.schemas import ChatMessage
 from app.services import chat_pipeline, generation_service
@@ -26,9 +24,8 @@ client = TestClient(app)
 # 组装包（短记忆 + 五段结构）
 # ================================
 
-def test_assemble_package_five_segments(monkeypatch):
+def test_assemble_package_five_segments():
     """五段结构：系统提示 / 注入 / 任务卡占位（恒空）/ 窗口 / 当前输入。"""
-    monkeypatch.setattr(settings, "CONTEXT_MODE", "window+memory")
     win = [ChatMessage(role="user", content="历史消息")]
     pkg = hot_layer.assemble_package(current_input="现在的问题", window=win,
                                      memory_context="注入素材")
@@ -39,17 +36,14 @@ def test_assemble_package_five_segments(monkeypatch):
     assert pkg.current_input == "现在的问题"
 
 
-def test_assemble_package_injection_only_in_window_memory_mode(monkeypatch):
-    """注入装配口径：仅 window+memory 档装配；window / full_history 档忽略传参。"""
-    for mode in ("window", "full_history"):
-        monkeypatch.setattr(settings, "CONTEXT_MODE", mode)
-        pkg = hot_layer.assemble_package(current_input="x", memory_context="注入素材")
-        assert pkg.memory_injection is None
+def test_assemble_package_without_memory_has_no_injection():
+    """没有召回 → 不装配注入段（生成行为回落到纯窗口）。"""
+    pkg = hot_layer.assemble_package(current_input="x")
+    assert pkg.memory_injection is None
 
 
-def test_render_messages_five_segments(monkeypatch):
+def test_render_messages_five_segments():
     """渲染顺序：①system → ②注入(附加 system) → ③任务卡(恒空跳过) → ④窗口(空白跳过) → ⑤当前输入。"""
-    monkeypatch.setattr(settings, "CONTEXT_MODE", "window+memory")
     pkg = hot_layer.assemble_package(
         current_input="当前问题",
         window=[
@@ -64,28 +58,6 @@ def test_render_messages_five_segments(monkeypatch):
     assert msgs[0]["content"] == hot_layer.SYSTEM_PROMPT
     assert msgs[1]["content"] == "注入段"
     assert msgs[-1]["content"] == "当前问题"
-
-
-# ================================
-# B1 全历史素材（full_history 分档）
-# ================================
-
-@pytest.mark.asyncio
-async def test_load_full_history_tail_cap_and_session_filter(monkeypatch, db_maker):
-    """全历史素材：按会话过滤 + 超上限取最近 N 条（尾部截断，策略如实报告）。"""
-    from app.models.domain import Message
-
-    monkeypatch.setattr(settings, "FULL_HISTORY_MAX_MESSAGES", 3)
-    async with db_maker() as session:
-        for i in range(8):
-            session.add(Message(session_id="s1", role="user", content=f"m{i}"))
-        session.add(Message(session_id="s2", role="user", content="他会话"))
-        await session.commit()
-
-    monkeypatch.setattr(chat_pipeline, "AsyncSessionLocal", db_maker)
-    out = await chat_pipeline._load_full_history("s1")
-    assert [m.content for m in out] == ["m5", "m6", "m7"]      # 最近 3 条
-    assert all(isinstance(m, ChatMessage) for m in out)
 
 
 # ================================
@@ -116,11 +88,6 @@ def _install_pipeline_fakes(monkeypatch, *, hot_window=(), retrieve_text=None, s
         ev.append("hot.get_history")
         rec["counts"]["hot"] += 1
         return list(hot_window)
-
-    async def fake_load_full(sid):
-        ev.append("load_full_history")
-        rec["counts"]["full"] += 1
-        return []
 
     async def fake_retrieve(query, *, session=None, now=None):
         ev.append("retriever.retrieve")
@@ -176,7 +143,6 @@ def _install_pipeline_fakes(monkeypatch, *, hot_window=(), retrieve_text=None, s
 
     monkeypatch.setattr(chat_pipeline.explicit, "is_explicit", fake_is_explicit)
     monkeypatch.setattr(chat_pipeline.hot_layer, "get_history", fake_get_history)
-    monkeypatch.setattr(chat_pipeline, "_load_full_history", fake_load_full)
     monkeypatch.setattr(chat_pipeline.retriever, "retrieve", fake_retrieve)
     monkeypatch.setattr(chat_pipeline.reranker, "rerank", fake_rerank)
     monkeypatch.setattr(chat_pipeline.injector, "render", fake_render)
@@ -193,9 +159,7 @@ def _install_pipeline_fakes(monkeypatch, *, hot_window=(), retrieve_text=None, s
 
 @pytest.mark.asyncio
 async def test_handle_message_main_chain_order(monkeypatch):
-    """主链路顺序断言（E12 定稿）：显式识别 → 读取 → 组装 → 生成 → 热层回写 → 归档 → 写触发 → 埋点。"""
-    monkeypatch.setattr(settings, "CONTEXT_MODE", "window+memory")
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "full")
+    """主链路顺序断言：显式识别 → 读取 → 组装 → 生成 → 热层回写 → 归档 → 写触发 → 埋点。"""
     rec = _install_pipeline_fakes(monkeypatch, retrieve_text="注入素材")
 
     outcome = await chat_pipeline.handle_message("s1", "你好呀", trace_id="t-order")
@@ -223,9 +187,7 @@ async def test_handle_message_main_chain_order(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_handle_message_explicit_push_after_archive(monkeypatch):
-    """显式通道接线：识别在读取前；暂存在归档后（message_id 来自归档，写路径文档 §9）。"""
-    monkeypatch.setattr(settings, "CONTEXT_MODE", "window")
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "off")
+    """显式通道接线：识别在读取前；暂存在归档后（message_id 来自归档）。"""
     rec = _install_pipeline_fakes(monkeypatch, save_return=42)
 
     await chat_pipeline.handle_message("s1", "记住我的车钥匙放玄关了")
@@ -242,8 +204,6 @@ async def test_handle_message_explicit_push_after_archive(monkeypatch):
 @pytest.mark.asyncio
 async def test_handle_message_no_push_when_not_explicit(monkeypatch):
     """非显式消息：不触发暂存（is_explicit 未命中）。"""
-    monkeypatch.setattr(settings, "CONTEXT_MODE", "window")
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "off")
     rec = _install_pipeline_fakes(monkeypatch)
     await chat_pipeline.handle_message("s1", "普通消息")
     assert "explicit.push_explicit" not in rec["events"]
@@ -305,86 +265,12 @@ async def test_emit_turn_trace_fields(monkeypatch):
     assert health["confidence"] == 0.8 and health["watermark_lag"] == 5
 
 
-@pytest.mark.asyncio
-async def test_emit_turn_trace_off_mode_fields(monkeypatch):
-    """读关闭档（B1/B2/B3）：chain 显式 triage=skip（P1 聚合口径——不计入记忆链路请求）。"""
-    rec = {"captured": {}}
-
-    async def fake_lag():
-        return {"lag_messages": 0}
-
-    def fake_emit(**kwargs):
-        rec["captured"].update(kwargs)
-        return True
-
-    monkeypatch.setattr(chat_pipeline.consolidator, "lag_report", fake_lag)
-    monkeypatch.setattr(chat_pipeline, "emit_trace", fake_emit)
-
-    import time as _time
-    await chat_pipeline._emit_turn_trace(
-        trace_id="t2", session_id="s1", mem=MemoryContext(),
-        generate_ms=50.0, gen=GenerationResult(reply="x"),
-        write_trigger=None, t0=_time.perf_counter() - 0.005)
-    chain = rec["captured"]["chain"]
-    assert chain["triage"] == "skip"
-    assert chain["injected"] == [] and chain["rerank"] is None
-    assert rec["captured"]["cost"]["llm_calls"] == {"gate": 0, "rerank": 0, "generate": 1}
-
-
 # ================================
-# B 预设六档 smoke（一键切换——每档一轮）
+# meta 与 SSE 下发
 # ================================
 
-_PRESETS: dict[str, dict] = {
-    "B1":  dict(CONTEXT_MODE="full_history",  WRITE_MODE="off",        RETRIEVAL_MODE="off"),
-    "B2":  dict(CONTEXT_MODE="window",        WRITE_MODE="off",        RETRIEVAL_MODE="off"),
-    "B3":  dict(CONTEXT_MODE="window",        WRITE_MODE="cards",      RETRIEVAL_MODE="off"),
-    "B4P": dict(CONTEXT_MODE="window+memory", WRITE_MODE="raw_chunks", RETRIEVAL_MODE="flat_raw"),
-    "B4":  dict(CONTEXT_MODE="window+memory", WRITE_MODE="cards",      RETRIEVAL_MODE="flat"),
-    "B5":  dict(CONTEXT_MODE="window+memory", WRITE_MODE="cards",      RETRIEVAL_MODE="full"),
-}
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("preset", sorted(_PRESETS))
-async def test_b_preset_smoke(monkeypatch, preset):
-    """六档每档跑一轮：链路跑通 + 素材/注入/检索按档位分派。"""
-    flags = _PRESETS[preset]
-    for key, value in flags.items():
-        monkeypatch.setattr(settings, key, value)
-    rec = _install_pipeline_fakes(monkeypatch, retrieve_text="注入素材")
-
-    outcome = await chat_pipeline.handle_message("s-preset", "你好呀")
-
-    # 通用：一轮跑通 + 组装包五段产出
-    assert outcome.reply == "假回复"
-    package = rec["packages"][0]
-    assert package.current_input == "你好呀"
-    assert package.task_card is None and package.system_prompt
-
-    reads = flags["RETRIEVAL_MODE"] != "off"
-    assert rec["counts"]["retrieve"] == (1 if reads else 0)      # 读路径分派
-
-    if flags["CONTEXT_MODE"] == "full_history":
-        assert rec["counts"]["full"] == 1 and rec["counts"]["hot"] == 0   # B1：DB 素材，不白读热层
-    else:
-        assert rec["counts"]["hot"] == 1 and rec["counts"]["full"] == 0
-
-    if flags["CONTEXT_MODE"] == "window+memory" and reads:
-        assert package.memory_injection == "注入素材"             # 注入仅全链档装配
-    else:
-        assert package.memory_injection is None
-
-
-# ================================
-# meta 三态 + SSE 下发
-# ================================
-
-def test_build_memory_meta_three_states(monkeypatch):
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "off")
-    assert chat_pipeline._build_memory_meta(MemoryContext())["status"] == "off"
-
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "full")
+def test_build_memory_meta_two_states():
+    """meta 两态：none（未召回）/ injected（注入 N 条，附卡片摘要）。"""
     assert chat_pipeline._build_memory_meta(MemoryContext())["status"] == "none"
 
     cand = SimpleNamespace(ref_id=7, kind="entity", subtype="preference",
@@ -404,7 +290,6 @@ def test_build_memory_meta_three_states(monkeypatch):
 
 def test_chat_sse_meta_event_injected(mock_redis, monkeypatch):
     """端到端：注入场景的 meta 事件（content 为对象）在 message 之前下发。"""
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "full")
     cand = SimpleNamespace(ref_id=7, kind="entity", subtype="preference",
                            content="喜欢喝美式咖啡", event_time=None)
     injected = MemoryContext(text="注入", injector_trace={"injected": [7], "skipped_window": []},

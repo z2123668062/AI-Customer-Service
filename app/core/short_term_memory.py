@@ -1,14 +1,10 @@
-"""热层（当前对话的 Redis 滑动窗口，同时是 B2 baseline 档位）+ 组装包（E12）。
+"""热层（当前对话的 Redis 滑动窗口）+ 组装包。
 
 两件职责：
-1. 滑动窗口：历史消息的读写（Redis List）——B2 基线通路，永不删除；
-2. 组装包五段（系统设计 §4，E12 落地）：① 系统提示 ② 记忆注入 ③ 任务卡占位
+1. 滑动窗口：历史消息的读写（Redis List）——每轮对话的原文回显来源；
+2. 组装包五段（系统设计 §4）：① 系统提示 ② 记忆注入 ③ 任务卡占位
    （V1 恒空）④ 短记忆窗口 ⑤ 当前输入。组装 = 纯函数（本模块）；渲染与发送 =
    生成入口（generation_service.generate_reply）。
-
-CONTEXT_MODE 分档（素材准备归调用方 chat_pipeline，口径见《联调收口文档.md》）：
-- full_history：窗口段 = messages 表最近 FULL_HISTORY_MAX_MESSAGES 条（B1）；
-- window / window+memory：窗口段 = 本模块热层窗口（B2~B5）；注入段仅后者装配。
 """
 import json
 from dataclasses import dataclass, field
@@ -21,7 +17,7 @@ from app.core.logging import logger
 from app.models.schemas import ChatMessage
 
 redis_client = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB, decode_responses=True)
-# 窗口消息数收归开关矩阵（E3）：在此改 = 改 settings.WINDOW_SIZE（.env 可覆盖）
+# 窗口长度：容器启动即固定（改 settings.WINDOW_SIZE 或 .env 后重启生效）
 SLIDING_WINDOW_SIZE = settings.WINDOW_SIZE
 
 # 系统提示（组装包第①段）：固定内容 = 生成侧实验条件的一部分（换 prompt = 换实验条件）
@@ -80,7 +76,7 @@ class ContextPackage:
 
     字段与段位的对应：
     - system_prompt     ① 系统提示（固定人设——实验条件的一部分）
-    - memory_injection  ② 记忆注入（仅 CONTEXT_MODE=window+memory 档装配；None=无注入段）
+    - memory_injection  ② 记忆注入（有召回就装配；None=本轮不注入）
     - task_card         ③ 任务卡占位（V1 恒空——任务卡机制后置，系统设计 §7）
     - window            ④ 短记忆窗口（full_history / 热层窗口；素材由调用方按档准备）
     - current_input     ⑤ 当前输入（本轮用户消息——不再混入窗口段，独立成段）
@@ -101,18 +97,12 @@ def assemble_package(
 ) -> ContextPackage:
     """组装包纯函数（五段；无 IO、无 LLM——素材全部由调用方准备）。
 
-    注入装配口径（旋钮正交）：仅 `CONTEXT_MODE == "window+memory"` 档装配注入段；
-    `window` / `full_history` 档即使传入 memory_context 也不装配（消融的干净边界）。
+    注入段：有记忆上下文就装配，没有就跳过（"不召回"即本轮不注入，生成行为回落到纯窗口）。
     """
-    injection = (
-        memory_context
-        if settings.CONTEXT_MODE == "window+memory" and memory_context
-        else None
-    )
     return ContextPackage(
         system_prompt=SYSTEM_PROMPT,
         current_input=current_input,
         window=list(window or []),
-        memory_injection=injection,
+        memory_injection=memory_context or None,
         task_card=None,  # V1 恒空占位（显式字段 + 测试钉死）
     )

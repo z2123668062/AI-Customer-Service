@@ -37,8 +37,7 @@ def _by_content(mapping, default="low"):
 
 @pytest.fixture(autouse=True)
 def _reset_gate_config(monkeypatch):
-    """每测试：门控开、阈值 0.35、上限 3（用例自行覆盖）。"""
-    monkeypatch.setattr(settings, "GATE_ENABLED", True)
+    """每测试：阈值 0.35、上限 3（用例自行覆盖）。"""
     monkeypatch.setattr(settings, "GATE_THRESHOLD", 0.35)
     monkeypatch.setattr(settings, "INJECT_MAX_CARDS", 3)
     yield
@@ -52,7 +51,7 @@ def _reset_gate_config(monkeypatch):
 async def test_empty_candidates_returns_empty(monkeypatch):
     _stub(monkeypatch, lambda card: "high")
     result = await reranker.rerank("q", [])
-    assert result.kept == [] and result.trace["mode"] is None
+    assert result.kept == [] and result.trace["judged"] == 0
 
 
 @pytest.mark.asyncio
@@ -134,26 +133,8 @@ async def test_explicit_bonus_does_not_cross_gate(monkeypatch):
 
 
 # ================================
-# 旁路（GATE_ENABLED=False）/ 兜底 / 并发 / trace
+# 兜底 / 并发 / trace
 # ================================
-
-@pytest.mark.asyncio
-async def test_passthrough_when_gate_disabled(monkeypatch):
-    """消融旁路：不判定（judge 零调用）、不设门，粗排序直取 top-k。"""
-    called = []
-
-    async def fake(query, card):
-        called.append(card)
-        return gate.GateResult("low", 0.9, "x", gate.ORIGIN_MODEL, 1.0)
-    monkeypatch.setattr(gate, "judge_shortlist", fake)
-    monkeypatch.setattr(settings, "GATE_ENABLED", False)
-
-    result = await reranker.rerank("q", [_cand(i) for i in range(1, 6)])
-    assert called == []                                            # 未做任何判定
-    assert [s.candidate.ref_id for s in result.kept] == [1, 2, 3]  # 直取 top-3
-    assert result.trace["mode"] == "passthrough" and result.trace["judged"] == 0
-    assert all(s.tier == "" and s.score == 0.0 for s in result.kept)
-
 
 @pytest.mark.asyncio
 async def test_single_card_failure_falls_back_low_not_break_batch(monkeypatch):
@@ -188,9 +169,9 @@ async def test_trace_fields_complete(monkeypatch):
     _stub(monkeypatch, _by_content({"卡1": "high", "卡2": "low"}))
     result = await reranker.rerank("q", [_cand(1, "卡1"), _cand(2, "卡2")])
     trace = result.trace
-    assert set(trace) == {"mode", "threshold", "max_cards", "judged", "tiers",
+    assert set(trace) == {"threshold", "max_cards", "judged", "tiers",
                           "passed", "injected", "truncated", "items", "stage_ms"}
-    assert trace["mode"] == "gated" and trace["judged"] == 2
+    assert trace["judged"] == 2
     item = trace["items"][0]
     assert set(item) == {"ref_id", "kind", "tier", "score", "confidence",
                          "origin", "latency_ms", "reason"}

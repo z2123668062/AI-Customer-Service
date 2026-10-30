@@ -8,7 +8,6 @@
 三固定动作（系统设计.md §5）：
 ① 归位（有候选才判；无候选不调判定器直接新增）：gate.judge_supersede(旧卡, 新信息) 三选一——
    unrelated → 新增；coexist → 新增（不连线）；supersede → 新卡 + supersede_card（同事务两语句）。
-   SUPERSEDE_ENABLED=False（B3/B4 档位）→ 跳过判定，全新增（无版本化）。
 ② 回填（等答案机制）：新 event 草稿 × “active、更早、无 caused_by 出边”的旧 event 卡
    （取最近 _BACKFILL_TOP 张）——gate.judge_backfill(旧卡, 新卡) 判因果；yes → 建 caused_by 边
    from=旧（结果）to=新（原因）。V1 只处理“先说结果后补原因”顺序（固定方向约定；
@@ -16,9 +15,9 @@
 ③ 同步：不在这里——apply 只返回 IngestResult（含待同步卡/边），由 consolidator 调
    store.commit_and_sync 收口（唯一提交点）。
 
-判重（E12 接活；D23 排期项）：草稿与候选池同 kind 卡**逐字同文** → 拦截不建卡
-（重抽幂等化的简单兜底；语义重复仍走归位/取代收敛）。比对范围 = 最近
-_CANDIDATE_SCAN 张同 kind active 卡（与候选筛选同一读窗）。
+判重：草稿与候选池同 kind 卡**逐字同文** → 拦截不建卡（重抽幂等化的简单兜底；
+语义重复仍走归位/取代收敛）。比对范围 = 最近 _CANDIDATE_SCAN 张同 kind active 卡
+（与候选筛选同一读窗）。
 
 降级纪律：草稿未过 store 校验 → 丢弃计数（不拖垮整批）；旧卡已被并发批次取代 → 跳过该动作。
 """
@@ -29,7 +28,6 @@ from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.logging import logger
 from app.models.domain import Card, Edge
 from app.services.long_term_memory import gate, store
@@ -144,25 +142,24 @@ async def plan_batch(*, drafts: Sequence[CardDraft], candidates: Candidates) -> 
     dup = set(candidates.exact_duplicates)
     calls = 0
     # 归位（取代）判定
-    if settings.SUPERSEDE_ENABLED:
-        claimed: set[int] = set()
-        for idx, draft in enumerate(drafts):
-            if idx in dup:
+    claimed: set[int] = set()
+    for idx, draft in enumerate(drafts):
+        if idx in dup:
+            continue
+        best: tuple[float, int] | None = None
+        for cand in candidates.supersede.get(idx, []):
+            if cand.id in claimed:
                 continue
-            best: tuple[float, int] | None = None
-            for cand in candidates.supersede.get(idx, []):
-                if cand.id in claimed:
-                    continue
-                if calls >= _MAX_PLAN_CALLS:
-                    logger.warning(f"[writer] 判定调用达上限 {_MAX_PLAN_CALLS}，余下草稿按全新增处理")
-                    return plan
-                verdict = await gate.judge_supersede(cand.content, draft.content)
-                calls += 1
-                if verdict.decision == "supersede" and (best is None or verdict.confidence > best[0]):
-                    best = (verdict.confidence, cand.id)
-            if best is not None:
-                plan.supersedes[idx] = best[1]
-                claimed.add(best[1])
+            if calls >= _MAX_PLAN_CALLS:
+                logger.warning(f"[writer] 判定调用达上限 {_MAX_PLAN_CALLS}，余下草稿按全新增处理")
+                return plan
+            verdict = await gate.judge_supersede(cand.content, draft.content)
+            calls += 1
+            if verdict.decision == "supersede" and (best is None or verdict.confidence > best[0]):
+                best = (verdict.confidence, cand.id)
+        if best is not None:
+            plan.supersedes[idx] = best[1]
+            claimed.add(best[1])
     # 回填判定（等答案机制；仅 event 草稿）
     if candidates.backfill:
         claimed_bf: set[int] = set()

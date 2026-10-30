@@ -148,7 +148,6 @@ async def test_retrieve_memory_context_wires_three_stages(monkeypatch):
             trace.update({"injected": ["K1"], "skipped_window": []})
         return "RENDERED"
 
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "full")   # memory_read_enabled=True
     monkeypatch.setattr(chat_pipeline, "AsyncSessionLocal", lambda: _FakeSessionCtx())
     monkeypatch.setattr(chat_pipeline.retriever, "retrieve", fake_retrieve)
     monkeypatch.setattr(chat_pipeline.reranker, "rerank", fake_rerank)
@@ -160,16 +159,7 @@ async def test_retrieve_memory_context_wires_three_stages(monkeypatch):
     assert calls["retrieve"] == ("问句", None)                        # 拿会话开 DB session
     assert calls["rerank"] == ("问句", ["C1"])                        # 检索候选进精筛
     assert calls["render"] == (["K1"], ["窗口消息一", "窗口消息二"])  # kept + 历史窗口进渲染
-    assert out.retrieval_trace == {"triage": "fault"}                 # E12：三段 trace 回传（埋点源）
+    assert out.retrieval_trace == {"triage": "fault"}                 # 三段 trace 回传（埋点源）
     assert out.rerank_trace == {"judged": 1}
     assert out.injector_trace["injected"] == ["K1"]
     assert out.kept == ["K1"]
-
-
-@pytest.mark.asyncio
-async def test_retrieve_memory_context_none_when_retrieval_off(monkeypatch):
-    """B1/B2/B3 档位（RETRIEVAL_MODE=off）：黑盒口直接空产出，不碰任何依赖。"""
-    monkeypatch.setattr(settings, "RETRIEVAL_MODE", "off")
-    out = await chat_pipeline._retrieve_memory_context("s1", "问句", window_texts=[])
-    assert out.text is None
-    assert out.retrieval_trace == {} and out.kept == []

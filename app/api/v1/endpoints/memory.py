@@ -137,7 +137,7 @@ async def get_evict_log(limit: int = Query(default=50, ge=1, le=200)):
 
 @router.post("/evict", response_model=EvictRunResponse)
 async def run_evict(session: AsyncSession = Depends(get_session)):
-    """手动触发一次淘汰巡检（确定性规则；消融档位 EVICT_ENABLED=False 时自动跳过）。"""
+    """手动触发一次淘汰巡检（确定性规则）。"""
     report = await evictor.sweep(session)
     _log_edit("evict", scanned=report["scanned"], evicted=report["evicted"])
     return EvictRunResponse(**report)

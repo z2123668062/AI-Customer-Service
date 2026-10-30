@@ -37,11 +37,9 @@ def _fake_client(create) -> SimpleNamespace:
 @pytest.fixture(autouse=True)
 def _gate_env(monkeypatch):
     """隔离宿主环境：判定器相关配置回到默认值（tests 后自动还原）。"""
-    monkeypatch.setattr(settings, "GATE_ENABLED", True)
     monkeypatch.setattr(settings, "GATE_MODEL", None)
     monkeypatch.setattr(settings, "GATE_UPGRADE_MODEL", None)
     monkeypatch.setattr(settings, "GATE_CONFIDENCE_MIN", 0.5)
-    monkeypatch.setattr(settings, "GATE_PREFILTER_ENABLED", True)
     monkeypatch.setattr(settings, "GATE_TIMEOUT_SECONDS", 6.0)
 
 
@@ -221,24 +219,6 @@ async def test_upgrade_failure_goes_failsafe(model_mock, monkeypatch):
 
 
 # ================================
-# GATE_ENABLED=False：全程旁路
-# ================================
-
-@pytest.mark.asyncio
-async def test_gate_disabled_bypasses_all(model_mock, monkeypatch):
-    monkeypatch.setattr(settings, "GATE_ENABLED", False)
-    results = [
-        await gate.judge_page_fault("你还记得我上次说的搬家计划吗？"),  # 旁路时连前置都不跑
-        await gate.judge_supersede("用户住在上海", "用户搬到了北京"),
-        await gate.judge_backfill("事件A", "事件B"),
-        await gate.judge_shortlist("我周末去哪露营好？", "用户买过一顶帐篷"),
-    ]
-    assert [r.decision for r in results] == ["yes", "coexist", "no", "low"]
-    assert all(r.origin == gate.ORIGIN_DISABLED for r in results)
-    assert model_mock.await_count == 0
-
-
-# ================================
 # 确定性前置（少而准；仅缺页；宁漏勿误）
 # ================================
 
@@ -280,12 +260,3 @@ async def test_prefilter_not_greedy(model_mock):
     r2 = await gate.judge_page_fault("好，那我们继续刚才说的")           # 非纯寒暄整句
     assert (r2.decision, r2.origin) == ("no", gate.ORIGIN_MODEL)
     assert model_mock.await_count == 2
-
-
-@pytest.mark.asyncio
-async def test_prefilter_disabled_by_switch(model_mock, monkeypatch):
-    monkeypatch.setattr(settings, "GATE_PREFILTER_ENABLED", False)
-    model_mock.return_value = _ok("no")
-    r = await gate.judge_page_fault("你还记得我上次说的搬家计划吗？")
-    assert (r.decision, r.origin) == ("no", gate.ORIGIN_MODEL)         # 开关关 → 走模型
-    assert model_mock.await_count == 1

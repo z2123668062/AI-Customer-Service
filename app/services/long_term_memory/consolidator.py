@@ -20,8 +20,7 @@
 - **撕裂窗口**（卡片已提交、journal 未写入 → 该批重抽）按 D23 接受：由“完全相同卡判重
   （E12 接活）+ 取代判定”兜底——宁可重抽、不可丢；
 - 全局单飞（单一 asyncio.Lock）：批与显式互不重叠（单进程单写者 = D23 前提）；
-- 后台任务不阻塞主链路（asyncio.create_task）；失败写 journal 失败行（水位不动）；
-- WRITE_MODE=off（B1/B2 档）→ 所有触发点直接返回；raw_chunks（B4′）→ 跳过 LLM 抽取与判定。
+- 后台任务不阻塞主链路（asyncio.create_task）；失败写 journal 失败行（水位不动）。
 
 启动与巡检（main.py lifespan 调用；接线说明书见 docs/写路径文档.md）：
 - startup_scan：journal 无记录 → 首启画线（跳过存量）；水位超前（换库/删库）→ 告警 + 对齐；
@@ -110,10 +109,8 @@ async def note_activity(*, session_id: str) -> str | None:
     important 与 explicit 重叠（"记住：我住在…"同中两模式）时让位单抽、批延后
     （保 source="explicit" 标签；该消息单抽后即退出批——无信息丢失）。
 
-    session_id 仅作日志溯源（触发与水位已全局化；E12 接线签名不变）。
+    session_id 仅作日志溯源（触发与水位已全局化）。
     """
-    if not settings.memory_write_enabled:
-        return None
     reason: str | None = None
     try:
         async with SessionFactory() as session:
@@ -147,8 +144,6 @@ async def note_activity(*, session_id: str) -> str | None:
 
 async def _consolidate(*, reason: str) -> writer.IngestResult | None:
     """后台批抽取任务主体（被动通道；全局单飞）。失败写 journal 失败行、水位不动（自动补抽）。"""
-    if not settings.memory_write_enabled:
-        return None
     async with _lock():
         try:
             result = await _run_batch(reason=reason)
@@ -177,17 +172,12 @@ async def _run_batch(*, reason: str) -> writer.IngestResult | None:
     sessions = {m.session_id for m in messages if m.session_id}
     origin = next(iter(sessions)) if len(sessions) == 1 else None   # 单会话保真溯源；混批留空
     # ② 抽取（事务外）
-    if settings.WRITE_MODE == "raw_chunks":             # B4′：原文切块直建（零抽取零判定）
-        drafts: list[CardDraft] = extractor.dedupe_drafts(extractor.build_raw_chunks(batch))
-        with_plan = False
-    else:
-        extracted = await extractor.extract_batch(batch)
-        if extracted is None:
-            raise RuntimeError("抽取失败：全部消息段均未产出（水位保持不动，下轮重试）")
-        drafts = extractor.dedupe_drafts(extracted)
-        with_plan = True
+    extracted = await extractor.extract_batch(batch)
+    if extracted is None:
+        raise RuntimeError("抽取失败：全部消息段均未产出（水位保持不动，下轮重试）")
+    drafts = extractor.dedupe_drafts(extracted)
     # ③ 落库 + 同步（一个事务收口）
-    result = await _ingest(session_id=origin, drafts=drafts, source="passive", with_plan=with_plan)
+    result = await _ingest(session_id=origin, drafts=drafts, source="passive")
     # ④ journal 追记成功行（★ 水位推进的唯一时点：DB 提交成功之后追加）
     line = journal.format_success(
         watermark=end_id, messages=len(batch), drafts=drafts,
@@ -215,8 +205,6 @@ async def _process_explicit() -> int:
     成功（含“抽完没信息”）→ 清缓存 + 记入 _explicit_handled；
     失败 → 保留缓存（下轮重试；批抽取亦会兜底）。
     """
-    if not settings.memory_write_enabled:
-        return 0
     async with _lock():
         try:
             entries = [e for e in await explicit.list_pending()
@@ -251,20 +239,17 @@ async def _process_explicit() -> int:
             return 0
 
 
-async def _ingest(*, session_id: str | None, drafts: list[CardDraft], source: str,
-                  with_plan: bool = True) -> writer.IngestResult:
+async def _ingest(*, session_id: str | None, drafts: list[CardDraft],
+                  source: str) -> writer.IngestResult:
     """共享半程：候选快照（短事务）→ 事务外判定 → 落库 + 同步（一个事务收口）。
 
-    水位推进**不在这里**（D23：journal 独立于 DB 事务，由批路径 _run_batch 在提交后追记）。
-    session_id = 卡片溯源会话（全局混批时为 None——“不知道来自哪个会话”好于标错）。
+    水位推进**不在这里**（journal 独立于 DB 事务，由批路径 _run_batch 在提交后追记）。
+    session_id = 卡片溯源会话（全局混批时为 None——"不知道来自哪个会话"好于标错）。
     """
-    if with_plan and drafts:
-        async with SessionFactory() as session:
-            candidates = await writer.load_candidates(session, drafts=drafts)
-            await session.commit()
-        plan = await writer.plan_batch(drafts=drafts, candidates=candidates)
-    else:
-        plan = writer.BatchPlan(drafts=list(drafts))
+    async with SessionFactory() as session:
+        candidates = await writer.load_candidates(session, drafts=drafts)
+        await session.commit()
+    plan = await writer.plan_batch(drafts=drafts, candidates=candidates)
     async with SessionFactory() as session:
         result = await writer.apply_batch(session, plan=plan, session_id=session_id, source=source)
         await store.commit_and_sync(session, upsert_cards=result.cards,
@@ -290,10 +275,8 @@ async def startup_scan() -> dict[str, Any]:
     - 水位 > 最新消息 id（换库/删库残留）→ 告警 + **自检对齐**（降为最新 id）；
     - 水位 < 最新消息 id → 拉后台补抽；水位 == 最新 id → 无事。
 
-    返回 {action: off/empty/first_run_line/self_heal/backfill/aligned/error, ...}。
+    返回 {action: empty/first_run_line/self_heal/backfill/aligned/error, ...}。
     """
-    if not settings.memory_write_enabled:
-        return {"action": "off"}
     try:
         async with SessionFactory() as session:
             max_id, _ = await store.get_global_message_stats(session)
@@ -334,8 +317,6 @@ async def reap_idle_sessions(*, idle_minutes: int | None = None) -> bool:
     静默计时 = 全局最新消息时间（messages.created_at 聚合；不再需要活动时间列）。
     消费方：后台巡检循环（start_idle_reaper）与测试（直接调用，不启动循环）。
     """
-    if not settings.memory_write_enabled:
-        return False
     idle = idle_minutes if idle_minutes is not None else settings.EXTRACT_IDLE_TIMEOUT_MINUTES
     threshold = _now() - timedelta(minutes=idle)
     try:
@@ -361,8 +342,6 @@ async def backfill(*, drain: bool = True, max_rounds: int = 20, from_zero: bool 
     from_zero=True：先重置内存水位为 0（从最早一条开始补——换库迁移后整段重抽；
     重置不写文件，重抽后的成功行接管水位认知——半途失败时文件水位仍是旧值，方向安全）。
     """
-    if not settings.memory_write_enabled:
-        return 0
     if from_zero:
         journal.prime(0)
     rounds = 0

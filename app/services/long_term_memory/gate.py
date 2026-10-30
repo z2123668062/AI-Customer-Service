@@ -1,26 +1,24 @@
 # app/services/long_term_memory/gate.py
-"""判定器：全部判断题的单一出口（E7 交付；系统设计.md §6；决策记录 D19/D21）。
+"""判定器：全部判断题的单一出口（系统设计.md §6）。
 
 对外只暴露五个判定函数（缺页 / 取代 / 回填 / 精筛 / 归属）——调用方只依赖函数签名与
 GateResult 契约，不感知内部实现与降级逻辑（硬约束 ⑦：判定器是全部判断题的单一出口）。
 
-分档（D19 级联纪律；约束模式经三轮 spike 实测定案，P50≈0.9~1.2s）：
+分档（级联纪律；约束模式经三轮 spike 实测定案，P50≈0.9~1.2s）：
     确定性前置（高置信正则短路，仅缺页，宁多勿漏）
     → deepseek-flash 约束判定（三层校验；失败重试 1 次 = 纯 prompt 模式）
     → 更强模型升级档（GATE_UPGRADE_MODEL，可选）
-    → fail-safe 默认方向（工程规范 §3 方向表）。
+    → fail-safe 默认方向。
 
 纪律（铁律，改动须有测试覆盖）：
 - 绝不向调用方抛异常：任何失败（超时 / 网络 / 解析 / 校验）都按 fail-safe 默认方向返回——
-  "判定器挂了系统照转"（工程规范 §7：降级路径必须有测试）；
+  "判定器挂了系统照转"；
 - 低置信（< GATE_CONFIDENCE_MIN）不采信模型结论，按保守方向处理；
 - 误差方向：宁误判"要回忆"（有精筛兜底），不可漏判（漏判 = 失忆）；
-- 日期比较 / 计数等确定性逻辑不进来（由代码算，工程规范 §3）；
-- GATE_ENABLED=False → 全程旁路：五函数恒返回 fail-safe（B1/B2/B4 等消融档位）；
-- 实验期冻结：换判定模型 = 换实验条件（随 experiment_snapshot() 登记）。
+- 日期比较 / 计数等确定性逻辑不进来（由代码算）。
 
 移植说明：prompt 与三层校验逐字移植自 spike runner（run_spike_api.py，v2 全量 96 条实测口径），
-改动 = 换实验条件，须重跑 v2 回归集（D20 纪律）。
+改动 = 换判定条件，须重跑回归集。
 """
 from __future__ import annotations
 
@@ -40,7 +38,6 @@ ORIGIN_PREFILTER = "prefilter"   # 确定性前置命中（正则短路）
 ORIGIN_MODEL = "model"           # 主判定模型采纳
 ORIGIN_UPGRADE = "upgrade"       # 升级档模型采纳
 ORIGIN_FAILSAFE = "fail_safe"    # 兜底：调用/校验失败、低置信不采信、功能未启用
-ORIGIN_DISABLED = "disabled"     # GATE_ENABLED=False 全程旁路
 
 client = AsyncOpenAI(api_key=settings.LLM_API_KEY, base_url=settings.LLM_BASE_URL)
 
@@ -245,20 +242,15 @@ async def _run_judgement(task_key: str, inputs: dict,
                          prefilter: Callable[[], GateResult | None] | None = None) -> GateResult:
     """分档判定主循环（内部唯一实现，五函数共用）：
 
-    旁路检查 → 确定性前置 → 主档（约束判定，失败重试 1 次=纯 prompt 模式）
+    确定性前置 → 主档（约束判定，失败重试 1 次=纯 prompt 模式）
     → 升级档（可选，一次）→ fail-safe。任何路径都不抛异常。
     """
     spec = _TASKS[task_key]
     failsafe = spec["failsafe"]
     user_content = spec["user_template"].format(**inputs)
 
-    # ① 全程旁路：GATE_ENABLED=False（消融档位）——不跑前置、不调模型
-    if not settings.GATE_ENABLED:
-        return GateResult(failsafe, 0.0,
-                          "GATE_ENABLED=False：判定器旁路（保守方向）", ORIGIN_DISABLED)
-
-    # ② 确定性前置：高置信短路（memories 原则："少而准"；仅缺页启用）
-    if prefilter is not None and settings.GATE_PREFILTER_ENABLED:
+    # ① 确定性前置：高置信短路（"少而准"；仅缺页启用）
+    if prefilter is not None:
         hit = prefilter()
         if hit is not None:
             logger.debug(f"[gate] 确定性前置命中 task={task_key} → {hit.decision}")
@@ -271,8 +263,8 @@ async def _run_judgement(task_key: str, inputs: dict,
         logger.warning(f"[gate] 兜底 task={task_key} → {failsafe}（{reason}）")
         return GateResult(failsafe, confidence, f"兜底（{reason}）", ORIGIN_FAILSAFE, elapsed())
 
-    # ③ 主档：约束判定 ×2（第 1 次 json_object；重试=纯 prompt 模式，
-    #    同时兜住偶发抖动与端点不支持 response_format 两种情况——spike §3 原设计口径）
+    # ② 主档：约束判定 ×2（第 1 次 json_object；重试=纯 prompt 模式，
+    #    同时兜住偶发抖动与端点不支持 response_format 两种情况）
     primary = _primary_model()
     last_error = "未知原因"
     for attempt, json_mode in ((1, True), (2, False)):
@@ -295,7 +287,7 @@ async def _run_judgement(task_key: str, inputs: dict,
         return GateResult(parsed["decision"], parsed["confidence"], parsed["reason"],
                           ORIGIN_MODEL, elapsed())
 
-    # ④ 升级档（可选，D19）：主档两次均无合法结果时，试一次更强模型
+    # ③ 升级档（可选）：主档两次均无合法结果时，试一次更强模型
     if settings.GATE_UPGRADE_MODEL:
         try:
             raw = await _call_model(settings.GATE_UPGRADE_MODEL, task_key, user_content)
@@ -307,7 +299,7 @@ async def _run_judgement(task_key: str, inputs: dict,
         except Exception as exc:  # noqa: BLE001
             last_error = f"升级档调用异常 {type(exc).__name__}: {exc}"
 
-    # ⑤ fail-safe：走工程规范 §3 默认方向表
+    # ④ fail-safe：走默认方向表
     return fallback(last_error)
 
 

@@ -1,7 +1,7 @@
 # app/services/long_term_memory/retriever.py
-"""读路径：一次检索 = 一次缺页处理（E9 交付；系统设计.md §4；决策记录 D24）。
+"""读路径：一次检索 = 一次缺页处理（系统设计.md §4）。
 
-链路（full 档）：
+链路：
     分诊（gate.judge_page_fault——正则两档前置 + 模型兜底）
       ├─ no  → skip：不读，连快表都不碰（闲聊零成本退出）
       └─ yes → 抽线索（实体反向匹配 + 引号启发式 + 时间词表；零 LLM、零 IO）
@@ -11,20 +11,19 @@
                   L1 = DB 实体路 + DB 时间路（共用一次扫描，SOURCE_SCAN_LIMIT 封顶）
                        ∥ 语义路（embed + Qdrant top-k，相似度下限采信）
                   L1 全空 → L2 = 原文关键词兜底（search_messages；候选 kind="raw"）
-            回填（fault）：refill 卡 + 恢复边（兑现快表文档 §4 留给 E9 的"边恢复"）
-      → 顺线一跳（只顺因果线；池内免费全收 + 池外小预算预取；LINE_PREFETCH_LIMIT/_LINE_ADD_LIMIT）
-      → 粗排（入口优先级 → 语义分 → id 新优先）→ 交 E10 精筛
+            回填（fault）：refill 卡 + 恢复边
+      → 顺线一跳（只顺因果线；池内免费全收 + 池外小预算预取）
+      → 粗排（入口优先级 → 语义分 → id 新优先）→ 交精筛
 
-设计定案要点（2026-10-01，D24；设计讨论中的三处修订）：
-- **分诊在抽线索之前**（原稿相反）：判"不查"就什么都不碰；钩子话术归 gate 前置正则，
-  E9 不维护第二套钩子检测（单一出口原则，硬约束⑦）。
-- **"够格"口径 = 本地任一入口有收获（≥1）即 hit**：不回源；好坏由 E10 精筛兜底，E9 不判好坏。
-- **快表只做确定性索引**（实体倒排 + 时间轴，微秒级）；语义路只在回源时做（贵）——
-  "零 IO 纪律"是快表的专属职责边界，不是 E9 编排层的。
+设计要点：
+- **分诊在抽线索之前**：判"不查"就什么都不碰；钩子话术归 gate 前置正则，
+  E9 不维护第二套钩子检测（单一出口原则）。
+- **"够格"口径 = 本地任一入口有收获（≥1）即 hit**：不回源；好坏由精筛兜底。
+- **快表只做确定性索引**（实体倒排 + 时间轴，微秒级）；语义路只在回源时做（贵）。
 - 顺线只顺因果（caused_by / led_to），**跳过 supersedes（版本边不是证据扩展）**。
 
 降级纪律（读路径不因外设故障而崩）：
-- gate 内部保证不抛（fail-safe=yes → 照走回源；工程规范 §3 方向表）；
+- gate 内部保证不抛（fail-safe=yes → 照走回源）；
 - embedding / Qdrant 异常 → 语义路降级为空，其余路照走（不改变 L2 下探判据）；
 - DB 异常向上抛（底座问题必须暴露）；本模块只读，唯一"写"是内存 refill。
 """
@@ -284,7 +283,7 @@ def _empty_trace() -> dict[str, Any]:
     """
     return {
         "triage": None,            # skip / hit / fault（总闸裁决）
-        "gate": None,              # 分诊详情（flat 档无分诊 → None）
+        "gate": None,              # 分诊详情（异常兜底时为 None）
         "entities": [],            # 抽到的实体线索（含引号启发式）
         "entities_missing": [],    # 快表未收录的实体（一级缺页线索）
         "time_window": None,       # [start_iso, end_iso]
@@ -495,47 +494,19 @@ def _finalize(accum: dict[int, dict], l2_raw: list[Candidate]) -> list[Candidate
 
 async def retrieve(query: str, *, session: AsyncSession,
                    now: datetime | None = None) -> RetrievalResult:
-    """一次检索 = 一次缺页处理（RETRIEVAL_MODE 分档：flat_raw / flat 同一分支，full 全链）。
+    """一次检索 = 一次缺页处理。
 
-    - session：调用方（chat_pipeline / replay）的 AsyncSession——本模块只读、不开事务；
+    - session：调用方（chat_pipeline）的 AsyncSession——本模块只读、不开事务；
     - now：时间词换算基准（可注入保证测试确定性；默认 UTC 当前时刻）。
     """
-    mode = settings.RETRIEVAL_MODE
-    if mode == "off":  # 防御：调用方应在黑盒口拦截（B1/B2/B3 档位）——这里给空结果
-        return RetrievalResult(candidates=[], trace=_empty_trace())
-    if mode in ("flat", "flat_raw"):
-        candidates, trace = await _retrieve_flat(query, session)
-    else:
-        candidates, trace = await _retrieve_full(query, session,
-                                                 now or datetime.now(timezone.utc))
+    candidates, trace = await _retrieve_full(query, session,
+                                             now or datetime.now(timezone.utc))
     return RetrievalResult(candidates=candidates, trace=trace)
-
-
-async def _retrieve_flat(query: str, session: AsyncSession) -> tuple[list[Candidate], dict]:
-    """flat / flat_raw 档：零结构读链——embed → Qdrant top-k → 候选。
-
-    无分诊、无快表、无缺页、无顺线；B4′ 与 B4 的差异全在写侧（原文块 vs 抽取卡），
-    读侧同一分支——"消融只动配置"的最干净体现。
-    triage 记法：有候选 = hit / 无候选 = fault（占位对齐 full 档字段；不产生回源语义）。
-    """
-    t0 = time.perf_counter()
-    trace = _empty_trace()
-    candidates: list[Candidate] = []
-    for card_id, score in await _semantic_search(query):
-        card = await store.get_card(session, card_id)
-        if card is not None and card.status == store.ACTIVE:
-            candidates.append(_candidate_from_card(card, {"semantic"}, semantic_score=score))
-    candidates.sort(key=_rank_key)
-    trace["triage"] = "hit" if candidates else "fault"
-    trace["candidates"]["semantic"] = len(candidates)
-    trace["merged_count"] = len(candidates)
-    trace["stage_ms"]["retrieval"] = round((time.perf_counter() - t0) * 1000, 1)
-    return candidates, trace
 
 
 async def _retrieve_full(query: str, session: AsyncSession,
                          now: datetime) -> tuple[list[Candidate], dict]:
-    """full 档：分诊 → 抽线索 → 扫快表 → （缺页）两级回源 → 回填 → 顺线 → 排序。"""
+    """完整检索链：分诊 → 抽线索 → 扫快表 → （缺页）两级回源 → 回填 → 顺线 → 排序。"""
     trace = _empty_trace()
 
     # ① 分诊（总闸）：判"不查"连快表都不碰（闲聊零成本退出）
