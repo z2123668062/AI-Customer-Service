@@ -23,6 +23,7 @@
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Sequence
 
@@ -89,6 +90,34 @@ def _card_snapshot(card: Card) -> CardSnapshot:
                         content=card.content, entities=tuple(card.entities or ()))
 
 
+_TEXT_STRIP_RE = re.compile(r"[\W_]+")
+_DUPE_MIN_CHARS = 15       # 被判重的最短正文长度（短句互相包含是常态，不能当重复）
+_DUPE_RATIO = 0.7          # 长度比下限：短的至少占长的七成，才允许用「包含」判重
+
+
+def _norm_text(text: str) -> str:
+    """判重用的归一化：去空白与标点、统一大小写（与注入侧 _norm 同口径）。"""
+    return _TEXT_STRIP_RE.sub("", text or "").casefold()
+
+
+def _looks_duplicate(draft_content: str, card_content: str) -> bool:
+    """判重口径（L6 放宽）：归一化后完全相同，或短的一方被长的一方完整包含。
+
+    原实现只认逐字同文，「Melanie has children」与「Melanie has children.」都不算重复，
+    209 张卡里出现了成对的家人口味卡，各占一个注入名额。放宽时仍取保守方向：
+    短句不足 15 字或长度比低于 0.7 一律不判重（防「用户」吞掉整段）。
+    """
+    a, b = _norm_text(draft_content), _norm_text(card_content)
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    short, long = (a, b) if len(a) <= len(b) else (b, a)
+    return (len(short) >= _DUPE_MIN_CHARS
+            and len(short) / len(long) >= _DUPE_RATIO
+            and short in long)
+
+
 def _is_related(draft: CardDraft, card: CardSnapshot) -> bool:
     """确定性候选规则：实体交集 或（entity 卡）subtype 相同。"""
     if draft.entities and card.entities and set(draft.entities) & set(card.entities):
@@ -112,11 +141,13 @@ async def load_candidates(session: AsyncSession, *, drafts: Sequence[CardDraft])
     for kind in kinds:
         cards = await store.list_cards(session, kind=kind, status=store.ACTIVE,
                                        desc=True, limit=_CANDIDATE_SCAN)
-        pools[kind] = [_card_snapshot(c) for c in cards]
+        # L7：节点卡（人/地/物）不进候选池。它不是"事实"，不该被取代判定或判重误伤——
+        # 属性卡和节点卡的 entities 都含 "Caroline"，混在一起会拿一个人的节点去比一条偏好。
+        pools[kind] = [_card_snapshot(c) for c in cards if not c.canonical_name]
     for idx, draft in enumerate(drafts):
         pool = pools.get(draft.kind, [])
-        for card in pool:                                    # 判重：与既有卡逐字同文
-            if draft.content == card.content:
+        for card in pool:                                    # 判重：归一化同文或包含关系
+            if _looks_duplicate(draft.content, card.content):
                 result.exact_duplicates[idx] = card.id
                 break
         if idx in result.exact_duplicates:                   # 同文草稿不建卡 → 无需归位候选
@@ -144,7 +175,7 @@ async def plan_batch(*, drafts: Sequence[CardDraft], candidates: Candidates) -> 
     # 归位（取代）判定
     claimed: set[int] = set()
     for idx, draft in enumerate(drafts):
-        if idx in dup:
+        if idx in dup or draft.canonical_name:      # 节点卡（人/地/物）不参与取代判定：它不是"事实"
             continue
         best: tuple[float, int] | None = None
         for cand in candidates.supersede.get(idx, []):
@@ -192,20 +223,33 @@ async def apply_batch(
     session_id: str,
     source: str = "passive",
 ) -> IngestResult:
-    """落库计划执行：判重拦截 → 建卡 → 取代（同事务两语句）→ 回填连边（只 flush 不 commit）。"""
+    """落库计划执行：判重拦截 → 建卡 → 取代（同事务两语句）→ 回填连边（只 flush 不 commit）。
+
+    L7 追加两件事：节点卡按标准名归并（不重复建人/地/物），事件卡建完后连 led_to 到节点。
+    """
     result = IngestResult()
     created: dict[int, int] = {}
+    node_index = await _load_node_index(session)      # 标准名/别名 → 卡 id
     for idx, draft in enumerate(plan.drafts):
         if idx in plan.exact_duplicates:                     # 判重：与既有卡同文 → 拦截不建
             result.duplicates += 1
             logger.info(f"[writer] 草稿与既有卡 {plan.exact_duplicates[idx]} 完全同文，拦截不建卡")
             continue
+        if draft.canonical_name:                             # 节点卡：同一个人/地点只留一张
+            keys = [_norm_text(x) for x in (draft.entities or (draft.canonical_name,))]
+            hit = next((node_index[k] for k in keys if k in node_index), None)
+            if hit is not None:
+                created[idx] = hit
+                result.duplicates += 1
+                continue
         try:
             card = await store.create_card(session, kind=draft.kind, content=draft.content,
                                            subtype=draft.subtype,
                                            entities=list(draft.entities) or None,
                                            event_time=draft.event_time, source=source,
-                                           source_session_id=session_id)
+                                           source_session_id=session_id,
+                                           canonical_name=draft.canonical_name,
+                                           source_message_ids=list(draft.source_message_ids) or None)
         except (ValueError, NotImplementedError) as e:      # 防御：草稿校验兜底
             result.drafts_dropped += 1
             logger.warning(f"[writer] 草稿落库被拒（丢弃）: {e}")
@@ -213,6 +257,9 @@ async def apply_batch(
         created[idx] = card.id
         result.cards.append(card)
         result.cards_created += 1
+        if draft.canonical_name:                             # 新节点进索引（含别名）
+            for name in (draft.entities or ()):
+                node_index.setdefault(_norm_text(name), card.id)
     # 取代（版本化：新卡顶旧卡 + supersedes 边——同事务）
     for idx, old_id in plan.supersedes.items():
         new_id = created.get(idx)
@@ -240,7 +287,42 @@ async def apply_batch(
             continue
         result.edges.append(edge)
         result.edges_created += 1
+    # L7：位线（led_to）——事件卡指向它涉及的人/地点节点。
+    # 这是「谁、在哪里」第一次变成可以顺着走的路径；在此之前它们只是正文里的字符串。
+    linked: set[tuple[int, int]] = set()
+    for idx, card_id in created.items():
+        draft = plan.drafts[idx]
+        if draft.kind != "event":
+            continue
+        for name in draft.entities:
+            node_id = node_index.get(_norm_text(name))
+            if node_id is None or node_id == card_id or (card_id, node_id) in linked:
+                continue
+            linked.add((card_id, node_id))
+            try:
+                edge = await store.create_edge(session, from_card_id=card_id, to_card_id=node_id,
+                                               kind="led_to", source_session_id=session_id)
+            except ValueError as e:
+                logger.warning(f"[writer] led_to 连线被拒: {e}")
+                continue
+            result.edges.append(edge)
+            result.edges_created += 1
     return result
+
+
+async def _load_node_index(session: AsyncSession) -> dict[str, int]:
+    """库里已有的节点索引（标准名与别名 → 卡 id），供本批归并与连线。
+
+    只认 canonical_name 非空的卡；属性卡（身份/偏好/目标/关系）不参与，它们不是端点。
+    """
+    cards = await store.list_cards(session, kind="entity", status=store.ACTIVE, limit=None)
+    index: dict[str, int] = {}
+    for card in cards:
+        if not card.canonical_name:
+            continue
+        for name in [card.canonical_name, *(card.entities or [])]:
+            index.setdefault(_norm_text(str(name)), card.id)
+    return index
 
 
 async def apply_plain(

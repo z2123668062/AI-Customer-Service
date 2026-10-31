@@ -22,7 +22,12 @@ from app.core.database import Base
 
 # —— 取值约定（应用层枚举；全库引用这些常量，勿散写字符串）——
 CARD_KINDS = ("entity", "event", "task")  # task 占位，V1 不实现
-CARD_SUBTYPES_ENTITY = ("identity", "preference", "goal", "relation")
+# 前四类是"用户自己的属性"，后四类是"可被事件指向的节点"（L7，2026-10-31）。
+# 后四类存在的唯一理由：让 led_to 有端点可连。原先人/地/物只是卡上的字符串，
+# 没有 id 就建不了边，全库 209 张卡只有 8 条边就是这么来的。
+CARD_SUBTYPES_ATTR = ("identity", "preference", "goal", "relation")
+CARD_SUBTYPES_NODE = ("person", "place", "org", "thing")
+CARD_SUBTYPES_ENTITY = CARD_SUBTYPES_ATTR + CARD_SUBTYPES_NODE
 CARD_STATUSES = ("active", "superseded", "revoked", "evicted")  # evicted = 衰减下架（E11）
 EDGE_KINDS = ("caused_by", "led_to", "supersedes")
 CARD_SOURCES = ("passive", "explicit")
@@ -40,6 +45,12 @@ class Card(Base):
                      comment="entity：身份/偏好/目标/关系；event：动作类型〔待议〕")
     content = Column(Text, nullable=False, comment="卡片正文（有损抽象；原文见 messages）")
     entities = Column(JSON, nullable=True, comment="涉及的人地物（实体入口倒排来源），JSON 字符串数组")
+    canonical_name = Column(String(120), nullable=True, index=True,
+                            comment="实体卡的标准名（person/place/org/thing 用）：别名归并的主键，"
+                                    "Melanie 与 Mel 指向同一张卡；属性卡与事件卡留空")
+    source_message_ids = Column(JSON, nullable=True,
+                                comment="来源原文 id 数组（L7）：卡片是有损抽象，这张表记它从哪几条"
+                                        "messages 抽出来，注入时可无损回带原文，不必靠关键词猜")
     event_time = Column(DateTime(timezone=True), nullable=True, comment="事件时间（目标按此过期；实体卡留空）")
     status = Column(String(20), default="active", index=True, nullable=False,
                     comment="active（有效）/ superseded（已被取代）/ revoked（已撤销）"

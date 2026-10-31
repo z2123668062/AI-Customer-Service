@@ -127,6 +127,8 @@ async def create_card(
     source: str = "passive",
     source_session_id: str | None = None,
     importance: float | None = None,
+    canonical_name: str | None = None,
+    source_message_ids: list[int] | None = None,
 ) -> Card:
     """建卡（唯一建卡入口；只 flush 不 commit）。
 
@@ -145,7 +147,9 @@ async def create_card(
         raise ValueError(f"非法来源 source={source!r}；可选：{CARD_SOURCES}")
     card = Card(kind=kind, subtype=subtype, content=content, entities=entities,
                 event_time=event_time, source=source,
-                source_session_id=source_session_id, importance=importance)
+                source_session_id=source_session_id, importance=importance,
+                canonical_name=canonical_name,
+                source_message_ids=list(source_message_ids) if source_message_ids else None)
     session.add(card)
     await session.flush()
     return card

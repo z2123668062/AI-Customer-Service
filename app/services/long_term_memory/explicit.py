@@ -26,7 +26,12 @@ from app.core.logging import logger
 
 # 显式指令识别（宁宽勿窄：识别失败无代价——消息已归档、批抽取照样会抽；
 # 识别成功则获得“零延迟 + 单独抽取 + explicit 标签”三档优待）
-_EXPLICIT_RE = re.compile(r"记住|记一下|记下来|记下|帮我记|记着|别忘了|不要忘记|别忘记|提醒我")
+_EXPLICIT_RE = re.compile(
+    r"记住|记一下|记下来|记下|帮我记|记着|别忘了|不要忘记|别忘记|提醒我"
+    r"|remember (that|this|to)|keep in mind|don'?t forget|do not forget"
+    r"|make a note|note that|remind me",
+    re.IGNORECASE,
+)
 
 CACHE_KEY = "chat:explicit_recent"   # Redis List：待优先抽取的显式消息（JSON 条目）
 CACHE_MAX = 10                        # 条数上限（与滑动窗口同级规模；超出裁旧）

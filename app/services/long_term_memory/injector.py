@@ -65,16 +65,15 @@ def _is_window_duplicate(text: str, window_norm: str) -> bool:
 # ============================================================
 
 def _time_label(candidate: Any) -> str | None:
-    """时间标签：有事件时间的卡用日级（事件的"哪天"常是答案的一部分）；
-    其余用创建时间月级（状态类卡不追求精确时点）。
+    """时间标签：**只认事件时间**（日级）——没有事件时间就不打时间标签。
 
-    注入是参考性人话（精度平衡信息量与噪音）；精确时间由检索层（时间窗口）
-    与原文档案承担。时区按缓存值直读（UTC 口径简化，同 E9）。
+    L2 定稿（2026-10-30）：原实现回落到 created_at（入库月份），在 LoCoMo 上把 2023 年的事
+    标成 ·2026-10·，模型据此答出 "This month (October 2026)"。**入库时间不是事件时间**，
+    二者混淆比"没有时间"更危险——没有标签模型会说"未提及"，错标签会造出确定性的错误答案。
+    精确时间由检索层（时间窗口）与原文档案承担。
     """
     if candidate.event_time is not None:
         return candidate.event_time.strftime("%Y-%m-%d")
-    if candidate.created_at is not None:
-        return candidate.created_at.strftime("%Y-%m")
     return None
 
 

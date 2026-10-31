@@ -15,7 +15,7 @@ engine = create_async_engine(settings.DATABASE_URL, echo=False)
 # 2. 创建异步会话工厂 (就像是给每个请求发一个连接通行证)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
-# 3. 创建所有数据表模型都要继承的“老祖宗”基类
+# 3. 创建所有数据表模型都要继承的"老祖宗"基类
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
@@ -24,6 +24,9 @@ class Base(AsyncAttrs, DeclarativeBase):
 # 启动时幂等补齐（仅 SQLite——本机开发/演示库；MySQL 场景按数据库文档手工 DDL）。
 _INCREMENTAL_COLUMNS: dict[str, tuple[tuple[str, str], ...]] = {
     "edges": (("cut_at", "DATETIME"),),
+    # L7（2026-10-31）：实体节点的标准名 + 卡片来源原文 id。两列都只增不改，
+    # 老数据为 NULL 时行为不变（canonical_name 为空即非节点卡，source_message_ids 为空即无回带）。
+    "cards": (("canonical_name", "VARCHAR(120)"), ("source_message_ids", "JSON")),
 }
 
 

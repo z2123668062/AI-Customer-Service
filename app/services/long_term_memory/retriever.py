@@ -19,7 +19,13 @@
 - **分诊在抽线索之前**：判"不查"就什么都不碰；钩子话术归 gate 前置正则，
   E9 不维护第二套钩子检测（单一出口原则）。
 - **"够格"口径 = 本地任一入口有收获（≥1）即 hit**：不回源；好坏由精筛兜底。
-- **快表只做确定性索引**（实体倒排 + 时间轴，微秒级）；语义路只在回源时做（贵）。
+- **快表只做确定性索引**（实体倒排 + 时间轴，微秒级）。
+- **语义路两种时机（L1 定稿 2026-10-30）**：① 缺页回源时做，决定"L1 是否算空 / 是否下探 L2"；
+  ② **命中路径也做一次**，用途是粗排打分——原实现"命中即不回源"会把语义路整条短路，
+  候选失去相关性信号（_rank_key 退化成按 id 新优先），只能让精筛逐张兜底。
+- **粗排候选预算 = 工作集上限**（config.RETRIEVAL_COARSE_TOPK）：实体倒排命中量与"该实体的
+  覆盖卡数"同阶（单用户场景下用户本名往往覆盖大半卡片），不设预算就等于把 O(N) 张卡全送精筛
+  （每张一次 LLM 调用）。截断只是预算，不是筛选：被截断的卡仍在册，别的轮次照样能进来。
 - 顺线只顺因果（caused_by / led_to），**跳过 supersedes（版本边不是证据扩展）**。
 
 降级纪律（读路径不因外设故障而崩）：
@@ -47,9 +53,11 @@ from app.services.long_term_memory import gate, pool, store
 # ============================================================
 
 _SEMANTIC_TOPK = 20            # 语义路 top-k（L1 与 flat 档同用）
+_SEMANTIC_COARSE_TOPK = 300    # 粗排打分覆盖面：给命中路径的全部候选打语义分（覆盖快表容量量级）
 _L1_SEMANTIC_MIN_SCORE = 0.30  # 语义分采信下限：低于不采信（决定 L1 是否算"空"→ 是否下探 L2）
 _LINE_ADD_LIMIT = 10           # 顺线池外预取总量封顶（防"候选 × 邻居"冲爆快表容量）
 _L2_KEYWORD_LIMIT = 8          # L2 关键词上限（实体名 + 英文词 + 2-gram 去重后截断）
+_RAW_MIN_HITS = 2              # 原文候选门槛：至少命中两个关键词才收（单词命中噪声太大）
 _SEMANTIC_COOLDOWN_S = 60.0    # 语义路熔断冷却：一次失败后该窗口内跳过（不重复白付 embed 成本）
 
 _CAUSAL_KINDS = ("caused_by", "led_to")   # 顺线只顺因果（跳过 supersedes 版本边）
@@ -207,6 +215,16 @@ def _extract_clues(query: str, now: datetime) -> tuple[list[str], tuple[datetime
 
 _STOP_CHARS = frozenset("的了吗呢吧啊嗯呀我你他她它们是在")
 
+# 英文停用词（L6）：原实现只拦汉字停用字，英文按「长度≥3」全收，
+# 于是 what / did / the 这些词也进了关键词表，SQL 的 OR LIKE 一查命中一片，L2 等于没筛。
+_STOP_WORDS_EN = frozenset(
+    "the and for are but not you all any can had her was one our out has him his how its may "
+    "new now old see two way who did get has let put say she too use was wer what when where "
+    "which while with would your from they them then than that this these those have been "
+    "being does doing done about after before into over under between during there here "
+    "could should will shall upon such same other more most some very much many".split()
+)
+
 
 def build_l2_keywords(query: str, entities: Sequence[str]) -> list[str]:
     """L2 关键词：实体名优先 + 英文词（≥3 字母）+ 汉字 2-gram（滤停用字），去重截断。
@@ -226,7 +244,8 @@ def build_l2_keywords(query: str, entities: Sequence[str]) -> list[str]:
     for name in entities:
         _push(name)
     for token in re.findall(r"[A-Za-z]{3,}", query):
-        _push(token)
+        if token.casefold() not in _STOP_WORDS_EN:
+            _push(token)
     for run in re.findall(r"[\u4e00-\u9fff]+", query):
         for i in range(len(run) - 1):
             gram = run[i:i + 2]
@@ -295,6 +314,9 @@ def _empty_trace() -> dict[str, Any]:
         "line": {"collected": 0, "fetched": 0},
         "candidates": {"entity": 0, "semantic": 0, "time": 0, "line": 0, "raw": 0},
         "merged_count": 0,
+        # 粗排候选预算（L1/L2 定稿）：semantic=scored/unavailable；total/kept/dropped 便于观测预算是否吃紧
+        "coarse": {"semantic": None, "total": 0, "kept": 0, "dropped": 0,
+                   "min_kept_score": None, "semantic_added": 0},
         "stage_ms": {"triage": 0.0, "retrieval": 0.0},
     }
 
@@ -332,13 +354,13 @@ def _scan_pool(entities: Sequence[str], window: tuple[datetime, datetime] | None
 # 语义路（L1 与 flat 档共用）；embed + Qdrant，无会话依赖
 # ============================================================
 
-async def _semantic_search(query: str) -> list[tuple[int, float]]:
-    """语义路前半程：embed → Qdrant top-k → 相似度下限过滤（返回 [(card_id, score)]）。
+async def _semantic_raw(query: str, *, limit: int) -> list[tuple[int, float]]:
+    """语义路原样输出：embed → Qdrant top-k（**不做采信下限过滤**）。
 
-    任何异常（embedding 服务 / Qdrant 不可达）→ 降级为空并告警——读路径不因外设故障而崩；
-    失败后进入 _SEMANTIC_COOLDOWN_S 冷窗：窗口内直接返回空（不重复白付一次 embed——
-    Qdrant 挂掉时 embed 成本照付、结果必丢）。冷窗过期自动复活（无需外部干预）。
-    "低于下限不采信"决定 L1 是否算"空"（即是否下探 L2）——防 top-k 永远非空使 L2 永不触发。
+    两种用途共用这一趟：
+    - 采信口径（L1 的"语义路是否算空"）→ 由 _semantic_search 施加下限；
+    - 粗排打分（命中路径给候选排次序）→ 需要全部相对分数，不能先砍掉低分者。
+    任何异常（embedding / Qdrant）→ 降级为空并告警；失败后进入冷窗，跳过重复 embed。
     """
     global _semantic_down_until
     if not settings.QDRANT_ENABLED:
@@ -347,13 +369,23 @@ async def _semantic_search(query: str) -> list[tuple[int, float]]:
         return []
     try:
         vector = (await store.embed_texts([query]))[0]
-        hits = store.get_qdrant().search(vector, limit=_SEMANTIC_TOPK)
+        hits = store.get_qdrant().search(vector, limit=limit)
     except Exception as exc:  # noqa: BLE001 —— 降级是设计的一部分（不抛）
         _semantic_down_until = time.monotonic() + _SEMANTIC_COOLDOWN_S
         logger.warning(f"[retriever] 语义路降级（embedding/Qdrant 不可用）: {exc}")
         return []
     _semantic_down_until = 0.0
-    return [(card_id, score) for card_id, score in hits if score >= _L1_SEMANTIC_MIN_SCORE]
+    return [(card_id, float(score)) for card_id, score in hits]
+
+
+async def _semantic_search(query: str) -> list[tuple[int, float]]:
+    """语义路（采信口径）：top-k + 相似度下限过滤（返回 [(card_id, score)]）。
+
+    "低于下限不采信"决定 L1 是否算"空"（即是否下探 L2）——防 top-k 永远非空使 L2 永不触发。
+    """
+    return [(card_id, score) for card_id, score in
+            await _semantic_raw(query, limit=_SEMANTIC_TOPK)
+            if score >= _L1_SEMANTIC_MIN_SCORE]
 
 
 # ============================================================
@@ -392,12 +424,72 @@ async def _source_l1(session: AsyncSession, query: str, entities: Sequence[str],
     return l1_entity, l1_time, l1_semantic
 
 
+_NORM_RE = re.compile(r"[\W_]+")
+_SPEAKER_PREFIX_RE = re.compile(r"^\s*[A-Za-z][\w' .]{0,24}:\s*")
+
+
+def _norm_text(text: str) -> str:
+    """归一化（去空白标点、统一大小写）——原文与卡片的重复检测用。"""
+    return _NORM_RE.sub("", text or "").casefold()
+
+
 async def _source_l2(session: AsyncSession, query: str, entities: Sequence[str]) -> list[Any]:
-    """L2 原文兜底：关键词（实体名 + 英文词 + 2-gram）OR LIKE 扫 messages（新→旧，成本封顶）。"""
+    """L2 原文兜底（原始版，保留给测试与回源调用）：关键词 OR LIKE 扫 messages。"""
     keywords = build_l2_keywords(query, entities)
     if not keywords:
         return []
     return await store.search_messages(session, keywords=keywords, limit=settings.SOURCE_SCAN_LIMIT)
+
+
+async def _merge_raw(session: AsyncSession, query: str, entities: Sequence[str],
+                     accum: dict[int, dict], trace: dict[str, Any], *, topk: int,
+                     min_hits: int | None = None) -> list[Candidate]:
+    """原文通道（L8）：把相关原文一并带上，补回卡片抽丢的细节。
+
+    为什么放在命中路径上：卡片是有损抽象（"四个活动"被压成"喜欢各种活动"），而原文是无损的。
+    原实现把这条通道锁在"快表全空"分支里，44 道题只撞上 1 次，等于没实现。
+
+    三条纪律：
+    - 用命中关键词个数排序，不是按新旧——原文检索没有向量分，关键词数是最便宜的替代信号；
+    - 至少命中两个关键词才收，单词命中（"caroline"）会把半个库捞出来；
+    - 已经被某张候选卡片覆盖的原文不收——同一条信息既给卡又给原文是纯浪费 token。
+
+    门槛分两种：命中路径有卡片兜底，原文只是补充，要求命中两个词才收；
+    纯缺页路径上原文是唯一证据，只命中一个词也要收（宁多勿漏）。
+    """
+    threshold = _RAW_MIN_HITS if min_hits is None else min_hits
+    keywords = build_l2_keywords(query, entities)
+    if not keywords:
+        return []
+    messages = await store.search_messages(session, keywords=keywords,
+                                          limit=settings.SOURCE_SCAN_LIMIT)
+    if not messages:
+        return []
+    card_texts = [t for item in accum.values()
+                  if (t := _norm_text(getattr(item["card"], "content", "")))]
+    folded = [k.casefold() for k in keywords]
+    # 英文关键词要求词首边界：否则 self 会命中 yourself、care 会命中 scare，
+    # 捞回来的全是闲聊（实测 q84 就是这样把三条无关对话带回来的）。
+    patterns = [(re.compile(rf"\b{re.escape(k)}") if k.isascii() else None, k) for k in folded]
+    scored: list[tuple[int, int, Any]] = []
+    for msg in messages:
+        text = msg.content or ""
+        norm = _norm_text(text)
+        if not norm:
+            continue
+        if any(norm in ct or ct in norm for ct in card_texts):
+            continue                                   # 卡片已覆盖这条原文
+        # 匹配前剥掉说话人前缀（"Melanie: "）：每行都带，等于给每条消息白送一个命中，
+        # 把 6 个候选名额浪费在寒暄上。
+        low = _SPEAKER_PREFIX_RE.sub("", text).casefold()
+        hits = sum(1 for pat, k in patterns if (pat.search(low) if pat else k in low))
+        if hits < threshold:
+            continue
+        scored.append((hits, msg.id, msg))
+    scored.sort(key=lambda x: (-x[0], -x[1]))          # 命中多的优先，同分取较新的
+    picked = scored[:topk]
+    trace["l2"]["messages"] = len(picked)
+    return [_candidate_from_message(m) for _, _, m in picked]
 
 
 # ============================================================
@@ -489,6 +581,67 @@ def _finalize(accum: dict[int, dict], l2_raw: list[Candidate]) -> list[Candidate
 
 
 # ============================================================
+# 粗排候选预算（L1 定稿，2026-10-30）：命中路径打分 + 截断
+# ============================================================
+
+async def _merge_semantic(session: AsyncSession, query: str,
+                          accum: dict[int, dict], trace: dict[str, Any]) -> None:
+    """命中路径的语义面：给已有候选打语义分，并补回实体倒排漏掉的卡。
+
+    为什么命中路径也要跑：实测 86/88 轮走 hit（快表实体倒排命中），而原实现"命中即不回源"
+    把语义路整条短路了——候选**没有任何相关性信号**，_rank_key 退化成按 id 新优先。
+    代价是一次 embed + 一次 Qdrant 查询（亚秒级），换掉的是逐张 LLM 判档（本题实测 110 次）。
+    """
+    raw = await _semantic_raw(query, limit=_SEMANTIC_COARSE_TOPK)
+    if not raw:
+        trace["coarse"]["semantic"] = "unavailable"     # 降级：不截断（方向取"宁多勿漏"）
+        return
+    trace["coarse"]["semantic"] = "scored"
+    score_of = dict(raw)
+    for card_id, item in accum.items():                  # ① 给已有候选补分
+        if card_id in score_of:
+            item["score"] = score_of[card_id]
+    added = 0
+    for card_id, score in raw[:_SEMANTIC_TOPK]:          # ② 语义路独有召回（只取采信名次内的）
+        if card_id in accum:
+            continue
+        hits, _ = pool.get_cards([card_id])
+        card = hits[0] if hits else await store.get_card(session, card_id)
+        if card is None or getattr(card, "status", store.ACTIVE) != store.ACTIVE:
+            continue
+        _accumulate(accum, card, {"semantic"}, score=score)
+        added += 1
+    trace["coarse"]["semantic_added"] = added
+
+
+def _coarse_truncate(accum: dict[int, dict], keep: int, trace: dict[str, Any]) -> None:
+    """按语义分截断候选集（**候选预算**，不是相关性筛选）。
+
+    纪律三条：
+    - 只在语义分可用时截断——没有相关性信号就宁可全判（fail-safe 方向 = 宁多勿漏）；
+    - 被截断的卡仍在册、仍可经实体/时间/顺线等入口在别的轮次进入，不换出、不下架；
+    - 精筛的判定口径完全不变，本函数只决定"它看多少张"。
+    """
+    total = len(accum)
+    scored = any(item["score"] is not None for item in accum.values())
+    if keep <= 0 or total <= keep or not scored:
+        trace["coarse"].update({"total": total, "kept": total, "dropped": 0})
+        return
+    ordered = sorted(
+        accum.items(),
+        key=lambda kv: (kv[1]["score"] is None, -(kv[1]["score"] or 0.0), -kv[0]),
+    )
+    kept_items = dict(ordered[:keep])
+    dropped = total - keep
+    accum.clear()
+    accum.update(kept_items)
+    trace["coarse"].update({
+        "total": total, "kept": keep, "dropped": dropped,
+        "min_kept_score": round(min((v["score"] or 0.0) for v in kept_items.values()), 4),
+    })
+
+
+# ============================================================
 # 主入口（分档调度）
 # ============================================================
 
@@ -546,6 +699,8 @@ async def _retrieve_full(query: str, session: AsyncSession,
             if card.id in time_hits:
                 routes.add("time")
             _accumulate(accum, card, routes)
+        # L1 定稿：命中不再短路语义路——语义分既是粗排依据，也是实体倒排漏卡的补充召回
+        await _merge_semantic(session, query, accum, trace)
     else:
         # ④ 缺页回源：L1（三入口）→ 仍全空 → L2（原文兜底）
         trace["triage"] = "fault"
@@ -565,15 +720,25 @@ async def _retrieve_full(query: str, session: AsyncSession,
             await _backfill(session, sourced)      # 回填：卡入池 + 恢复边（顺线立即可见）
         else:
             trace["fault_level"] = "L2"
-            messages = await _source_l2(session, query, entities)
-            trace["l2"] = {"messages": len(messages)}
-            l2_raw = [_candidate_from_message(m) for m in messages]
+            # L8：纯缺页场景下原文是唯一证据，预算放宽一倍
+            l2_raw = await _merge_raw(session, query, entities, accum, trace,
+                                      topk=settings.RETRIEVAL_RAW_TOPK * 2, min_hits=1)
 
-    # ⑤ 顺线一跳（只顺因果；池内免费 + 池外小预算预取）
+    # ⑤ 粗排候选预算：按语义分截断（无相关性信号时不截断——方向取宁多勿漏）
+    #    位置纪律：必须在顺线之前——顺线是"精确扩邻"，让它只在预算内的卡上跑。
+    _coarse_truncate(accum, settings.RETRIEVAL_COARSE_TOPK, trace)
+
+    # ⑥ 顺线一跳（只顺因果；池内免费 + 池外小预算预取）
     direct_cards = [accum[k]["card"] for k in sorted(accum)]
     await _line_expand(session, direct_cards, set(accum), accum, trace)
 
-    # ⑥ 收口：候选 + 归因计数（每候选按最强入口归因，Σ = merged_count）+ trace
+    # ⑦ 原文通道（L8）：命中路径与 L1 回源路径都补一次。
+    #    纯缺页（L2）那支上面已经取过原文，不重复。
+    if trace["fault_level"] != "L2":
+        l2_raw = await _merge_raw(session, query, entities, accum, trace,
+                                  topk=settings.RETRIEVAL_RAW_TOPK)
+
+    # ⑧ 收口：候选 + 归因计数（每候选按最强入口归因，Σ = merged_count）+ trace
     candidates = _finalize(accum, l2_raw)
     counts = {"entity": 0, "semantic": 0, "time": 0, "line": 0, "raw": len(l2_raw)}
     for key in sorted(accum):

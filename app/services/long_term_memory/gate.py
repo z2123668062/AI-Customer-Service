@@ -110,7 +110,8 @@ _SHORTLIST_SYSTEM = """你是记忆注入前的精筛判定器。给你用户当
 - 问题"推荐一部电影" + 卡片"用户住在上海浦东新区" → low（与问题无关）
 
 只输出一个 json 对象，不要输出任何其他文字。格式：
-{"decision": "low 或 mid 或 high", "confidence": 0到1之间的小数, "reason": "一句话理由"}"""
+{"decision": "low 或 mid 或 high", "confidence": 0到1之间的小数, "reason": "六个字以内"}
+理由只进日志、不参与判定，越短越好（L6：输出 token 占单次调用成本的六成，压缩它是最省的一刀）。"""
 
 _TASKS: dict[str, dict] = {
     "page_fault": {
@@ -194,6 +195,13 @@ _HOOK_RE = re.compile(
     r"还记得"
     r"|我(?:之前|上次|以前|上回)(?:说|讲|提|问|定|买|约|告诉|聊)"
     r"|(?:我们|咱们)(?:之前|上次|说好|约定|商量)"
+    # L6：补英文钩子。原来只有中文，英文问题一律落到模型判定，这条确定性前置形同虚设。
+    r"|do you (remember|recall)"
+    r"|(did|have) i (tell|told|mention|mentioned|say|said) you"
+    r"|i (told|mentioned to) you"
+    r"|last time (we|i) (talked|spoke|met)"
+    r"|as i (said|mentioned|told you)",
+    re.IGNORECASE,
 )
 
 _SMALLTALK_RE = re.compile(

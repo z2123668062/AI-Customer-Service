@@ -23,6 +23,9 @@ from app.services.long_term_memory.retriever import (
 
 NOW = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)   # 周四 12:00 UTC（周一起始：本周 = 09-28 ~ 10-05）
 
+# 熔断测试需要真实实现（autouse fixture 会把语义路替成离线空命中）
+_REAL_SEMANTIC_RAW = retriever._semantic_raw
+
 
 def _fake(card_id, content=None, kind="entity", entities=(), event_time=None,
           status="active", subtype=None):
@@ -43,16 +46,30 @@ def _gate(monkeypatch, decision="yes"):
 
 
 def _semantic(monkeypatch, hits=()):
-    """替身语义路（隔离 embedding / Qdrant 外设）。"""
+    """替身语义路（隔离 embedding / Qdrant 外设）。
+
+    L1 定稿：命中路径也会调 _semantic_raw（粗排打分），两个入口都得替，
+    否则 hit 用例会真连 embedding/Qdrant。
+    """
     async def fake(query):
         return list(hits)
+
+    async def fake_raw(query, *, limit):
+        return list(hits)
+
     monkeypatch.setattr(retriever, "_semantic_search", fake)
+    monkeypatch.setattr(retriever, "_semantic_raw", fake_raw)
 
 
 @pytest.fixture(autouse=True)
 def clean_pool(monkeypatch):
-    """每测试独立快表 + 解除全局钩子 / 熔断状态。"""
+    """每测试独立快表 + 解除全局钩子 / 熔断状态；语义路默认离线（无命中）。"""
     monkeypatch.setattr(retriever, "_semantic_down_until", 0.0)
+
+    async def _offline(query, *, limit):
+        return []
+
+    monkeypatch.setattr(retriever, "_semantic_raw", _offline)
     pool.clear()
     pool.register_fault_hook(None)
     store.register_pool_hook(None)
@@ -260,6 +277,7 @@ async def test_semantic_breaker_skips_repeated_embed_cost(db_session, monkeypatc
         calls["n"] += 1
         raise RuntimeError("embedding down (injected)")
     monkeypatch.setattr(store, "embed_texts", boom)
+    monkeypatch.setattr(retriever, "_semantic_raw", _REAL_SEMANTIC_RAW)   # 用真实现测熔断
 
     assert await retriever._semantic_search("第一次查询") == []
     assert await retriever._semantic_search("第二次查询") == []

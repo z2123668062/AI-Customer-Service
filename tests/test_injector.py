@@ -32,7 +32,10 @@ def test_empty_returns_none():
 
 
 def test_fact_event_raw_rendering():
-    """三类形态：事实（月级）· 事件（日级）· 原文（无状态段）。"""
+    """三类形态：事实（无事件时间则不打时间标签）· 事件（日级）· 原文（无状态段）。
+
+    L2 定稿：created_at 是入库时间，不再当作事件时间渲染——宁缺时间，不给错时间。
+    """
     mems = [
         _cand(1, "用户对花生严重过敏",
               created_at=datetime(2026, 3, 5, tzinfo=UTC)),
@@ -43,9 +46,9 @@ def test_fact_event_raw_rendering():
     ]
     out = injector.render(mems)
     assert out.startswith(injector._HEADER)
-    assert "- [事实·2026-03·当前] 用户对花生严重过敏" in out
+    assert "- [事实·当前] 用户对花生严重过敏" in out
     assert "- [事件·2026-02-14·当前] 用户搬到北京朝阳区" in out
-    assert "- [原文·2026-03] 我打算下周去办签证" in out
+    assert "- [原文] 我打算下周去办签证" in out
 
 
 def test_no_date_and_no_id_leak():

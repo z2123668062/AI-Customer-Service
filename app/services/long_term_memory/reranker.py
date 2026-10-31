@@ -38,7 +38,8 @@ from app.services.long_term_memory.retriever import Candidate
 #   high=0.9 / mid=0.6 / low=0.2；GATE_THRESHOLD=0.35 → mid+high 放行；>0.6 → 仅 high。
 _TIER_SCORES = {"high": 0.9, "mid": 0.6, "low": 0.2}
 _EXPLICIT_BONUS = 0.05     # 显式卡特征加分（读时优待）：同档内排序优先；小于档距 0.3，不越档
-_JUDGE_CONCURRENCY = 6     # 精筛并发上限（信号量；RTT 主导延迟，E12 压测校准）
+_JUDGE_CONCURRENCY = 16    # 精筛并发上限（信号量；RTT 主导延迟。L5：6→16，
+                           # 延迟 ≈ 候选数÷并发×RTT，提高并发不改判定结果，只压墙钟）
 _CARD_TEXT_LIMIT = 300     # 精筛输入卡文本截断（L2 原文候选可能很长，控制 prompt 成本）
 
 

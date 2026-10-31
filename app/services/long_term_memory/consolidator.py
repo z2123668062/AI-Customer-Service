@@ -54,10 +54,17 @@ _REAPER_INTERVAL_SECONDS = 300.0   # 空闲巡检周期（5 分钟）
 _HANDLED_SOFT_LIMIT = 10000        # _explicit_handled 软上限（超过即清空——重启级重置语义）
 
 # 重要声明模式（提前触发的暖场；宁宽勿窄——多抽一次无代价）
+# L6（2026-10-30）：补英文。原先只有中文，英文对话永不命中，三触发里的这条成了死代码。
+# 英文刻意取窄：只认身份/居住/家庭/过敏这几类高信号说法，不把 "I like / I love" 放进来，
+# 否则闲聊里每句都命中，抽取批次会被打散成几百次，灌库时间翻几倍。
 _IMPORTANT_RE = re.compile(
     r"我叫|我的名字|我住在|我家在|我搬到|我的生日|我出生|我过敏|对.{1,10}过敏|"
     r"我喜欢|我不喜欢|我讨厌|我习惯|我计划|我打算|我准备|我决定|"
     r"我老婆|我老公|我妻子|我丈夫|我儿子|我女儿|我爸|我妈|我哥|我姐|我弟|我妹"
+    r"|my name is|i live in|i'?m from|i am from|i work (as|at|in)|i was born"
+    r"|i'?m allergic|i am allergic|allergic to|i moved to|i'?ve decided|i decided to"
+    r"|my (wife|husband|son|daughter|mom|dad|mother|father|brother|sister|kids|children)",
+    re.IGNORECASE,
 )
 
 # —— 模块状态（测试经 monkeypatch / reset_for_tests 清理）——

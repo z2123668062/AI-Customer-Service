@@ -25,7 +25,7 @@ def test_defaults():
     s = make_settings(LLM_API_KEY="k", DATABASE_URL="sqlite+aiosqlite:///./x.db")
     assert s.WINDOW_SIZE == 10
     assert s.GATE_THRESHOLD == 0.35
-    assert s.INJECT_MAX_CARDS == 3
+    assert s.INJECT_MAX_CARDS == 8
     assert s.SOURCE_SCAN_LIMIT == 200
     assert s.LINE_PREFETCH_LIMIT == 3
     assert s.EXTRACT_WATERMARK_ROUNDS == 4
