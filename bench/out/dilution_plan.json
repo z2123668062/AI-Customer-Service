@@ -1,0 +1,3619 @@
+{
+  "block_start": 2,
+  "block_len": 150,
+  "block_tokens_est": 5697,
+  "noise_sample": 3,
+  "levels": [
+    0,
+    25,
+    50,
+    75,
+    100,
+    150,
+    300,
+    450
+  ],
+  "questions": [
+    {
+      "qid": 0,
+      "question": "When did Caroline go to the LGBTQ support group?",
+      "gold": "7 May 2023",
+      "category": 2,
+      "evidence": [
+        "D1:3"
+      ]
+    },
+    {
+      "qid": 1,
+      "question": "When did Melanie paint a sunrise?",
+      "gold": "2022",
+      "category": 2,
+      "evidence": [
+        "D1:12"
+      ]
+    },
+    {
+      "qid": 2,
+      "question": "What fields would Caroline be likely to pursue in her educaton?",
+      "gold": "Psychology, counseling certification",
+      "category": 3,
+      "evidence": [
+        "D1:9",
+        "D1:11"
+      ]
+    },
+    {
+      "qid": 3,
+      "question": "What did Caroline research?",
+      "gold": "Adoption agencies",
+      "category": 1,
+      "evidence": [
+        "D2:8"
+      ]
+    },
+    {
+      "qid": 4,
+      "question": "What is Caroline's identity?",
+      "gold": "Transgender woman",
+      "category": 1,
+      "evidence": [
+        "D1:5"
+      ]
+    },
+    {
+      "qid": 5,
+      "question": "When did Melanie run a charity race?",
+      "gold": "The sunday before 25 May 2023",
+      "category": 2,
+      "evidence": [
+        "D2:1"
+      ]
+    },
+    {
+      "qid": 6,
+      "question": "When is Melanie planning on going camping?",
+      "gold": "June 2023",
+      "category": 2,
+      "evidence": [
+        "D2:7"
+      ]
+    },
+    {
+      "qid": 7,
+      "question": "What is Caroline's relationship status?",
+      "gold": "Single",
+      "category": 1,
+      "evidence": [
+        "D3:13",
+        "D2:14"
+      ]
+    },
+    {
+      "qid": 8,
+      "question": "When did Caroline give a speech at a school?",
+      "gold": "The week before 9 June 2023",
+      "category": 2,
+      "evidence": [
+        "D3:1"
+      ]
+    },
+    {
+      "qid": 9,
+      "question": "When did Caroline meet up with her friends, family, and mentors?",
+      "gold": "The week before 9 June 2023",
+      "category": 2,
+      "evidence": [
+        "D3:11"
+      ]
+    },
+    {
+      "qid": 10,
+      "question": "How long has Caroline had her current group of friends for?",
+      "gold": "4 years",
+      "category": 2,
+      "evidence": [
+        "D3:13"
+      ]
+    },
+    {
+      "qid": 11,
+      "question": "Where did Caroline move from 4 years ago?",
+      "gold": "Sweden",
+      "category": 1,
+      "evidence": [
+        "D3:13",
+        "D4:3"
+      ]
+    },
+    {
+      "qid": 12,
+      "question": "How long ago was Caroline's 18th birthday?",
+      "gold": "10 years ago",
+      "category": 2,
+      "evidence": [
+        "D4:5"
+      ]
+    },
+    {
+      "qid": 13,
+      "question": "What career path has Caroline decided to persue?",
+      "gold": "counseling or mental health for Transgender people",
+      "category": 1,
+      "evidence": [
+        "D4:13",
+        "D1:11"
+      ]
+    },
+    {
+      "qid": 14,
+      "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+      "gold": "Likely no",
+      "category": 3,
+      "evidence": [
+        "D4:15",
+        "D3:5"
+      ]
+    },
+    {
+      "qid": 16,
+      "question": "When did Melanie sign up for a pottery class?",
+      "gold": "2 July 2023",
+      "category": 2,
+      "evidence": [
+        "D5:4"
+      ]
+    },
+    {
+      "qid": 17,
+      "question": "When is Caroline going to the transgender conference?",
+      "gold": "July 2023",
+      "category": 2,
+      "evidence": [
+        "D5:13"
+      ]
+    },
+    {
+      "qid": 19,
+      "question": "What do Melanie's kids like?",
+      "gold": "dinosaurs, nature",
+      "category": 1,
+      "evidence": [
+        "D6:6",
+        "D4:8"
+      ]
+    },
+    {
+      "qid": 20,
+      "question": "When did Melanie go to the museum?",
+      "gold": "5 July 2023",
+      "category": 2,
+      "evidence": [
+        "D6:4"
+      ]
+    },
+    {
+      "qid": 21,
+      "question": "When did Caroline have a picnic?",
+      "gold": "The week before 6 July 2023",
+      "category": 2,
+      "evidence": [
+        "D6:11"
+      ]
+    },
+    {
+      "qid": 22,
+      "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+      "gold": "Yes, since she collects classic children's books",
+      "category": 3,
+      "evidence": [
+        "D6:9"
+      ]
+    },
+    {
+      "qid": 23,
+      "question": "What books has Melanie read?",
+      "gold": "\"Nothing is Impossible\", \"Charlotte's Web\"",
+      "category": 1,
+      "evidence": [
+        "D7:8",
+        "D6:10"
+      ]
+    },
+    {
+      "qid": 24,
+      "question": "What does Melanie do to destress?",
+      "gold": "Running, pottery",
+      "category": 1,
+      "evidence": [
+        "D7:22",
+        "D5:4"
+      ]
+    },
+    {
+      "qid": 25,
+      "question": "When did Caroline go to the LGBTQ conference?",
+      "gold": "10 July 2023",
+      "category": 2,
+      "evidence": [
+        "D7:1"
+      ]
+    },
+    {
+      "qid": 26,
+      "question": "When did Melanie read the book \"nothing is impossible\"?",
+      "gold": "2022",
+      "category": 2,
+      "evidence": [
+        "D7:8"
+      ]
+    },
+    {
+      "qid": 27,
+      "question": "Would Caroline pursue writing as a career option?",
+      "gold": "LIkely no; though she likes reading, she wants to be a counselor",
+      "category": 3,
+      "evidence": [
+        "D7:5",
+        "D7:9"
+      ]
+    },
+    {
+      "qid": 28,
+      "question": "When did Caroline go to the adoption meeting?",
+      "gold": "The friday before 15 July 2023",
+      "category": 2,
+      "evidence": [
+        "D8:9"
+      ]
+    },
+    {
+      "qid": 29,
+      "question": "When did Melanie go to the pottery workshop?",
+      "gold": "The Friday before 15 July 2023",
+      "category": 2,
+      "evidence": [
+        "D8:2"
+      ]
+    },
+    {
+      "qid": 31,
+      "question": "When did Melanie go camping in June?",
+      "gold": "The week before 27 June 2023",
+      "category": 2,
+      "evidence": [
+        "D4:8"
+      ]
+    },
+    {
+      "qid": 32,
+      "question": "What LGBTQ+ events has Caroline participated in?",
+      "gold": "Pride parade, school speech, support group",
+      "category": 1,
+      "evidence": [
+        "D5:1",
+        "D8:17",
+        "D3:1",
+        "D1:3"
+      ]
+    },
+    {
+      "qid": 33,
+      "question": "When did Caroline go to a pride parade during the summer?",
+      "gold": "The week before 3 July 2023",
+      "category": 2,
+      "evidence": [
+        "D5:1"
+      ]
+    },
+    {
+      "qid": 82,
+      "question": "What did the charity race raise awareness for?",
+      "gold": "mental health",
+      "category": 4,
+      "evidence": [
+        "D2:2"
+      ]
+    },
+    {
+      "qid": 83,
+      "question": "What did Melanie realize after the charity race?",
+      "gold": "self-care is important",
+      "category": 4,
+      "evidence": [
+        "D2:3"
+      ]
+    },
+    {
+      "qid": 84,
+      "question": "How does Melanie prioritize self-care?",
+      "gold": "by carving out some me-time each day for activities like running, reading, or playing the violin",
+      "category": 4,
+      "evidence": [
+        "D2:5"
+      ]
+    },
+    {
+      "qid": 85,
+      "question": "What are Caroline's plans for the summer?",
+      "gold": "researching adoption agencies",
+      "category": 4,
+      "evidence": [
+        "D2:8"
+      ]
+    },
+    {
+      "qid": 86,
+      "question": "What type of individuals does the adoption agency Caroline is considering support?",
+      "gold": "LGBTQ+ individuals",
+      "category": 4,
+      "evidence": [
+        "D2:12"
+      ]
+    },
+    {
+      "qid": 87,
+      "question": "Why did Caroline choose the adoption agency?",
+      "gold": "because of their inclusivity and support for LGBTQ+ individuals",
+      "category": 4,
+      "evidence": [
+        "D2:12"
+      ]
+    },
+    {
+      "qid": 88,
+      "question": "What is Caroline excited about in the adoption process?",
+      "gold": "creating a family for kids who need one",
+      "category": 4,
+      "evidence": [
+        "D2:14"
+      ]
+    },
+    {
+      "qid": 89,
+      "question": "What does Melanie think about Caroline's decision to adopt?",
+      "gold": "she thinks Caroline is doing something amazing and will be an awesome mom",
+      "category": 4,
+      "evidence": [
+        "D2:15"
+      ]
+    },
+    {
+      "qid": 90,
+      "question": "How long have Mel and her husband been married?",
+      "gold": "Mel and her husband have been married for 5 years.",
+      "category": 4,
+      "evidence": [
+        "D3:16"
+      ]
+    },
+    {
+      "qid": 91,
+      "question": "What does Caroline's necklace symbolize?",
+      "gold": "love, faith, and strength",
+      "category": 4,
+      "evidence": [
+        "D4:3"
+      ]
+    },
+    {
+      "qid": 92,
+      "question": "What country is Caroline's grandma from?",
+      "gold": "Sweden",
+      "category": 4,
+      "evidence": [
+        "D4:3"
+      ]
+    },
+    {
+      "qid": 93,
+      "question": "What was grandma's gift to Caroline?",
+      "gold": "necklace",
+      "category": 4,
+      "evidence": [
+        "D4:3"
+      ]
+    },
+    {
+      "qid": 94,
+      "question": "What is Melanie's hand-painted bowl a reminder of?",
+      "gold": "art and self-expression",
+      "category": 4,
+      "evidence": [
+        "D4:5"
+      ]
+    },
+    {
+      "qid": 95,
+      "question": "What did Melanie and her family do while camping?",
+      "gold": "explored nature, roasted marshmallows, and went on a hike",
+      "category": 4,
+      "evidence": [
+        "D4:8"
+      ]
+    },
+    {
+      "qid": 96,
+      "question": "What kind of counseling and mental health services is Caroline interested in pursuing?",
+      "gold": "working with trans people, helping them accept themselves and supporting their mental health",
+      "category": 4,
+      "evidence": [
+        "D4:13"
+      ]
+    },
+    {
+      "qid": 97,
+      "question": "What workshop did Caroline attend recently?",
+      "gold": "LGBTQ+ counseling workshop",
+      "category": 4,
+      "evidence": [
+        "D4:13"
+      ]
+    },
+    {
+      "qid": 98,
+      "question": "What was discussed in the LGBTQ+ counseling workshop?",
+      "gold": "therapeutic methods and how to best work with trans people",
+      "category": 4,
+      "evidence": [
+        "D4:13"
+      ]
+    },
+    {
+      "qid": 99,
+      "question": "What motivated Caroline to pursue counseling?",
+      "gold": "her own journey and the support she received, and how counseling improved her life",
+      "category": 4,
+      "evidence": [
+        "D4:15"
+      ]
+    },
+    {
+      "qid": 100,
+      "question": "What kind of place does Caroline want to create for people?",
+      "gold": "a safe and inviting place for people to grow",
+      "category": 4,
+      "evidence": [
+        "D4:15"
+      ]
+    },
+    {
+      "qid": 101,
+      "question": "Did Melanie make the black and white bowl in the photo?",
+      "gold": "Yes",
+      "category": 4,
+      "evidence": [
+        "D5:8"
+      ]
+    },
+    {
+      "qid": 102,
+      "question": "What kind of books does Caroline have in her library?",
+      "gold": "kids' books - classics, stories from different cultures, educational books",
+      "category": 4,
+      "evidence": [
+        "D6:9"
+      ]
+    },
+    {
+      "qid": 103,
+      "question": "What was Melanie's favorite book from her childhood?",
+      "gold": "\"Charlotte's Web\"",
+      "category": 4,
+      "evidence": [
+        "D6:10"
+      ]
+    },
+    {
+      "qid": 104,
+      "question": "What book did Caroline recommend to Melanie?",
+      "gold": "\"Becoming Nicole\"",
+      "category": 4,
+      "evidence": [
+        "D7:11"
+      ]
+    },
+    {
+      "qid": 105,
+      "question": "What did Caroline take away from the book \"Becoming Nicole\"?",
+      "gold": "Lessons on self-acceptance and finding support",
+      "category": 4,
+      "evidence": [
+        "D7:13"
+      ]
+    },
+    {
+      "qid": 106,
+      "question": "What are the new shoes that Melanie got used for?",
+      "gold": "Running",
+      "category": 4,
+      "evidence": [
+        "D7:19"
+      ]
+    },
+    {
+      "qid": 107,
+      "question": "What is Melanie's reason for getting into running?",
+      "gold": "To de-stress and clear her mind",
+      "category": 4,
+      "evidence": [
+        "D7:21"
+      ]
+    },
+    {
+      "qid": 108,
+      "question": "What does Melanie say running has been great for?",
+      "gold": "Her mental health",
+      "category": 4,
+      "evidence": [
+        "D7:24"
+      ]
+    },
+    {
+      "qid": 109,
+      "question": "What did Mel and her kids make during the pottery workshop?",
+      "gold": "pots",
+      "category": 4,
+      "evidence": [
+        "D8:2"
+      ]
+    },
+    {
+      "qid": 110,
+      "question": "What kind of pot did Mel and her kids make with clay?",
+      "gold": "a cup with a dog face on it",
+      "category": 4,
+      "evidence": [
+        "D8:4"
+      ]
+    },
+    {
+      "qid": 111,
+      "question": "What creative project do Mel and her kids do together besides pottery?",
+      "gold": "painting",
+      "category": 4,
+      "evidence": [
+        "D8:5"
+      ]
+    },
+    {
+      "qid": 112,
+      "question": "What did Mel and her kids paint in their latest project in July 2023?",
+      "gold": "a sunset with a palm tree",
+      "category": 4,
+      "evidence": [
+        "D8:6"
+      ]
+    },
+    {
+      "qid": 113,
+      "question": "What did Caroline see at the council meeting for adoption?",
+      "gold": "many people wanting to create loving homes for children in need",
+      "category": 4,
+      "evidence": [
+        "D8:9"
+      ]
+    },
+    {
+      "qid": 114,
+      "question": "What do sunflowers represent according to Caroline?",
+      "gold": "warmth and happiness",
+      "category": 4,
+      "evidence": [
+        "D8:11"
+      ]
+    },
+    {
+      "qid": 115,
+      "question": "Why are flowers important to Melanie?",
+      "gold": "They remind her to appreciate the small moments and were a part of her wedding decor",
+      "category": 4,
+      "evidence": [
+        "D8:12"
+      ]
+    }
+  ],
+  "block": [
+    {
+      "content": "Caroline: I went to a LGBTQ support group yesterday and it was so powerful.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, that's cool, Caroline! What happened that was so awesome? Did you hear any inspiring stories?",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: The transgender stories were so inspiring! I was so happy and thankful for all the support.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, love that painting! So cool you found such a helpful group. What's it done for you?",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: The support group has made me feel accepted and given me courage to embrace myself.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That's really cool. You've got guts. What now?",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Gonna continue my edu and check out career options, which is pretty exciting!",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! What kinda jobs are you thinkin' of? Anything that stands out?",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: You'd be a great counselor! Your empathy and understanding will really help the people you work with. By the way, take a look at this.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Melanie! That's really sweet. Is this your own painting?",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Yeah, I painted that lake sunrise last year! It's special to me.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, Melanie! The colors really blend nicely. Painting looks like a great outlet for expressing yourself.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! Painting's a fun way to express my feelings and get creative. It's a great way to relax after a long day.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Totally agree, Mel. Relaxing and expressing ourselves is key. Well, I'm off to go do some research.",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Yep, Caroline. Taking care of ourselves is vital. I'm off to go swimming with the kids. Talk to you soon!",
+      "created_at": "2023-05-08 13:56:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Hey Caroline, since we last chatted, I've had a lot of things happening to me. I ran a charity race for mental health last Saturday – it was really rewarding. Really made me think about taking care of our minds.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: That charity race sounds great, Mel! Making a difference & raising awareness for mental health is super rewarding - I'm really proud of you for taking part!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! The event was really thought-provoking. I'm starting to realize that self-care is really important. It's a journey for me, but when I look after myself, I'm able to better look after my family.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I totally agree, Melanie. Taking care of ourselves is so important - even if it's not always easy. Great that you're prioritizing self-care.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Yeah, it's tough. So I'm carving out some me-time each day - running, reading, or playing my violin - which refreshes me and helps me stay present for my fam!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: That's great, Mel! Taking time for yourself is so important. You're doing an awesome job looking after yourself and your family!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline. It's still a work in progress, but I'm doing my best. My kids are so excited about summer break! We're thinking about going camping next month. Any fun plans for the summer?",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Researching adoption agencies — it's been a dream to have a family and give a loving home to kids who need it.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! That's awesome! Taking in kids in need - you're so kind. Your future family is gonna be so lucky to have you!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Mel! My goal is to give kids a loving home. I'm truly grateful for all the support I've got from friends and mentors. Now the hard work starts to turn my dream into a reality. And here's one of the adoption agencies I'm looking into. It's a lot to take in, but I'm feeling hopeful and optimistic.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, that agency looks great! What made you pick it?",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I chose them 'cause they help LGBTQ+ folks with adoption. Their inclusivity and support really spoke to me.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That's great, Caroline! Loving the inclusivity and support. Anything you're excited for in the adoption process?",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I'm thrilled to make a family for kids who need one. It'll be tough as a single parent, but I'm up for the challenge!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: You're doing something amazing! Creating a family for those kids is so lovely. You'll be an awesome mom! Good luck!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Melanie! Your kind words really mean a lot. I'll do my best to make sure these kids have a safe and loving home.",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: No doubts, Caroline. You have such a caring heart - they'll get all the love and stability they need! Excited for this new chapter!",
+      "created_at": "2023-05-25 13:14:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Hey Melanie! How's it going? I wanted to tell you about my school event last week. It was awesome! I talked about my transgender journey and encouraged students to get involved in the LGBTQ community. It was great to see their reactions. It made me reflect on how far I've come since I started transitioning three years ago.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Hey Caroline! Great to hear from you. Sounds like your event was amazing! I'm so proud of you for spreading awareness and getting others involved in the LGBTQ community. You've come a long way since your transition - keep on inspiring people with your strength and courage!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Mel! Your backing really means a lot. I felt super powerful giving my talk. I shared my own journey, the struggles I had and how much I've developed since coming out. It was wonderful to see how the audience related to what I said and how it inspired them to be better allies. Conversations about gender identity and inclusion are so necessary and I'm thankful for being able to give a voice to the trans community.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline, you're doing an awesome job of inspiring others with your journey. It's great to be part of it and see how you're positively affecting so many. Talking about inclusivity and acceptance is crucial, and you're so brave to speak up for the trans community. Keep up the great work!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks Mel! Your kind words mean a lot. Sharing our experiences isn't always easy, but I feel it's important to help promote understanding and acceptance. I've been blessed with loads of love and support throughout this journey, and I want to pass it on to others. By sharing our stories, we can build a strong, supportive community of hope.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Yeah, Caroline! It takes courage to talk about our own stories. But it's in these vulnerable moments that we bond and understand each other. We all have our different paths, but if we share them, we show people that they're not alone. Our stories can be so inspiring and encouraging to others who are facing the same challenges. Thank you for using your voice to create love, acceptance, and hope. You're doing amazing!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Your words mean a lot to me. I'm grateful for the chance to share my story and give others hope. We all have unique paths, and by working together we can build a more inclusive and understanding world. I'm going to keep using my voice to make a change and lift others up. And you're part of that!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline, for letting me join your journey. I'm so proud to be part of the difference you're making. Let's keep motivating and helping each other out as we journey through life. We can make a real impact together!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Yeah Mel, let's spread love and understanding! Thanks for the support and encouragement. We can tackle life's challenges together! We got this!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Yes, Caroline! We can do it. Your courage is inspiring. I want to be couragous for my family- they motivate me and give me love. What motivates you?",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Mel! My friends, family and mentors are my rocks – they motivate me and give me the strength to push on. Here's a pic from when we met up last week!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, that photo is great! How long have you had such a great support system?",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Yeah, I'm really lucky to have them. They've been there through everything, I've known these friends for 4 years, since I moved from my home country. Their love and help have been so important especially after that tough breakup. I'm super thankful. Who supports you, Mel?",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: I'm lucky to have my husband and kids; they keep me motivated.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, what an amazing family pic! How long have you been married?",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: 5 years already! Time flies- feels like just yesterday I put this dress on! Thanks, Caroline!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Congrats, Melanie! You both looked so great on your wedding day! Wishing you many happy years together!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! Appreciate your kind words. Looking forward to more happy years. Our family and moments make it all worth it.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Looks like you had a great day! How was it? You all look so happy!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: It so fun! We played games, ate good food, and just hung out together. Family moments make life awesome.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Sounds great, Mel! Glad you had a great time. Cherish the moments - they're the best!",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Absolutely, Caroline! I cherish time with family. It's when I really feel alive and happy.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I 100% agree, Mel. Hanging with loved ones is amazing and brings so much happiness. Those moments really make me thankful. Family is everything.",
+      "created_at": "2023-06-09 19:55:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Hey Melanie! Long time no talk! A lot's been going on in my life! Take a look at this.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Hey, Caroline! Nice to hear from you! Love the necklace, any special meaning to it?",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Melanie! This necklace is super special to me - a gift from my grandma in my home country, Sweden. She gave it to me when I was young, and it stands for love, faith and strength. It's like a reminder of my roots and all the love and support I get from my family.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That's gorgeous, Caroline! It's awesome what items can mean so much to us, right? Got any other objects that you treasure, like that necklace?",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Yep, Melanie! I've got some other stuff with sentimental value, like my hand-painted bowl. A friend made it for my 18th birthday ten years ago. The pattern and colors are awesome-- it reminds me of art and self-expression.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That sounds great, Caroline! It's awesome having stuff around that make us think of good connections and times. Actually, I just took my fam camping in the mountains last week - it was a really nice time together!",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Sounds great, Mel. Glad you made some new family mems. How was it? Anything fun?",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: It was an awesome time, Caroline! We explored nature, roasted marshmallows around the campfire and even went on a hike. The view from the top was amazing! The 2 younger kids love nature. It was so special having these moments together as a family - I'll never forget it!",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: That's awesome, Melanie! Family moments like that are so special. Glad y'all had such a great time.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! Family time matters to me. What's up with you lately?",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Lately, I've been looking into counseling and mental health as a career. I want to help people who have gone through the same things as me.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Sounds great! What kind of counseling and mental health services do you want to persue?",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I'm still figuring out the details, but I'm thinking of working with trans people, helping them accept themselves and supporting their mental health. Last Friday, I went to an LGBTQ+ counseling workshop and it was really enlightening. They talked about different therapeutic methods and how to best work with trans people. Seeing how passionate these pros were about making a safe space for people like me was amazing.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Woah, Caroline, it sounds like you're doing some impressive work. It's inspiring to see your dedication to helping others. What motivated you to pursue counseling?",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Melanie. It really mattered. My own journey and the support I got made a huge difference. Now I want to help people go through it too. I saw how counseling and support groups improved my life, so I started caring more about mental health and understanding myself. Now I'm passionate about creating a safe, inviting place for people to grow.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! You've gained so much from your own experience. Your passion and hard work to help others is awesome. Keep it up, you're making a big impact!",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Melanie! Your kind words mean a lot.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Congrats Caroline! Good on you for going after what you really care about.",
+      "created_at": "2023-06-27 10:37:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Since we last spoke, some big things have happened. Last week I went to an LGBTQ+ pride parade. Everyone was so happy and it made me feel like I belonged. It showed me how much our community has grown, it was amazing!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline, sounds like the parade was an awesome experience! It's great to see the love and support for the LGBTQ+ community. Congrats! Has this experience influenced your goals at all?",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Mel! It really motivated me for sure. Talking to the community made me want to use my story to help others too - I'm still thinking that counseling and mental health is the way to go. I'm super excited to give back. ",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! That's great! I just signed up for a pottery class yesterday. It's like therapy for me, letting me express myself and get creative. Have you found any activities that make you feel the same way?",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, Melanie! I'm getting creative too, just learning the piano. What made you try pottery?",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: I'm a big fan of pottery - the creativity and skill is awesome. Plus, making it is so calming. Look at this!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: That bowl is gorgeous! The black and white design looks so fancy. Did you make it?",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! Yeah, I made this bowl in my class. It took some work, but I'm pretty proud of it.",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Nice job! You really put in the work and it definitely shows. Your creativity looks great!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! Your kind words mean a lot. Pottery is a huge part of my life, not just a hobby - it helps me express my emotions. Clay is incredible, it brings me so much joy!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, Mel, I'm so stoked for you that art is helping you express yourself and bring you joy! Keep it up!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! I'm excited to see where pottery takes me. Anything coming up you're looking forward to?",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks Mel! I'm going to a transgender conference this month. I'm so excited to meet other people in the community and learn more about advocacy. It's gonna be great!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Sounds awesome, Caroline! Have a great time and learn a lot. Have fun!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Cool, thanks Mel! Can't wait. I'll keep ya posted. Bye!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Bye, Caroline! Can't wait to hear about it. Have fun and stay safe!",
+      "created_at": "2023-07-03 13:36:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Hey Mel! Long time no talk. Lots has been going on since then!",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Hey Caroline! Missed you. Anything new? Spill the beans!",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Since our last chat, I've been looking into counseling or mental health work more. I'm passionate about helping people and making a positive impact. It's tough, but really rewarding too. Anything new happening with you?",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That's awesome, Caroline! Congrats on following your dreams. Yesterday I took the kids to the museum - it was so cool spending time with them and seeing their eyes light up!",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Melanie, that's a great pic! That must have been awesome. What were they so stoked about?",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: They were stoked for the dinosaur exhibit! They love learning about animals and the bones were so cool. It reminds me why I love being a mom.",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Being a mom is awesome. I'm creating a library for when I have kids. I'm really looking forward to reading to them and opening up their minds.",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Sounds great! What kind of books you got in your library?",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I've got lots of kids' books- classics, stories from different cultures, educational books, all of that. What's a favorite book you remember from your childhood?",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: I loved reading \"Charlotte's Web\" as a kid. It was so cool seeing how friendship and compassion can make a difference.",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, that's great! It sure shows how important friendship and compassion are. It's made me appreciate how lucky I am to have my friends and family helping with my transition. They make all the difference. We even had a picnic last week!",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That's a gorgeous photo, Caroline! Wow, the love around you is awesome. How have your friends and fam been helping you out with your transition?",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Melanie! This support network has been amazing. They've been there for me every step of the way giving me love, guidance, and acceptance. I couldn't have done it without them.",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! It's great you have people to support you, that's really awesome!",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I'm so lucky to have such a great support system around me. Their love and encouragement has really helped me accept and grow into my true self. They've been instrumental in my transition.",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Glad you have support, Caroline! Unconditional love is so important. Here's a pic of my family camping at the beach. We love it, it brings us closer!",
+      "created_at": "2023-07-06 20:18:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Hey Mel, great to chat with you again! So much has happened since we last spoke - I went to an LGBTQ conference two days ago and it was really special. I got the chance to meet and connect with people who've gone through similar journeys. It was such a welcoming environment and I felt totally accepted. I'm really thankful for this amazing community - it's shown me how important it is to fight for trans rights and spread awareness.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline, that sounds awesome! So glad you felt accepted and supported. Events like these are great for reminding us of how strong community can be!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Yeah, it's true! Having people who back you makes such a huge difference. It's great to see how far LGBTQ rights have come, but there's still plenty of progress to be made. I wanna help make a difference.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline. We've come so far, but there's more to do. Your drive to help is awesome! What's your plan to pitch in?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks, Mell! I'm still looking into counseling and mental health jobs. It's important to me that people have someone to talk to, and I want to help make that happen.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! You're so inspiring for wanting to help others with their mental health. What's pushing you to keep going forward with it?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I struggled with mental health, and support I got was really helpful. It made me realize how important it is for others to have a support system. So, I started looking into counseling and mental health career options, so I could help other people on their own journeys like I was helped.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Caroline, so glad you got the support! Your experience really brought you to where you need to be. You're gonna make a huge difference! This book I read last year reminds me to always pursue my dreams, just like you are doing!🌟",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks so much, Mel! Seeing this pic just made me appreciate my love of reading even more. Books guide me, motivate me and help me discover who I am. They're a huge part of my journey, and this one's reminding me to keep going and never give up!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline! Books have such an awesome power! Which one has been your favorite guide?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: I loved \"Becoming Nicole\" by Amy Ellis Nutt. It's a real inspiring true story about a trans girl and her family. It made me feel connected and gave me a lot of hope for my own path. Highly recommend it for sure!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: That sounds awesome! What did you take away from it to use in your life?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: It taught me self-acceptance and how to find support. It also showed me that tough times don't last - hope and love exist. Pets bring so much joy too, though.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Caroline, those lessons are great - self-acceptance and finding support are key. Plus pets are awesome for joy and comfort, can't agree more! ",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: That's so nice! What pet do you have?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: We've got a pup and a kitty. That's the dog, and here's our cat! They brighten up our day and always make us smile.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Ah, they're adorable! What are their names? Pets sure do bring so much joy to us!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Luna and Oliver! They are so sweet and playful - they really liven up the house! Just got some new shoes, too!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Love that purple color! For walking or running?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! These are for running. Been running longer since our last chat - a great way to destress and clear my mind.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow! What got you into running?",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: I've been running farther to de-stress, which has been great for my headspace.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Cool, Melanie! Running can really boost your mood. Keep it up!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! This has been great for my mental health. I'm gonna keep it up.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Awesome, Melanie! Mental health's a priority, so make sure you take care of yourself.",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Caroline, thanks! Mental health is important to me, and it's made such an improvement!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Glad it helped ya, Melanie!",
+      "created_at": "2023-07-12 16:33:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Hey Mel, what's up? Been a busy week since we talked.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Hey Caroline, it's been super busy here. So much since we talked! Last Fri I finally took my kids to a pottery workshop. We all made our own pots, it was fun and therapeutic!",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, Mel! Sounds like you and the kids had a blast. How'd they like it?",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: The kids loved it! They were so excited to get their hands dirty and make something with clay. It was special to watch their creativity and imagination come to life, they made this!",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Aww, that's so sweet! That cup is so cute. It's awesome to see how kids show their personalities through art. What other creative projects do you do with them, besides pottery?",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: We love painting together lately, especially nature-inspired ones. Here's our latest work from last weekend.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow Mel, that painting's amazing! The colors are so bold and it really highlights the beauty of nature. Y'all work on it together?",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Thanks, Caroline! We both helped with the painting - it was great bonding over it and chatting about nature. We found these lovely flowers. Appreciating the small things in life, too.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: That photo is stunning! So glad you bonded over our love of nature. Last Friday I went to a council meeting for adoption. It was inspiring and emotional - so many people wanted to create loving homes for children in need. It made me even more determined to adopt.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Wow, Caroline, way to go! Your future fam will get a kick out of having you. What do you think of these?",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Thanks Melanie - love the blue vase in the pic! Blue's my fave, it makes me feel relaxed. Sunflowers mean warmth and happiness, right? While roses stand for love and beauty? That's neat. What do flowers mean to you?",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Flowers bring joy. They represent growth, beauty and reminding us to appreciate the small moments. They were an important part of my wedding decor and always remind me of that day.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: It must have been special at your wedding. I wish I had known you back then!",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: It was amazing, Caroline. The day was full of love and joy. Everyone we love was there to celebrate us - it was really special.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, what a great day! Glad everyone could make it. What was your favorite part?",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Melanie: Marrying my partner and promising to be together forever was the best part.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    },
+    {
+      "content": "Caroline: Wow, nice pic! You both looked amazing. One special memory for me was this pride parade I went to a few weeks ago.",
+      "created_at": "2023-07-15 13:51:00",
+      "origin": "valid"
+    }
+  ],
+  "noise": [
+    {
+      "content": "Nate: Hey Joanna! Long time no see! What's up? Anything fun going on?",
+      "created_at": "2023-07-16 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Long time no see! I've been working on a project lately - it's been pretty cool. What about you - any fun projects or hobbies?",
+      "created_at": "2023-07-16 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! That's cool! I won my first video game tournament last week - so exciting!",
+      "created_at": "2023-07-17 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow Nate! Congrats on winning! Tell me more - what game was it?",
+      "created_at": "2023-07-17 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! it's a team shooter game.",
+      "created_at": "2023-07-17 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, great job! What was is called?",
+      "created_at": "2023-07-17 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: The game was called Counter-Strike: Global Offensive, and me and my team had a blast to the very end!",
+      "created_at": "2023-07-18 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Cool, Nate! Sounds like a fun experience, even if I'm not into games.",
+      "created_at": "2023-07-18 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: It was! How about you? Do you have any hobbies you love?",
+      "created_at": "2023-07-18 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah! Besides writing, I also enjoy reading, watching movies, and exploring nature. Anything else you enjoy doing, Nate?",
+      "created_at": "2023-07-18 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Playing video games and watching movies are my main hobbies.",
+      "created_at": "2023-07-19 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Cool, Nate! So we both have similar interests. What type of movies do you like best?",
+      "created_at": "2023-07-19 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I love action and sci-fi movies, the effects are so cool! What about you, what's your favorite genre?",
+      "created_at": "2023-07-19 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'm all about dramas and romcoms. I love getting immersed in the feelings and plots.",
+      "created_at": "2023-07-19 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, movies can be so powerful! Do you have any recommendations for me?",
+      "created_at": "2023-07-20 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, totally! Have you seen this romantic drama that's all about memory and relationships? It's such a good one.",
+      "created_at": "2023-07-20 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Oh cool! I might check that one out some time soon! I do love watching classics.",
+      "created_at": "2023-07-20 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yep, that movie is awesome. I first watched it around 3 years ago. I even went out and got a physical copy!",
+      "created_at": "2023-07-20 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds cool! Have you seen it a lot? sounds like you know the movie well!",
+      "created_at": "2023-07-21 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: A few times. It's one of my favorites! I really like the idea and the acting.",
+      "created_at": "2023-07-21 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Cool! I'll definitely check it out. Thanks for the recommendation!",
+      "created_at": "2023-07-21 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: No problem, Nate! Let me know if you like it!",
+      "created_at": "2023-07-21 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Haven't talked in a few days. Crazy things happened to me!",
+      "created_at": "2023-07-22 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hi Joanna! Long time no see! What's been going on? You sound excited!",
+      "created_at": "2023-07-22 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Woo! I finally finished my first full screenplay and printed it last Friday. I've been working on for a while, such a relief to have it all done!",
+      "created_at": "2023-07-22 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that sounds awesome! What's it about? Glad it's all down!",
+      "created_at": "2023-07-22 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! It's a mix of drama and romance!",
+      "created_at": "2023-07-23 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that's amazing! How do you feel now that it's finished? Do you have any new plans for it?",
+      "created_at": "2023-07-23 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Woohoo, Nate! I'm feeling a rollercoaster of emotions - relief, excitement, some anxiety - over finishing this project. Now I'm gonna submit it to some film festivals and (hopefully) get producers and directors to check it out. Here's hoping!",
+      "created_at": "2023-07-23 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Congrats, Joanna! That sounds like a wild experience. Rock on and I hope they love it!",
+      "created_at": "2023-07-23 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! A mix of emotions for sure. Hopefully, it leads to positive feedback and new opportunities.",
+      "created_at": "2023-07-24 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah, for sure. Hoping for the best! I like having some of these little ones around to keep me calm when things are super important and I'm nervous.",
+      "created_at": "2023-07-24 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Awww! How long have you had them?",
+      "created_at": "2023-07-24 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I've had them for 3 years now and they bring me tons of joy!",
+      "created_at": "2023-07-24 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: They sure lookl like they do! Adorable!",
+      "created_at": "2023-07-25 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! The turtles might be small, but both sure have big personalities. I really reccomend having something like these little guys for times of stress.",
+      "created_at": "2023-07-25 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Good idea, Nate! I'll think about it and maybe get pets of my own soon if I can find any I'm not allergic to. Have you been up to anything recently?",
+      "created_at": "2023-07-25 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah actually! I start to hang out with some people outside of my circle at the tournament. They're pretty cool!",
+      "created_at": "2023-07-25 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Oh? That sounds sweet! Is it a weird relationship with them being competitors and all?",
+      "created_at": "2023-07-26 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Oh, kind of. Some people are more competitive then others, so I tend to just stick around the more chill people here.",
+      "created_at": "2023-07-26 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That makes sense! Are you gonna cheer them on even if you lose?",
+      "created_at": "2023-07-26 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Absolutely! I don't expect to win big here, I just like playing for fun!  You mentioned you were allergic to pets earlier, how bad is it?",
+      "created_at": "2023-07-26 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Oh, its really bad. My face gets all puffy and itchy when I'm around certain animals, so I've always just stayed away.",
+      "created_at": "2023-07-27 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sorry to hear that. Allergies can be tough. What specifically are you allergic to?",
+      "created_at": "2023-07-27 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'm allergic to most reptiles and animals with fur. It can be a bit of a drag, but I find other ways to be happy.",
+      "created_at": "2023-07-27 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Awesome! There are lots of things that can bring you joy without pets. What else brings you joy?",
+      "created_at": "2023-07-27 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Writing and hanging with friends! That way I can express myself through stories, or just have a good time with people.",
+      "created_at": "2023-07-28 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's great to hear! Those are both great things. I'm glad to hear you've got other things to help you get through times of axiousness despite not being able to have animals!",
+      "created_at": "2023-07-28 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Writing helps me create wild worlds with awesome characters. Plus, it's a great way to express my feelings. I can't imagine life without it.",
+      "created_at": "2023-07-28 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Joanna, that sounds amazing! Keep doing what you love!",
+      "created_at": "2023-07-28 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! I'll definitely keep pursuing my passion for writing. It means a lot.",
+      "created_at": "2023-07-29 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, long time no see! The screenplay I sent in to the film festival has been on my mind all day everyday. I keep bouncing between crazy emotions like relief, excitement and worry! Fingers crossed a producer or director falls in love with it and it ends up on the big screen - that would be awesome!",
+      "created_at": "2023-07-29 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! It is a big deal! I'm sure its been a wild ride. Sending some positive vibes and hoping someone likes it enough to get it on the big screen - that would be awesome!",
+      "created_at": "2023-07-29 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate, your support really means a lot. I put a lot of effort into it and I'm crossing my fingers. What about you? Anything new and exciting happening in your life?",
+      "created_at": "2023-07-29 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, Joanna. Not much has changed for me, but I just discovered that I can make coconut milk icecream and gave it a try. It was actually pretty good, so I'm proud of myself.",
+      "created_at": "2023-07-30 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Looks delish! Glad you tried something new and it went well. What did you think of it?",
+      "created_at": "2023-07-30 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Super good! It was rich and creamy - might be my new favorite snack!",
+      "created_at": "2023-07-30 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Great! I love when you try something new and it actually works out. Will you give it another go?",
+      "created_at": "2023-07-30 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yep, it could be fun! I'm looking forward to trying out different flavors and toppings.",
+      "created_at": "2023-07-31 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yum! Sounds great. Got any favorite flavors for dairy-free desserts?",
+      "created_at": "2023-07-31 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I love coconut milk, but I also enjoy chocolate and mixed berry flavors.",
+      "created_at": "2023-07-31 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, those sound great! Who can say no to chocolate and berries? I'm tempted to try dairy-free flavors now!",
+      "created_at": "2023-07-31 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Well I also made a dairy-free chocolate cake with berries on it the other day, maybe you would like that!",
+      "created_at": "2023-08-01 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow! That sounds yummy! You're so talented. Thanks for sharing your amazing creations! I should really try making one or just pay you a visit and try one for myself!",
+      "created_at": "2023-08-01 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I couldn't agree more! It's always fun experimenting in the kitchen.",
+      "created_at": "2023-08-01 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I can tell! Your cooking skills are awesome. Seen any good movies lately?",
+      "created_at": "2023-08-01 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Not recently. Any good ones you'd recommend?",
+      "created_at": "2023-08-02 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I just watched \"Little Women\" and it was amazing! It's a great story about sisterhood, love, and reaching for your dreams. Definitely a must-see!",
+      "created_at": "2023-08-02 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Oh, that sounds like a great one! I'll definitely add it to my list. Thanks for the recommendation!",
+      "created_at": "2023-08-02 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Anytime! I'm always down to give movie reccomendations.",
+      "created_at": "2023-08-02 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Good to know! I'll be sure to give you a shout whenever I run out of things to watch!",
+      "created_at": "2023-08-03 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sounds great! Let me know what you think of it when your done!",
+      "created_at": "2023-08-03 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: You bet! You'll be the first to know.",
+      "created_at": "2023-08-03 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Awesome! Enjoy yourself!",
+      "created_at": "2023-08-03 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: You too, take care!",
+      "created_at": "2023-08-04 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Later, take care!",
+      "created_at": "2023-08-04 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! Sorry I haven't been around. I made my friend some ice cream and they loved it!",
+      "created_at": "2023-08-04 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: No worries, Nate! Glad to hear it. What flavor did you make?",
+      "created_at": "2023-08-04 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I whipped up some chocolate and vanilla swirl.",
+      "created_at": "2023-08-05 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That looks delicious! Unfortunately, I can't have dairy, so no ice cream for me. Do you happen to have a dairy-free recipe that I could try?",
+      "created_at": "2023-08-05 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sure, I know one recipe using coconut milk. Would you like me to send it to you?",
+      "created_at": "2023-08-05 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, definitely! I'm keen to try your recipe. Always up for something sweet.",
+      "created_at": "2023-08-05 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Cool, I'll do that. I'm all about these desserts, let me know what you think!",
+      "created_at": "2023-08-06 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Definitely keeping you posted! Love your creations!",
+      "created_at": "2023-08-06 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, Joanna! It means a lot that you enjoy the desserts I bake.",
+      "created_at": "2023-08-06 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah Nate, your cooking is amazing! I can't stop thinking about the screenplay, so I just started writing another one while I wait to hear back about how the first one did.",
+      "created_at": "2023-08-06 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I hear that, taking your mind of something like that is very challenging. What's the new one about?",
+      "created_at": "2023-08-07 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: It's about a thirty year old woman on a journey of self-discovery after a loss. Somewhat similar to the last one, but hey, that's just the kind of thing I'm inspired to write about!",
+      "created_at": "2023-08-07 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Interesting! That's a deep topic. Love to hear more about it.",
+      "created_at": "2023-08-07 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! It's my own story. The main character is dealing with some tough stuff: loss and trying to figure out who they are. They take a road trip to heal and grow.",
+      "created_at": "2023-08-07 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Joanna, that sounds awesome. I love stories that tackle important issues. What inspired you to this one?",
+      "created_at": "2023-08-08 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! It was inspired by personal experiences and my own journey of self-discovery.",
+      "created_at": "2023-08-08 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Joanna, that takes guts! I can't wait to see it all come together. I'm also pumped to see how your first one will do!",
+      "created_at": "2023-08-08 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Appreciate your support. Hoping my screenplay gets noticed and makes it to the screen. Fingers crossed!",
+      "created_at": "2023-08-08 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Crossing my fingers for you! Hope your screenplay finds a fan and is given its due. Good luck!",
+      "created_at": "2023-08-09 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, it's been a minute! I wrapped up my second script, and the feels have been wild. Sometimes I'm so relieved, but other times I just feel anxious about what comes next. It's a mix of excitement and terror, thinking about my work getting noticed and hitting the big screen.",
+      "created_at": "2023-08-09 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! Awesome to hear from you! Congrats on wrapping up a second one! All that hard work and dedication will definitely shine through and get noticed, no doubt. Hope you've been able to take some time to relax after everything!",
+      "created_at": "2023-08-09 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! It's been a wild ride. I've been decompressing, but it's hard to switch off. There's always this tug-of-war of hope and doubt.",
+      "created_at": "2023-08-09 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: It's normal to have doubts, but you've worked hard and put tons of passion into it. Believe in yourself and things will work out. Here, look at this cute pic - walking them always reminds me to enjoy the small stuff!",
+      "created_at": "2023-08-10 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That pic's adorable! They always look so relaxed outside. What made you choose them as pets?",
+      "created_at": "2023-08-10 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm drawn to turtles. They're unique and their slow pace is a nice change from the rush of life. They're also low-maintenance and calming. Check out this moment I snapped!",
+      "created_at": "2023-08-10 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: They look so peaceful! It's amazing how these creatures bring so much calm and joy. Is taking care of them tough?",
+      "created_at": "2023-08-10 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No, not really. Just keep their area clean, feed them properly, and make sure they get enough light. It's actually kind of fun.",
+      "created_at": "2023-08-11 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sounds great! Having pets must be a wonderful experience.",
+      "created_at": "2023-08-11 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Pets definitely bring tons of joy. They are always there for us and they're so cute! Relaxing with them is a great way to chill.",
+      "created_at": "2023-08-11 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I wish I wasn't allergic! I would get two turtles today if I could! I found out recently I'm allergic to cockroaches as well, so who knows if I'll ever get a pet.",
+      "created_at": "2023-08-11 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sorry! Maybe there are other animals you could consider! In the meantime though, I'll be sure to send you pics of my turtles so you can still watch them grow without getting too close.",
+      "created_at": "2023-08-12 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Great idea! I'm already really invested in those little guys!",
+      "created_at": "2023-08-12 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Pets really seem to do that to everyone don't they! So, what about your script now? Any ideas for the next steps?",
+      "created_at": "2023-08-12 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I've been doing my fair share of research and networking non-stop for it. It's tough, but I'm determined to make it happen.",
+      "created_at": "2023-08-12 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Great idea! that should hopefully get some more eyes on it. Keep up the hard work!",
+      "created_at": "2023-08-13 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks so much, Nate! Your support means a lot. I'll keep working at it and hopefully the next steps will become clearer soon.",
+      "created_at": "2023-08-13 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Just make sure you don't quit - the path forward will show up soon. You got this!",
+      "created_at": "2023-08-13 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Appreciated! I think just having someone to support me throughout the whole process is such a blessing. It gives me the motivation to keep pushing forward.",
+      "created_at": "2023-08-13 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Glad to hear my support makes a difference, Joanna. I'm here for you!",
+      "created_at": "2023-08-14 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Always good to hear! See you later!",
+      "created_at": "2023-08-14 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! Long time no talk, how's it going? Crazy stuff's been happening since we last chatted.",
+      "created_at": "2023-08-14 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Been quite a ride - in a good way - had an audition yesterday for a writing gig.",
+      "created_at": "2023-08-14 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Congrats! How did it go? Are you excited?",
+      "created_at": "2023-08-15 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! It went alright. Mixed emotions - definitely excited but also a bit anxious. Keep those fingers crossed!",
+      "created_at": "2023-08-15 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah, I get it. Mixed emotions are rough, but I have faith in you! Keep me posted - you got this!",
+      "created_at": "2023-08-15 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Your support means a lot. I'll make sure to keep you updated. Anything new on your end?",
+      "created_at": "2023-08-15 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah actually - I'm currently participating in the video game tournament again and it's INTENSE! There's so much adrenaline flowing.",
+      "created_at": "2023-08-16 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Best of luck in the tournament! It sounds like it would be difficult to go through so many days of intense gaming! This is my go-to place for writing inspiration. It helps me stay sharp and motivated.",
+      "created_at": "2023-08-16 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that's a lot of books. Do you have any advice for someone like me who wants to pursue writing?",
+      "created_at": "2023-08-16 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Definitely! Read lots and try out different genres. Build a solid understanding of literature. Don't be afraid to write and share, even if it's just with friends. Practicing and gathering feedback will make you better. Have faith in yourself and continue following your writing dreams - it's tough but worth it.",
+      "created_at": "2023-08-16 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, Joanna. Really appreciate your help and kind words. I'm going to keep working hard on it and see what happens. Good luck with your project, I'm sure it will turn out great!",
+      "created_at": "2023-08-17 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! Appreciate your kind words and support. Let's keep going for our dreams and work hard. Catch you later!",
+      "created_at": "2023-08-17 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Bye Joanna! Take care!",
+      "created_at": "2023-08-17 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Jo, guess what I did? Dyed my hair last week - come see!",
+      "created_at": "2023-08-17 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, Nate! Can't wait to see it. Must feel so liberating! How're you feeling?",
+      "created_at": "2023-08-18 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm so stoked about it! Check it out!",
+      "created_at": "2023-08-18 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, your new hair color looks amazing! What made you choose that shade? Tell me all about it!",
+      "created_at": "2023-08-18 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks Jo! I picked this color because it's bright and bold - like me! I wanted to stand out from the regular options.",
+      "created_at": "2023-08-18 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's amazing, Nate! Your boldness really inspired me. It reminded me of this gorgeous sunset I saw while hiking the other day. It made me realize the importance of showing the world who we are.",
+      "created_at": "2023-08-19 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that sunset looks awesome! Jealous! I bet you had a great time. Are there any more exciting trips coming up for you?",
+      "created_at": "2023-08-19 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I did! the sky was so gorgeous! Wish I had a vacation lined up, but right now my writing is consuming me. Hoping for some good news soon!",
+      "created_at": "2023-08-19 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I understand, Joanna. Big projects can be so taxing. Keep me posted on how it goes, alright?",
+      "created_at": "2023-08-19 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Cheers, Nate! Your support means a lot. I'll definitely keep you updated.",
+      "created_at": "2023-08-20 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds great, See you soon?",
+      "created_at": "2023-08-20 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Totally! Bye Nate!",
+      "created_at": "2023-08-20 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Take care!",
+      "created_at": "2023-08-20 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! Haven't talked with you in a while - how's it going?",
+      "created_at": "2023-08-21 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Great to hear from you. I've been reading a lot in the past week! There's a lot of good books I forgot I owned.",
+      "created_at": "2023-08-21 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds fun! I probably also have loads of books I haven't read in years. Sounds like a blast from the past!",
+      "created_at": "2023-08-21 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: It really is! On a different note, I found an awesome hiking trail in my hometown yesterday! It was gorgeous. Nature is so inspiring, and it's a great way to reset. Do you know of any good hiking spots?",
+      "created_at": "2023-08-21 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm not really into hiking but I'm curious to see what the trail looks like! I heard there's a nice trail just north of where I live.",
+      "created_at": "2023-08-22 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Maybe I'll have to convince you to go with me one of these times!",
+      "created_at": "2023-08-22 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Maybe! I do like nature, so that might be fun going with someone else.",
+      "created_at": "2023-08-22 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, nature's awesome! I'm a huge fan of it, that's why I go!",
+      "created_at": "2023-08-22 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Agreed, nature has a way of being so inspiring! I'm glad you found a way to reset and find peace in it.",
+      "created_at": "2023-08-23 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Nature's always been my haven. Walking in it, feeling it, hearing the sounds - it's so calming. Worries and stress seem to vanish, and it's just me and the beauty around me.",
+      "created_at": "2023-08-23 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: It's so crucial to find a little peace and remember life's beauty. For me, it's spending time with my pets and engaging in my hobbies; they let me take a break from reality. It's wild how small things can have such a powerful effect on our happiness, right?",
+      "created_at": "2023-08-23 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, Nate! Even the small things make life enjoyable and worth it. Taking time for your little friends and doing activities you love are like treasures that remind us how great and peaceful life is. We just gotta savor them!",
+      "created_at": "2023-08-23 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Speaking of which, here they go again!",
+      "created_at": "2023-08-24 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: So cute! I love your turtles so much!",
+      "created_at": "2023-08-24 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Me too! I love watching them play to simply enjoy the peaceful moments of life. Sometimes I even bring them in the kitchen so they can watch me make food like this!",
+      "created_at": "2023-08-24 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I love your icecream so much! I wish I could make it the way you do!",
+      "created_at": "2023-08-24 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! It's dairy-free and so easy. Wanna get the recipe?",
+      "created_at": "2023-08-25 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sure! I'm lactose intolerant, so I'll just need the dairy-free recipe! ",
+      "created_at": "2023-08-25 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No prob. I made it with coconut milk, vanilla extract, sugar, and a pinch of salt. After chilling it in the fridge, I put it in the ice cream maker and froze it until it was scoopable.",
+      "created_at": "2023-08-25 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, sounds delicious! I'm going to try making it tonight! Thank you for sharing the recipe!",
+      "created_at": "2023-08-25 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna, glad I could help. Let me know how it turns out!",
+      "created_at": "2023-08-26 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Got it, Nate. I'll definitely let you know how it turns out. Thanks for sharing the recipe!",
+      "created_at": "2023-08-26 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Long time no talk! I wanted to tell ya I just joined a writers group. It's unbelievable--such inspirational people who really get my writing. I'm feeling so motivated and supported, it's like I finally belong somewhere!",
+      "created_at": "2023-08-26 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! That's awesome! Having a supportive group around you can really make a difference. What kind of projects are you working on with them?",
+      "created_at": "2023-08-26 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! We've made some great progress. I'm working on one with my group called \"Finding Home.\" It's a script about a girl on a journey to find her true home. I find it really rewarding and emotional. What about you? Any upcoming gaming tournaments?",
+      "created_at": "2023-08-27 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hi Joanna! \"Finding Home\" sounds really special. Must be so meaningful to work on. I've got a gaming tournament next month and I'm feeling good about it. It's gonna be my 4th one!",
+      "created_at": "2023-08-27 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, I bet the nerves and excitement are quite a rush! I remember when I did my first play, I was so nervous I forgot my lines. It was embarrassing, but it taught me how important it is to prepare and stay in the moment.",
+      "created_at": "2023-08-27 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds like you had an interesting time on stage! It's always a learning experience. Have you ever considered going back to acting? Is that you in the photo?",
+      "created_at": "2023-08-27 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, that's me in that photo! Acting was my first passion, but now I really shine in writing. It helps me express myself in a new way, but who knows, maybe I'll go back to acting someday. Never say never!",
+      "created_at": "2023-08-28 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Go for it! Follow your passion for writing, but if acting really makes you happy, give it a shot as well. Who knows what'll happen! Any particular movies that spark your writing?",
+      "created_at": "2023-08-28 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! I'm gonna keep writing, but if acting calls out I might give it a try. I really enjoy dramas and emotionally-driven films. What about you? What inspires your passion?",
+      "created_at": "2023-08-28 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I love fantasy and sci-fi movies, they're a great escape and get my imagination going. Playing video games is a great way to express my creativity and passion.",
+      "created_at": "2023-08-28 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's awesome! I love how video games can really spark your imagination. Do you have a favorite fantasy or sci-fi movie?",
+      "created_at": "2023-08-29 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah, for sure! This trilogy is one of my faves. The world building, battles, and storytelling always blow me away!",
+      "created_at": "2023-08-29 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, that's great to hear! What books do you enjoy? I'm always up for some new book recommendations.",
+      "created_at": "2023-08-29 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I love this series. It has adventures, magic, and great characters - it's a must-read!",
+      "created_at": "2023-08-29 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Heard of that series! It's been on my list forever. Thanks for the recommendation, Nate. I'm definitely going to check it out!",
+      "created_at": "2023-08-30 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No problem, glad to see an interest. Let me know what you think when you check it out.",
+      "created_at": "2023-08-30 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! I'll definitely let you know my thoughts. Take care and have a great day!",
+      "created_at": "2023-08-30 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: See you! Good chatting with you! Have a great day!",
+      "created_at": "2023-08-30 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, how's it going? I took your reccomendation and watched \"The Lord of the Rings\" Trilogy last night! It was awesome!",
+      "created_at": "2023-08-31 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Glad to hear you enjoyed it! It's probably the greatest trilogy of all time! As for me, life's been ok, just taking care of this.",
+      "created_at": "2023-08-31 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, Nate! I'm proud of what you did. Your gaming room looks great - have you been gaming a lot recently?",
+      "created_at": "2023-08-31 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Gaming has been my focus - practicing a lot and even winning a few tournaments. Last week I won my second tournament!",
+      "created_at": "2023-08-31 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, congrats! What game were you playing?",
+      "created_at": "2023-09-01 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! I usually play CS:GO, but I tried my hand at the local Street Fighter tournament this time since I play that game a lot with my friends, and turns out I'm really good!",
+      "created_at": "2023-09-01 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Nice! That must have been a surprise. How did it feel to finally win one?",
+      "created_at": "2023-09-01 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: It was super awesome! So much adrenaline went into that last match, and the other finalist even shook my hand! Enough about me though, how about you? What have you been up to?",
+      "created_at": "2023-09-01 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Not much is new other than the screenplay. Been working on some projects and testing out dairy-free dessert recipes for friends and fam. Here's a pic of a cake I made recently!",
+      "created_at": "2023-09-02 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That looks really good! I love the way the frosting turned out!",
+      "created_at": "2023-09-02 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks! It's dairy-free vanilla with strawberry filling and coconut cream frosting. I gotta say, I really like your coconut reccomendation you gave a while back!",
+      "created_at": "2023-09-02 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Joanna, that looks amazing! I bet it tastes great - you're so talented at making dairy-free desserts!",
+      "created_at": "2023-09-02 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! I really appreciate it. I love experimenting in the kitchen, coming up with something tasty. Cooking and baking are my creative outlets. Especially when I'm snackin' dairy-free, trying to make the desserts just as delicious - it's a rewarding challenge! Seeing the smiles on everyone's faces when they try it - it's a total win!",
+      "created_at": "2023-09-03 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's great, Joanna! It must be so rewarding to see everyone enjoying your creations. Keep up the good work!",
+      "created_at": "2023-09-03 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Appreciate all the help. Gonna keep trying new things. See ya later!",
+      "created_at": "2023-09-03 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Bye!",
+      "created_at": "2023-09-03 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Great to hear from you! Quite a week since we last talked - something awesome happened to me!",
+      "created_at": "2023-09-04 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Jo! Great hearing from you! What happened?",
+      "created_at": "2023-09-04 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I went hiking and found some more amazing trails in my town. It was such an awesome experience! I think I am an expert hiker now.",
+      "created_at": "2023-09-04 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds great, Jo! Happy you had an awesome experience. Did you happen to take any photos of it?",
+      "created_at": "2023-09-04 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, I did! Loved this spot on the hike. The rush of the water was so soothing.",
+      "created_at": "2023-09-05 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, looks great! Where did you take this picture? I love the dark sky and green scenery.",
+      "created_at": "2023-09-05 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks! I took this photo at a beautiful location called Whispering Falls. It was really peaceful and serene.",
+      "created_at": "2023-09-05 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I wish I could have been there! Your hikes sound like a blast.",
+      "created_at": "2023-09-05 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: It was awesome, Nate. The sound of that place and the beauty of nature made me so calm and peaceful. Everything else faded away and all that mattered was the present.",
+      "created_at": "2023-09-06 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's great. Glad you found a spot that calms you down - nature sure can be a break from the craziness.",
+      "created_at": "2023-09-06 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Nature totally inspires me and it's so calming to be surrounded by its beauty. Hiking has opened up a whole new world for me and I feel like a different person now.",
+      "created_at": "2023-09-06 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Jo, that's really cool! It's great to have something that gets those creative juices flowing.",
+      "created_at": "2023-09-06 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I always feel like I could write a whole movie when I'm out there in cool places like that!",
+      "created_at": "2023-09-07 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow! That's really cool that it inspires you that much! For me I just get deep in thought and think about my life or new recipes.",
+      "created_at": "2023-09-07 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I think about my life too sometimes when I'm out and about, but there was something special about these trails that made me feel like writing a drama.",
+      "created_at": "2023-09-07 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey, we should go together sometime, don't you think? Maybe I'll start to think of a drama myself and publish my own screenplay.",
+      "created_at": "2023-09-07 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Haha, now that would be something! Sure, you should come down and join me on the trails sometime!",
+      "created_at": "2023-09-08 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds like a plan! Thanks for the invite Joanna!",
+      "created_at": "2023-09-08 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sure thing Nate! See you later!",
+      "created_at": "2023-09-08 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: See ya!",
+      "created_at": "2023-09-08 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! How've you been? Been a busy week since we talked.",
+      "created_at": "2023-09-09 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Just finished something - pretty wild journey!",
+      "created_at": "2023-09-09 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Way to go! I just got a new addition to the family, this is Max!",
+      "created_at": "2023-09-09 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, he's adorable! How long have you had him? I can see why you're thrilled!",
+      "created_at": "2023-09-09 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! It's awesome - he's adopted and so full of energy, and he's filling my life with so much joy. He's even keeping my other pets active.",
+      "created_at": "2023-09-10 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Pets sure do make life better! Glad Max is bringing you lots of joy.",
+      "created_at": "2023-09-10 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yep, totally! Pets make us so much happier and never let us down. Have you thought any more of getting one of your own?",
+      "created_at": "2023-09-10 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Unfortunately, allergies make it so I don't really want to get any, and I'm too lazy to research alternative pets for my allergies.",
+      "created_at": "2023-09-10 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Aww, that's unfortunate. It's nice seeing the joy pets bring to others, though. How do you find comfort when you don't have any?",
+      "created_at": "2023-09-11 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Writing and creative projects are what get me through tough times. I'm also grateful for my supportive friends.",
+      "created_at": "2023-09-11 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that's awesome! Those both can definitely be therapeutic. It's great to have such positive relationships that make such a great impact.",
+      "created_at": "2023-09-11 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah. It's so nice to have friends who understand and appreciate my work - it's priceless being able to talk about it together and receive feedback. Here's a look at what I've been working on – it's been quite a journey, but I made it!",
+      "created_at": "2023-09-11 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that looks great Joanna! Is that your third one?",
+      "created_at": "2023-09-12 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yep! I chose to write about this because it's really personal. It's about loss, identity, and connection. It's a story I've had for ages but just got the guts to write it. It was hard, but I'm so proud of it.",
+      "created_at": "2023-09-12 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That sounds impressive. You really do like writing about sadness and loss don't you.",
+      "created_at": "2023-09-12 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Yeah I really do. I had to be vulnerable and dig deep into those topics. But I think meaningful stories come from personal experiences and feelings. It was scary, but I found that I write best when I'm being true to myself - even if it's hard.",
+      "created_at": "2023-09-12 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Well done, Joanna! It takes guts to explore your experiences and feelings. I'm proud of you for staying strong and being true to yourself. Keep it up!",
+      "created_at": "2023-09-13 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Your support really means a lot. Knowing I've got people like you cheering me on makes this journey way easier.",
+      "created_at": "2023-09-13 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No worries, Joanna! Keep going and reach for your dreams. You've got tons of talent and potential!",
+      "created_at": "2023-09-13 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Jo! Been ages since we last talked. Here's something cool that happened the other day - I took Max for a walk and ran into this super nice couple who had a dog. It turns out they live close by. We decided to do doggy playdates, which is awesome considering we all need friends for our pets.",
+      "created_at": "2023-09-13 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Great to hear from you. Sounds like a nice encounter on your walk. Connecting with others who have pets can be uplifting and rewarding.",
+      "created_at": "2023-09-14 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: It's like fate. Having a walking buddy forMax will be great. He really likes the other dog too!",
+      "created_at": "2023-09-14 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Awesome! Did you get to know the couple very well? What were they like?",
+      "created_at": "2023-09-14 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: They actually didn't share a whole lot in common with me besides the love of animals, but I think that was all we needed to share in common to be good friends!",
+      "created_at": "2023-09-14 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's really cool that you can just go out and meet people like that, keep it up Nate!",
+      "created_at": "2023-09-15 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! I just really enjoy watching our pets play with one another. Its like a dream come true seeing my dog so happy.",
+      "created_at": "2023-09-15 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I can see why having a peaceful presence around could help relieve stress. Having someone or something to come home to for a sense of calm would be helpful for relaxation.",
+      "created_at": "2023-09-15 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yep, Joanna. It's great! Looky here, I got this new pup for you!",
+      "created_at": "2023-09-15 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Awww! It's so cute! I love the thought Nate!",
+      "created_at": "2023-09-16 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! It's a stuffed animal to remind you of the good vibes.",
+      "created_at": "2023-09-16 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's so sweet! I'll cherish that little guy with all my heart!",
+      "created_at": "2023-09-16 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah! It's like having joy in your pocket. It always makes me grin when I look at it.",
+      "created_at": "2023-09-16 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's great, Nate! Appreciate the small joys like that cute stuffed animal. It's a nice reminder!",
+      "created_at": "2023-09-17 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Agreed, those little things sure do make life better!",
+      "created_at": "2023-09-17 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'll always remember those moments that bring us happiness and remind us that life is great!",
+      "created_at": "2023-09-17 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sure, Joanna! It's all about finding those little things and cherishing them, otherwise it's easy to get down!",
+      "created_at": "2023-09-17 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thinking back to the tough times finishing my screenplay made me realize it's those moments that bring joy and make the journey worth it.",
+      "created_at": "2023-09-18 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah, those little moments make it all worth it, especially during tough times. Enjoying the ride is key.",
+      "created_at": "2023-09-18 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Appreciating the journey and being aware of those happy moments can be a game-changer! It keeps us focused on our dreams. Can't wait to show it to you. I value your opinion!",
+      "created_at": "2023-09-18 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Can't wait to see it, Joanna! I'm here to support you.",
+      "created_at": "2023-09-18 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Your support is greatly appreciated. I'll make sure to keep you updated.",
+      "created_at": "2023-09-19 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No worries! You've got this. Keep it up!",
+      "created_at": "2023-09-19 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Nate, after finishing my screenplay I got a rejection letter from a major company. It really bummed me out.",
+      "created_at": "2023-09-19 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sorry to hear that, Joanna. Rejection stinks, but it doesn't mean you're not talented. Don't give up on your dreams!",
+      "created_at": "2023-09-19 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate. It can feel like a step back sometimes. But I appreciate your kind words and encouragement.",
+      "created_at": "2023-09-20 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sure, just make sure you keep going and believing in yourself. Did something happen with the company?",
+      "created_at": "2023-09-20 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: They just sent me a generic rejection letter without much feedback. It's disheartening not knowing why it didn't work out.",
+      "created_at": "2023-09-20 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Ugh, that's so frustrating. But don't get discouraged, just keep going.",
+      "created_at": "2023-09-20 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, you're right. I won't let this bring me down. Thanks for your support. What have you been up to lately?",
+      "created_at": "2023-09-21 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I've been doing great - I just won another regional video game tournament last week! It was so cool, plus I met some new people. Connecting with fellow gamers is always awesome.",
+      "created_at": "2023-09-21 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Way to go, Nate! Congratulations on your victory in the tournament! It must feel great to be recognized for your gaming skills.",
+      "created_at": "2023-09-21 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, Joanna! Winning was a huge confidence boost and shows my hard work paid off. I'm really happy with my progress.",
+      "created_at": "2023-09-21 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I am as well! It's great to hear from you about your tournaments throughout the years!",
+      "created_at": "2023-09-22 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! I has been a while since my first tournament hasn't it? I appreciate your support!",
+      "created_at": "2023-09-22 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Anytime Nate! I'm here for you every step of the way.",
+      "created_at": "2023-09-22 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I talked to some of the guys at the tournament afterwards, and they said they wanted to hang out later!",
+      "created_at": "2023-09-22 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sounds like fun! It's good to have friends that share your interests!",
+      "created_at": "2023-09-23 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: For sure! They asked for some tips in how to improve their game, so I said I could help.",
+      "created_at": "2023-09-23 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Good on you for helping strangers out! Stepping outside your comfort zone is always great.",
+      "created_at": "2023-09-23 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, I just like helping people. Do you have any plans for the weekend?",
+      "created_at": "2023-09-23 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yep, I'm hiking with some buddies this weekend. We're checking out a new trail with a rad waterfall. Can't wait! Do you have any fun plans?",
+      "created_at": "2023-09-24 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds great! Have fun with that. I'm organizing a gaming party two weekends later - it'll be hectic but fun!",
+      "created_at": "2023-09-24 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Oh? Are you going to invite your tournament friends?",
+      "created_at": "2023-09-24 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Definitely! And some old friends and teamates from other tournaments.",
+      "created_at": "2023-09-24 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sounds like fun, Nate! I wish you the best on your party. Have a blast!",
+      "created_at": "2023-09-25 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks Joanna! I'm sure it'll be a blast. I'm even getting everyone custom controller decorations just for coming!",
+      "created_at": "2023-09-25 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, I bet they'll love that! What a sweet idea.",
+      "created_at": "2023-09-25 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I know right? Have a great hike. Take lots of pics! See ya later!",
+      "created_at": "2023-09-25 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! See you later!",
+      "created_at": "2023-09-26 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Yesterday was crazy cool - I wrote a few bits for a screenplay that appeared on the big screen yesterday! It was nerve-wracking but so inspiring to see my words come alive!",
+      "created_at": "2023-09-26 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Congrats, Joanna! Seeing your hard work pay off like that must've felt amazing. I bet it was scary too, but awesome! You're so inspiring. By the way, last time we saw eachother, I noticed a spiderman pin on your purse. Is Spider-Man your favorite superhero, or do you have another fave?",
+      "created_at": "2023-09-26 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! It was a real roller coaster, but seeing the hard work pay off was amazing. Spider-Man has always been a favorite of mine - I mean, who doesn't love Peter Parker's struggles between being a hero and being a person? But I'm kind of a sucker for any superhero - everyone has their own rad story and powers. Do you have a favorite superhero?",
+      "created_at": "2023-09-26 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's great, Joanna! Iron Man is my top pick. I love his tech and that sarcastic humor. Seeing these figures just makes me feel invincible!",
+      "created_at": "2023-09-27 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, Nate! That's awesome. I love the tech and funny jokes of Iron Man too. What made you get that figure?",
+      "created_at": "2023-09-27 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks Joanna! I got it because it reminded me of something I love. Its presence in my room is a good reminder to keep working on my goals. Any inspiring things in your room?",
+      "created_at": "2023-09-27 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: My cork board is full of inspiring quotes and pictures for motivation and creativity. It's my little corner of inspiration.",
+      "created_at": "2023-09-27 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow Joanna, that sounds great! Could you show me a picture of it?",
+      "created_at": "2023-09-28 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Here ya go, a pic of my cork board. It's got quotes, photos, and little keepsakes.",
+      "created_at": "2023-09-28 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's a great pic of your family! What made you hang it on your cork board?",
+      "created_at": "2023-09-28 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Having that picture on my cork board reminds me of the love and encouragement from them every day.",
+      "created_at": "2023-09-28 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's great, Joanna. Family support is invaluable. It's so good to have those reminders.",
+      "created_at": "2023-09-29 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Absolutely, it means a lot and keeps me going.",
+      "created_at": "2023-09-29 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I really should start a cork board of my own shouldn't I. That seems like a really valuable thing!",
+      "created_at": "2023-09-29 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I would definitely recommend it! As long as your willing to explain what it is to your friends.",
+      "created_at": "2023-09-29 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Of course! Well see you later Joanna!",
+      "created_at": "2023-09-30 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Bye Nate!",
+      "created_at": "2023-09-30 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, long time no see! How have you been? I just got done submitting my recent screenplay to a film contest just to see how others might like it!",
+      "created_at": "2023-09-30 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's really cool Joanna! I hope it does well, and I've been doing great! The gaming party was a great success! We even played some Chess afterward just for fun.",
+      "created_at": "2023-09-30 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Nice! Did your friends like the controller accessories?",
+      "created_at": "2023-10-01 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Most of them did! I can't say if all of them will continue to use them or not, but that's beside the point.",
+      "created_at": "2023-10-01 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah Nate, you're right. It doesn't matter if they use it, its the thought that matters right?",
+      "created_at": "2023-10-01 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Absolutely! There were 7 people that attended, and 6 of them said they'd want to do it again next month!",
+      "created_at": "2023-10-01 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That sounds like a huge success then! Congrats!",
+      "created_at": "2023-10-02 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks! On another note, I made vegan ice cream last Friday and shared it with some people in my vegan diet group. It was awesome!",
+      "created_at": "2023-10-02 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Mm, yum! Can you give me the recipe for that? It sounds like it'd be a good recipe!",
+      "created_at": "2023-10-02 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sure thing! I can give it to you tomorrow, how does that sound?",
+      "created_at": "2023-10-02 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Awesome! I'm going to make it for my family this weekend - can't wait!",
+      "created_at": "2023-10-03 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Nice one, Joanna! Hope you and your family like it. Let me know how it went!",
+      "created_at": "2023-10-03 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sure thing! They love it when I make them new things!",
+      "created_at": "2023-10-03 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Then I have no doubt they'll love the icecream!",
+      "created_at": "2023-10-03 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! Your support is greatly appreciated. I'll make sure to keep you updated.",
+      "created_at": "2023-10-04 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Can't wait to hear about it. Have a great day! Take care.",
+      "created_at": "2023-10-04 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna, check this out! I won my fourth video game tournament on Friday! It was awesome competing and showing off my skills - and the victory was indescribable. I'm really proud that I can make money doing what I love. This one was online!",
+      "created_at": "2023-10-04 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Congrats, Nate! That's awesome! So proud of you. Your hard work really paid off - keep it up! BTW, I took a road trip for research for my next movie while you were winning. Much-needed break and a chance to explore new places and get inspired.",
+      "created_at": "2023-10-04 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, Joanna! Your support means a lot to me. That road trip sounds great! Where did you go? Did you discover any interesting places?",
+      "created_at": "2023-10-05 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! Appreciate your kind words. I went to Woodhaven, a small town in the Midwest. Got to see some lovely scenery and historic buildings. Checked out the library there, it had a cool old book collection!",
+      "created_at": "2023-10-05 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That place looks interesting! Did you find any cool books there?",
+      "created_at": "2023-10-05 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I stumbled upon this super cool book from the 1900s with stories and sketches - so awesome to read about the town and the people living there!",
+      "created_at": "2023-10-05 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That sounds really interesting! Anyting specific stick out to you about it?",
+      "created_at": "2023-10-06 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Woodhaven has had an interesting past with lots of cool people. Seeing how much it changed sparked ideas for my next script.",
+      "created_at": "2023-10-06 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Real-life stories are the best for inspiration. Can't wait to hear about your next one. Keep it up!",
+      "created_at": "2023-10-06 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! I'm stoked about this new script. It's different from my previous work, but it has the potential to be something awesome! I'll be sure to keep you posted.",
+      "created_at": "2023-10-06 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm sure it will do just as well as your last one! Keep on trying and believe in yourself!",
+      "created_at": "2023-10-07 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Your encouragement really means a lot to me. You're the best for supporting me in my writing journey.",
+      "created_at": "2023-10-07 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm always here for you! You've got so much talent, just keep going for it!",
+      "created_at": "2023-10-07 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I will! I actually started on a book recently since my movie did well!",
+      "created_at": "2023-10-07 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Nice! I'm curious, what is it about?",
+      "created_at": "2023-10-08 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That page specifically has some dialogues exploring loss, redemption, and forgiveness. It's a deep and emotional story that I'm really excited about!",
+      "created_at": "2023-10-08 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Joanna! It sounds awesome. I'm so excited to see how it all plays out!",
+      "created_at": "2023-10-08 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! I'm so glad you're excited. I've never really tried publishing a book, but this might be the first!",
+      "created_at": "2023-10-08 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Good luck on that! I'm sure people will recognise you as the same author of the movie you got published and love the book even more.",
+      "created_at": "2023-10-09 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Your belief in me means a lot. I'll keep doing my best. Thanks for the support!",
+      "created_at": "2023-10-09 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No problem, Joanna. I'm here for you. Your hard work will pay off, I promise. Believe in yourself and your talent - you're incredible!",
+      "created_at": "2023-10-09 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, long time no talk! I've been busy with writing projects and really going all out with it. It's been the best thing ever - a mix of highs and lows - and my journal's pretty much my rock. Writing's such a huge part of me now.",
+      "created_at": "2023-10-09 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! Great to hear it! It's amazing how much a certain activity can become a part of our lives. Keep it up, you're inspiring! Is writing your way to solace and creativity?",
+      "created_at": "2023-10-10 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, definitely. Writing has become like an escape and a way to express my feelings. It gives me a chance to put all my thoughts and feelings down and make something good out of it. Words just have a magical way of healing.",
+      "created_at": "2023-10-10 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That's really cool, I like it! It's incredible how words can turn something sad into something special. I'm glad it worked for you. Anything cool happening recently?",
+      "created_at": "2023-10-10 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yep. Last week, someone wrote me a letter after reading an online blog post I made about a hard moment in my life. Their words touched me; they said my story had brought them comfort. It was awesome to realize my words had that kind of power. It reminded me why I love writing.",
+      "created_at": "2023-10-10 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Nice work, Joanna! That must feel sureal. Keep it up - you're changing lives!",
+      "created_at": "2023-10-11 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Really appreciate your kind words. It's knowing that my writing can make a difference that keeps me going, even on tough days. So glad to have this outlet to share my stories and hopefully have an impact. How about you? Anything new since we last talked?",
+      "created_at": "2023-10-11 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks, Joanna! Your words mean a lot. Since we last spoke, I started teaching people how to make this. Sharing my love for dairy-free desserts has been fun and rewarding.",
+      "created_at": "2023-10-11 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yum, Nate! I love it when you make coconut milk icecream, it's so good!",
+      "created_at": "2023-10-11 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I've been really into making this lately - it's creamy, rich, dairy-free and a new recipe! Wanna try it? I can share the recipe with you if you'd like!",
+      "created_at": "2023-10-12 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'd love to try it! Thanks for sharing your love for dairy-free desserts. I really appreciate it!",
+      "created_at": "2023-10-12 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No problem, Joanna! Always happy to share them with you. Sending you the recipe now!",
+      "created_at": "2023-10-12 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Can't wait to surprise my family with something delicious!",
+      "created_at": "2023-10-12 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No problem, Joanna! Wish them luck! Let me know how it goes. Have a blast baking!",
+      "created_at": "2023-10-13 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate. I'll keep you posted. Have a great day.",
+      "created_at": "2023-10-13 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: You too!",
+      "created_at": "2023-10-13 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Woah Joanna, I won an international tournament yesterday! It was wild. Gaming has brought me so much success and now I'm able to make a living at something I'm passionate about - I'm loving it.",
+      "created_at": "2023-10-13 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Congrats, Nate! So proud of you for winning that tournament, that's awesome! Must feel great to turn your passion into a career.",
+      "created_at": "2023-10-14 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm really stoked to see all my hard work paying off! I'm super proud of what I accomplished. On another note, my little dudes got a new tank! Check them out, they're so cute, right?!",
+      "created_at": "2023-10-14 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow Nate, they're adorable! I can see why you enjoy spending time with them. It looks like they have so much more room to swim now!",
+      "created_at": "2023-10-14 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: They're my little buddies, always calm and peaceful. It makes coming home after a long day of gaming better. The tank expansion has made them so happy! How have you been?",
+      "created_at": "2023-10-14 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'm good! Was super nervous last week when I shared my book with my writers group but got some great feedback. My hard work is paying off, it's such an awesome feeling!",
+      "created_at": "2023-10-15 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow Jo, you're killing it! Getting this kind of feedback means people are really connecting with your writing. Pretty cool! Did you celebrate?",
+      "created_at": "2023-10-15 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! It feels great knowing that people like my writing. I celebrated by making this delicious treat - yum! Any plans for the weekend?",
+      "created_at": "2023-10-15 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm taking some time off this weekend to chill with my pets. Anything cool happening with you?",
+      "created_at": "2023-10-15 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'm relaxing and recharging this weekend with a long walk and some reading. It's a good break.",
+      "created_at": "2023-10-16 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Looks like we both need a break. I'm glad your able to find a way to recharge! It's so incredibly important to take time off!",
+      "created_at": "2023-10-16 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! I've learned that taking breaks and looking after myself are important for my inspiration and mental health. It's all about finding balance.",
+      "created_at": "2023-10-16 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah, balance is key! It's so cool how taking care of ourselves helps us be more creative and happier. I'm always looking for something new to read. Got any book recommendations? I've got a lot of books to choose from.",
+      "created_at": "2023-10-16 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I reccomend finding a fantasy book series to read through. Most fiction series are great reads when your trying to relax.",
+      "created_at": "2023-10-17 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Good idea! How about this series?",
+      "created_at": "2023-10-17 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's a great one! Let me know what you think when your finished!",
+      "created_at": "2023-10-17 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sure thing! And since your recommending me a book, I thought I should do the same! I'd really recommend this series. It's got awesome battles and interesting characters.",
+      "created_at": "2023-10-17 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, that series looks awesome! I'll have to check it out sometime!",
+      "created_at": "2023-10-18 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: You really should! The action scenes are awesome and the plot rocks. Definitely one of my favorites!",
+      "created_at": "2023-10-18 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, sounds great! I'll definitely add it to my list; thanks for the recommendation!",
+      "created_at": "2023-10-18 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Enjoy it! Have a good day.",
+      "created_at": "2023-10-18 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! You too! Have a great day. Take care.",
+      "created_at": "2023-10-19 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! Long time no talk. So much has happened. Look how cute they are! Hanging with them has been a big help, especially recently. Speaking of which, I just had a letdown in a video game tourney - I didn't do too great, even though I tried. It was a setback, but I'm trying to stay positive.",
+      "created_at": "2023-10-19 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Cute turtles! Bummer about the setback. Any positive vibes comin' your way? I just revised on of my old recipes and made this!",
+      "created_at": "2023-10-19 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna, yeah it's a bummer that I didn't do well. But it's all part of the learning curve, you know? Also that looks super good! Anyways, how are you holding up?",
+      "created_at": "2023-10-19 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'm doing OK, thanks. Just been tinkering with that recipe and a few others. It's helping me find some comfort and getting creative.",
+      "created_at": "2023-10-20 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: What else are you making? It's always satisfying to see the kind of things you do when your in one of those moods!",
+      "created_at": "2023-10-20 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Been tweaking a dessert recipe to make it yummier and more accessible.",
+      "created_at": "2023-10-20 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, that sounds great! What flavors are you experimenting with?",
+      "created_at": "2023-10-20 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Trying out different flavors like chocolate, raspberry, and coconut has been a blast!",
+      "created_at": "2023-10-21 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Sounds delicious! Are you only trying dairy-free options?",
+      "created_at": "2023-10-21 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, since I'm lactose intolerant I'm trying out dairy-free options like coconut or almond milk instead. It's been a fun challenge seeing how to make yummy treats that suit everyone's diets. I even made these dairy-free chocolate coconut cupcakes with raspberry frosting.",
+      "created_at": "2023-10-21 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Woah, those look great, Joanna! It's cool that you make desserts that work for everyone's diets. Do you have any more yummy recipes hiding in there?",
+      "created_at": "2023-10-21 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yep! I've been making all sorts of desserts that work for everyone's diets - cookies, pies, cakes - everything! I'll share more recipes with you soon.",
+      "created_at": "2023-10-22 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Can't wait to try them. Can I join you sometime? I think baking and cooking really brings us together!",
+      "created_at": "2023-10-22 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Yeah, Nate! A fellow Chef in the kitchen is always a great help! Speaking of which, i'm curious, any more tips for dairy-free baking?",
+      "created_at": "2023-10-22 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: You can use stuff like dairy-free margarine or coconut oil instead of butter, and make sure to check the labels to ensure they're dairy-free. Good luck!",
+      "created_at": "2023-10-22 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! Love your ideas, can't wait to try them out!",
+      "created_at": "2023-10-23 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: No problem! I love to help, so just shoot me a question anytime you need!",
+      "created_at": "2023-10-23 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Got it Nate, I'll see you soon!",
+      "created_at": "2023-10-23 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Bye Joanna! Good luck!",
+      "created_at": "2023-10-23 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, long time no see! My laptop crashed last week and I lost all my work - super frustrating! As a writer, my laptop is like half of my lifeline so losing all progress was like a major blow.",
+      "created_at": "2023-10-24 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna, sorry to hear about that. Losing so much progress must be really frustrating. Did you manage to recover anything? Maybe consider backing up your work in the future?",
+      "created_at": "2023-10-24 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks for the sympathy, Nate. Nothing was recoverable, but now I have an external drive for backups. I never want to go through this again. So, how have you been? Making anything cool?",
+      "created_at": "2023-10-24 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna, I'm no writer like you, but something pretty awesome happened. Last Monday I got to teach people vegan ice cream recipes on my own cooking show! It was a bit nerve-wracking to put myself out there, but it was a blast. Plus, I picked up a few new recipes!",
+      "created_at": "2023-10-24 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Way to go, Nate! Congrats on the cooking show, I'll definitely be tuning in! What's your favorite dish from the show?",
+      "created_at": "2023-10-25 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Coconut milk ice cream is at the top of my list. It's so smooth and creamy with a tropical coconut twist. Plus, it's dairy-free for people who can't have lactose or who want vegan options. Here's a snap of the ice cream I made.",
+      "created_at": "2023-10-25 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, that looks amazing, Nate! I love the color and texture. It's great that you're making these options. Could you share the recipe? I'd love to try making it sometime!",
+      "created_at": "2023-10-25 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah sure! Would love to share it. Let's spread the joy of dairy-free options! Let me know when you make it!",
+      "created_at": "2023-10-25 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Cool, Nate! Gonna give it a go. Dairy-free is a must for me, especially for desserts. Last Friday, I made a deeeelish dessert with almond milk - it was good! Got any favs when it comes to dairy-free desserts?",
+      "created_at": "2023-10-26 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Coconut milk ice cream is one of my favorites as you might be able to tell, but I also love a dairy-free chocolate mousse. It's super creamy and tastes like the real thing. What's been your favorite dairy-free sweet treat so far?",
+      "created_at": "2023-10-26 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, my favorite dairy-free treat is this amazing chocolate raspberry tart. It has an almond flour crust, chocolate ganache, and fresh raspberries - it's delicious!",
+      "created_at": "2023-10-26 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That looks amazing, Joanna! I need to try baking that. What other treats do you like making?",
+      "created_at": "2023-10-26 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, I love making this dairy-free chocolate cake with raspberries. It's so moist and delicious - perfect sweetness level.",
+      "created_at": "2023-10-27 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That cake looks amazing, Joanna! How did you make it?",
+      "created_at": "2023-10-27 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I make it with almond flour, coconut oil, chocolate and raspberries. It's my favorite for birthdays and special days.",
+      "created_at": "2023-10-27 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yum, Joanna! Gotta try that one. Any others you want to share?",
+      "created_at": "2023-10-27 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Here's another recipe I like. It's a delicious dessert made with blueberries, coconut milk, and a gluten-free crust. So creamy and delicious!",
+      "created_at": "2023-10-28 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Wow, Joanna! That dessert looks amazing. I'll definitely have to give it a try. Thanks!",
+      "created_at": "2023-10-28 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Glad to help, Nate. Let me know if you try it. I'm sure you'll enjoy it. It was great chatting.",
+      "created_at": "2023-10-28 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks Joanna! I will. Bye!",
+      "created_at": "2023-10-28 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate, hi! Yesterday, I tried my newest dairy-free recipe and it was a winner with my family! Mixing and matching flavors is fun and I'm always trying new things. How about you?",
+      "created_at": "2023-10-29 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna! That tart looks yummy! Lately, I've been doing great - I won a really big video game tournament last week and it was awesome! I still can't believe I made so much money from it.",
+      "created_at": "2023-10-29 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Way to go, Nate! Winning the tournament and earning cash is awesome - congrats! Did you save it for something special?",
+      "created_at": "2023-10-29 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Thanks Joanna! Yeah, I saved some but I'm not sure what to do with it - I'm completely content already. I don't have big plans anyway, so it's nice to have the extra cash on hand.",
+      "created_at": "2023-10-29 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That's awesome, Nate! Having some extra cash on hand definitely brings a sense of freedom and relaxation, huh?",
+      "created_at": "2023-10-30 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yes! Finally, I don't have to stress about it, so I can just enjoy my movies and games.",
+      "created_at": "2023-10-30 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Taking breaks and reducing stress is pretty nice! Have you watched any good movies recently? I could use some recommendations!",
+      "created_at": "2023-10-30 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I watched \"Little Women\" recently, and it was great! The acting was awesome and the story was so captivating. Definitely a good one!",
+      "created_at": "2023-10-30 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: I'm so glad you enjoyed it! I recommended it to you a while back. I watched it too and it really spoke to me. Themes like sisterhood, love, and chasing dreams were explored so well. By the way, I finished up my writing for my book last week. Put in a ton of late nights and edits but finally got it done. I'm so proud of it! Can't wait to see what happens next.",
+      "created_at": "2023-10-31 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Way to go! We both know it took some effort, but I'm sure it'll be great. Congrats on finishing it up!",
+      "created_at": "2023-10-31 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! Your words mean a lot. Dedication and late nights got me here, but it was worth it. Just like you with your recent tournament - hard work pays off. I appreciate your support throughout!",
+      "created_at": "2023-10-31 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I'm always here for you, Joanna! You've worked so hard and accomplished a lot – I'm proud. Keep on going!",
+      "created_at": "2023-10-31 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks, Nate! I won't give up on my goals as long as your here to support me.",
+      "created_at": "2023-11-01 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: You can always count on me! I even made this for you!",
+      "created_at": "2023-11-01 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, Nate, that looks awesome! What inspired you?",
+      "created_at": "2023-11-01 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I figured you could always look back on this whenever you need encouragement, and that was all the inspiration I needed. And I would also say that your life path can be quite inspirational!",
+      "created_at": "2023-11-01 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Wow, Nate! That's sweet of you! I'll make sure to remember this when I need the encouragement the most.",
+      "created_at": "2023-11-02 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Awesome! I know encouragement is what got me so far in my gameing career, so I figured why not share the love.",
+      "created_at": "2023-11-02 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Rest assured, it will be something I cherish! On another note, I just finished this cute little bookmark for one of the ladies at my writing club!",
+      "created_at": "2023-11-02 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: That bookmark is great. I'm sure she'll love it!",
+      "created_at": "2023-11-02 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Thanks Nate! I absolutley love DIYs, and I know she does too.",
+      "created_at": "2023-11-03 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Let me know how it goes!",
+      "created_at": "2023-11-03 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Sure thing! Bye for now!",
+      "created_at": "2023-11-03 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Hey Joanna, it's been a couple days since we last talked. Something exciting happened last Friday. I went to a game convention and met new people who weren't from my normal circle. It was a bit overwhelming but it reminded me of the good times gaming can bring.",
+      "created_at": "2023-11-03 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Hey Nate! Good to hear from you. Sounds like fun! Meeting new people can be overwhelming, but the rewards can be great. Sometimes it's good to step outside our comfort zones and explore new things.",
+      "created_at": "2023-11-04 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: Yeah, you're right! We can have great experiences if we take risks. I even made some friends at the convention who love games just like me. We already planned a gaming session together - it's cool to meet people who have the same interests!",
+      "created_at": "2023-11-04 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: That looks awesome! I'm glad you met people who share your interests - that definitely makes experiences more fun..",
+      "created_at": "2023-11-04 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: I also met some people who also played this boardgame I love, so I joined in. We had a lot in common and hit it off. It's great when shared hobbies can bond people!",
+      "created_at": "2023-11-04 19:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: It's incredible how a game can bring people together and form strong relationships. Did you do anything else there?",
+      "created_at": "2023-11-05 01:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: We played this game Catan - it's a great strategy game where you build settlements and trade resources. I love it!",
+      "created_at": "2023-11-05 07:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Joanna: Looks cool! Is it more of a competitive game or a more chill one?",
+      "created_at": "2023-11-05 13:51:00",
+      "origin": "noise_s3"
+    },
+    {
+      "content": "Nate: It can be both competitive and chill. We were competing, but still had lots of fun.",
+      "created_at": "2023-11-05 19:51:00",
+      "origin": "noise_s3"
+    }
+  ]
+}
