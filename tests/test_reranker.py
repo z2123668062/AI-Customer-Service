@@ -37,9 +37,14 @@ def _by_content(mapping, default="low"):
 
 @pytest.fixture(autouse=True)
 def _reset_gate_config(monkeypatch):
-    """每测试：阈值 0.35、上限 3（用例自行覆盖）。"""
+    """每测试：阈值 0.35、上限 3（用例自行覆盖）。
+
+    同时强制打开精排：.env 里为对照实验设了 RERANK_ENABLED=False，
+    但这批用例测的正是逐卡判定这条路径，必须让它跑。
+    """
     monkeypatch.setattr(settings, "GATE_THRESHOLD", 0.35)
     monkeypatch.setattr(settings, "INJECT_MAX_CARDS", 3)
+    monkeypatch.setattr(settings, "RERANK_ENABLED", True)
     yield
 
 

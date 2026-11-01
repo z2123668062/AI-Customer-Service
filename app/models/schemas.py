@@ -11,6 +11,10 @@ class HealthResponse(BaseModel):
 class ChatRequest(BaseModel):
     session_id: str = Field(..., min_length=1, description="会话ID")
     message: str = Field(..., min_length=1, description="用户输入消息")
+    # 精排开关（L13）：对话页可逐轮切换。
+    # None = 跟随服务端配置；True = 逐卡判定（贵、准）；False = 按语义分与入口分排序（快、省）。
+    use_rerank: Optional[bool] = Field(
+        default=None, description="是否启用精排逐卡判定；不传则用服务端默认")
 
 
 class ChatMessage(BaseModel):
@@ -51,6 +55,8 @@ class CardItem(BaseModel):
     access_count: int = Field(default=0, description="被检索访问次数")
     last_accessed_at: Optional[datetime] = Field(default=None)
     created_at: Optional[datetime] = Field(default=None)
+    canonical_name: Optional[str] = Field(default=None, description="节点卡标准名（人/地/物）；属性卡与事件卡为空")
+    source_message_ids: Optional[list[int]] = Field(default=None, description="来源原文 id（审计：这条记忆从哪几句抽出来）")
 
     @field_validator("entities", mode="before")
     @classmethod
@@ -81,12 +87,24 @@ class EdgeItem(BaseModel):
     created_at: Optional[datetime] = Field(default=None)
 
 
+class SourceMessage(BaseModel):
+    """来源原文（审计用）：卡片是有损抽象，这里是它从哪几句话抽出来的原件。"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    role: str
+    content: str
+    created_at: Optional[datetime] = None
+
+
 class CardDetail(CardItem):
-    """单卡详情：卡 + 双向相关边（含剪断标记）+ 版本历史链。"""
+    """单卡详情：卡 + 双向相关边（含剪断标记）+ 版本历史链 + 来源原文。"""
 
     edges: list[EdgeItem] = Field(default_factory=list, description="双向相关边（含已剪断）")
     superseded_by: Optional[int] = Field(default=None, description="当前取代者（未剪断入边来源）；None=无")
     versions: list[CardItem] = Field(default_factory=list, description="版本历史（本卡取代过的旧版本，近→远）")
+    sources: list[SourceMessage] = Field(default_factory=list, description="来源原文（按 source_message_ids 回查 messages）")
 
 
 class CardUpdateRequest(BaseModel):

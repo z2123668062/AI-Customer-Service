@@ -27,7 +27,8 @@ from app.core.logging import logger
 from app.core.telemetry import emit_trace
 from app.services import generation_service
 from app.services.history_service import save_record_to_db
-from app.services.long_term_memory import consolidator, explicit, injector, reranker, retriever
+from app.services.long_term_memory import (consolidator, explicit, injector, reranker, retriever,
+                                           store)
 
 # 会话级进程内锁：同会话请求串行（替代原 Redis 分布式锁；单用户单进程场景足够）
 _session_locks: dict[str, asyncio.Lock] = {}
@@ -70,7 +71,8 @@ class TurnOutcome:
 # ============================================================
 
 async def _retrieve_memory_context(session_id: str, user_message: str, *,
-                                   window_texts: list[str]) -> MemoryContext:
+                                   window_texts: list[str],
+                                   use_rerank: bool | None = None) -> MemoryContext:
     """记忆黑盒接入点（读）——retriever → reranker → injector 三段一体。
 
     完整链路：分诊 → 抽线索 → 扫快表 → 两级回源 → 顺线 → 精筛 → 注入格式。
@@ -80,7 +82,21 @@ async def _retrieve_memory_context(session_id: str, user_message: str, *,
     """
     async with AsyncSessionLocal() as session:
         retrieval = await retriever.retrieve(user_message, session=session)
-        reranked = await reranker.rerank(user_message, retrieval.candidates)
+        reranked = await reranker.rerank(user_message, retrieval.candidates,
+                                         use_rerank=use_rerank)
+        # 访问记账：只记真正被注入的卡——"被读到就续命"记的应当是进入模型视野的那些。
+        # 原实现里这个函数一次没被调用过，于是淘汰时的 last_accessed_at 永远为空，
+        # 偏好卡的衰减一直从入库时间起算。记账是旁路：失败只告警，不影响回答。
+        if session is not None:
+            for scored in getattr(reranked, "kept", None) or []:
+                candidate = getattr(scored, "candidate", None)
+                if candidate is None or candidate.kind == "raw":
+                    continue                  # 原文候选是 messages.id，不是卡片，不记
+                try:
+                    await store.bump_access(session, candidate.ref_id)
+                except Exception as e:        # noqa: BLE001 —— 记账失败不影响回答
+                    logger.warning(f"[pipeline] 访问记账失败 ref_id={candidate.ref_id}: {e}")
+            await session.commit()
     injector_trace: dict[str, Any] = {}
     text = injector.render(reranked.kept, window_texts=window_texts, trace=injector_trace)
     logger.debug(f"[pipeline] 记忆读取完成（会话 {session_id}）：候选 {len(retrieval.candidates)}，"
@@ -102,12 +118,21 @@ def _build_memory_meta(mem: MemoryContext) -> dict[str, Any]:
     """组装 meta：none（未召回）/ injected（注入 N 条）+ 卡片摘要。"""
     injected_ids = mem.injector_trace.get("injected") or []
     if not injected_ids:
-        return {"status": "none", "count": 0, "cards": []}
+        return {"status": "none", "count": 0, "cards": [], "raws": []}
     by_id = {sc.candidate.ref_id: sc.candidate for sc in mem.kept}
     cards: list[dict[str, Any]] = []
+    raws: list[dict[str, Any]] = []
     for ref_id in injected_ids:
         cand = by_id.get(ref_id)
-        if cand is None or cand.kind == "raw":     # 原文候选（messages.id）不进面板摘要
+        if cand is None:
+            continue
+        if cand.kind == "raw":
+            # 原文候选（messages.id）单独列：它是证据，不是卡片，点开要按消息看。
+            # 之前整条丢掉，导致"靠原文答对"时界面显示零引用，看起来像凭空作答。
+            preview = cand.content.strip()
+            if len(preview) > _PREVIEW_CHARS:
+                preview = preview[:_PREVIEW_CHARS] + "…"
+            raws.append({"id": cand.ref_id, "preview": preview})
             continue
         preview = cand.content.strip()
         if len(preview) > _PREVIEW_CHARS:
@@ -119,7 +144,7 @@ def _build_memory_meta(mem: MemoryContext) -> dict[str, Any]:
             "time": cand.event_time.isoformat() if cand.event_time else None,
             "preview": preview,
         })
-    return {"status": "injected", "count": len(injected_ids), "cards": cards}
+    return {"status": "injected", "count": len(injected_ids), "cards": cards, "raws": raws}
 
 
 # ============================================================
@@ -202,7 +227,8 @@ async def _emit_turn_trace(*, trace_id: str, session_id: str, mem: MemoryContext
 # ============================================================
 
 async def handle_message(session_id: str, user_message: str, *,
-                         trace_id: str | None = None) -> TurnOutcome:
+                         trace_id: str | None = None,
+                         use_rerank: bool | None = None) -> TurnOutcome:
     """处理一条用户消息，返回一轮完整产出（回复 + 记忆 meta）。
 
     锁内（读取 → 组装 → 生成 → 写回热层）保证同会话串行与窗口一致性；
@@ -220,7 +246,8 @@ async def handle_message(session_id: str, user_message: str, *,
 
         # ③ 记忆读取（黑盒，服务端强制前置）
         mem = await _retrieve_memory_context(session_id, user_message,
-                                             window_texts=[m.content for m in hot_window])
+                                                   window_texts=[m.content for m in hot_window],
+                                                   use_rerank=use_rerank)
 
         # ④ 组装包五段 → ⑤ 统一生成（全系统唯一 LLM 入口）
         package = hot_layer.assemble_package(

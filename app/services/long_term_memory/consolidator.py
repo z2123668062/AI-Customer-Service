@@ -174,10 +174,20 @@ async def _run_batch(*, reason: str) -> writer.IngestResult | None:
         await session.commit()
     if not messages:
         return None                                     # 无新消息：空转退出（锁串行下安全）
-    batch = [m for m in messages if m.id not in _explicit_handled]
+    # L10：只从**用户消息**抽取。助手回复是「回答」而不是「事实来源」——把助手一起抽，
+    # 会把它复述的记忆、给出的建议、推断出的计划全部变成卡片（实测 61 条助手消息
+    # 贡献了上百张重复卡和一批原文里不存在的事件）。
+    batch = [m for m in messages if m.id not in _explicit_handled and m.role == "user"]
     end_id = messages[-1].id
     sessions = {m.session_id for m in messages if m.session_id}
     origin = next(iter(sessions)) if len(sessions) == 1 else None   # 单会话保真溯源；混批留空
+    if not batch:
+        # 整批都是助手消息：只推进水位，不抽（否则空入参会被 extract_batch 判为失败）
+        line = journal.format_success(
+            watermark=end_id, messages=0, drafts=[], duplicates=0, superseded=0, edges=0,
+            sessions=sessions, elapsed=time.monotonic() - started)
+        journal.advance(end_id, line)
+        return None
     # ② 抽取（事务外）
     extracted = await extractor.extract_batch(batch)
     if extracted is None:

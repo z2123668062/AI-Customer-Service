@@ -28,7 +28,7 @@ from typing import Any, Sequence
 from app.core.config import settings
 from app.core.logging import logger
 from app.services.long_term_memory import gate
-from app.services.long_term_memory.retriever import Candidate
+from app.services.long_term_memory.retriever import _ROUTE_RANK, Candidate
 
 # ============================================================
 # 精筛参数（模块常量；门槛与注入上限在 config：GATE_THRESHOLD / INJECT_MAX_CARDS）
@@ -41,6 +41,18 @@ _EXPLICIT_BONUS = 0.05     # 显式卡特征加分（读时优待）：同档内
 _JUDGE_CONCURRENCY = 16    # 精筛并发上限（信号量；RTT 主导延迟。L5：6→16，
                            # 延迟 ≈ 候选数÷并发×RTT，提高并发不改判定结果，只压墙钟）
 _CARD_TEXT_LIMIT = 300     # 精筛输入卡文本截断（L2 原文候选可能很长，控制 prompt 成本）
+
+# 关掉精筛时的兜底分（按入口给）：语义路有真实相似度，其余三路没有分，
+# 不给兜底就会全部沉底、等于把实体与时间召回一起关掉。取值只求稳定可比，不追求最优。
+_ROUTE_FALLBACK = {"entity": 0.60, "time": 0.55, "semantic": 0.50, "line": 0.50, "raw": 0.45}
+
+
+def _fallback_score(candidate: Candidate) -> float:
+    """无精筛时的排序分：有语义分用语义分，否则按最强入口给固定分。"""
+    if candidate.semantic_score is not None:
+        return float(candidate.semantic_score)
+    best = min(candidate.routes, key=lambda r: _ROUTE_RANK.get(r, 9), default=None)
+    return _ROUTE_FALLBACK.get(best, 0.45)
 
 
 # ============================================================
@@ -132,12 +144,16 @@ async def _judge_one(sem: asyncio.Semaphore, query: str,
 # 主入口
 # ============================================================
 
-async def rerank(query: str, candidates: Sequence[Candidate]) -> RerankResult:
+async def rerank(query: str, candidates: Sequence[Candidate], *,
+                 use_rerank: bool | None = None) -> RerankResult:
     """精筛主入口（粗排序候选 → 过门槛注入候选）。
 
     链路：并发逐张判定（信号量有界）→ 排序（分↓ / 置信度↓ / 输入序稳定）
     → 硬阈值门 → 截断 INJECT_MAX_CARDS。
+
+    use_rerank 为逐轮覆盖（对话页开关）：None = 跟随服务端配置。
     """
+    enabled = settings.RERANK_ENABLED if use_rerank is None else use_rerank
     t0 = time.perf_counter()
     trace = _empty_trace()
 
@@ -145,9 +161,17 @@ async def rerank(query: str, candidates: Sequence[Candidate]) -> RerankResult:
         trace["stage_ms"]["rerank"] = round((time.perf_counter() - t0) * 1000, 1)
         return RerankResult([], trace)
 
-    # ① 并发逐张精筛（信号量有界；gather 保序——输入序 = 粗排序序）
-    sem = asyncio.Semaphore(_JUDGE_CONCURRENCY)
-    scored = list(await asyncio.gather(*(_judge_one(sem, query, c) for c in candidates)))
+    # ① 判定：默认逐张精筛；关闭时走旁路（零 LLM 调用）
+    if enabled:
+        sem = asyncio.Semaphore(_JUDGE_CONCURRENCY)
+        scored = list(await asyncio.gather(*(_judge_one(sem, query, c) for c in candidates)))
+    else:
+        scored = [
+            ScoredCandidate(c, "", round(_fallback_score(c), 4), 0.0,
+                            "未判定（精筛关闭，按语义分与入口分排序）", "bypass", 0.0)
+            for c in candidates
+        ]
+        trace["bypass"] = True
 
     # ② 排序：最终分降序 → 置信度降序 → 稳定保序（输入粗排序）
     scored.sort(key=lambda s: (-s.score, -s.confidence))

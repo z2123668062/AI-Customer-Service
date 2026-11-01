@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.endpoints import chat, memory
+from app.api.v1.endpoints import chat, memory, sessions
 from app.core.database import AsyncSessionLocal, init_db
 from app.core.error_handlers import register_exception_handlers
 from app.core.logging import logger
@@ -71,6 +71,11 @@ app.include_router(
     chat.router,
     prefix="/api/v1/chat",
     tags=["聊天会话"]
+)
+app.include_router(
+    sessions.router,
+    prefix="/api/v1/sessions",
+    tags=["会话列表"]
 )
 app.include_router(
     memory.router,

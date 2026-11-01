@@ -98,7 +98,7 @@ def _install_pipeline_fakes(monkeypatch, *, hot_window=(), retrieve_text=None, s
             trace={"triage": "fault", "stage_ms": {"triage": 1.0, "retrieval": 2.0}},
         )
 
-    async def fake_rerank(query, candidates):
+    async def fake_rerank(query, candidates, **kwargs):
         ev.append("reranker.rerank")
         from app.services.long_term_memory import reranker as rr
         return rr.RerankResult(kept=[], trace={"judged": 0, "items": [],

@@ -22,6 +22,7 @@ import os
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,10 +30,11 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.exceptions import AppException
 from app.core.logging import logger
-from app.models.domain import CARD_KINDS, CARD_STATUSES, Card
+from app.models.domain import CARD_KINDS, CARD_STATUSES, Card, Message
 from app.models.schemas import (CardDetail, CardItem, CardListResponse,
                                 CardUpdateRequest, EdgeItem, EditResponse,
-                                EvictLogResponse, EvictRunResponse, MemoryStats)
+                                EvictLogResponse, EvictRunResponse, MemoryStats,
+                                SourceMessage)
 from app.services.long_term_memory import evictor, pool, store
 
 router = APIRouter()
@@ -185,6 +187,75 @@ async def _collect_versions(session: AsyncSession, start_id: int) -> list[Card]:
     return versions
 
 
+class GraphNode(BaseModel):
+    """人物节点：卡片墙上的一个「人」。
+
+    cards / events 是按实体名反查出来的归属数量，节点卡自己的正文只有一句描述，
+    真正的内容在它名下的那些卡里。
+    """
+    id: int
+    name: str
+    subtype: str
+    description: str
+    cards: int
+    events: int
+
+
+class GraphLink(BaseModel):
+    """人物之间的共现关系：同一张卡里提到了这两个人。
+
+    事件→人物的 led_to 边不进这里——那是「事件指向谁」，不是「谁和谁认识」。
+    前端要画的是后者。
+    """
+    source: int
+    target: int
+    weight: int
+
+
+class GraphResponse(BaseModel):
+    nodes: list[GraphNode] = Field(default_factory=list)
+    links: list[GraphLink] = Field(default_factory=list)
+    stats: dict = Field(default_factory=dict)
+
+
+@router.get("/graph", response_model=GraphResponse)
+async def memory_graph(session: AsyncSession = Depends(get_session)):
+    """记忆图：一次取全，供人物卡片墙与关联连线使用（避免前端逐卡查边）。"""
+    cards = (await session.execute(
+        select(Card).where(Card.status == store.ACTIVE)
+    )).scalars().all()
+
+    node_card = {c.id: c for c in cards if c.canonical_name}
+    name_to_id = {(c.canonical_name or "").casefold(): c.id for c in node_card.values()}
+    counters: dict[int, list[int]] = {cid: [0, 0] for cid in node_card}   # [卡片数, 事件数]
+    pair_weight: dict[tuple[int, int], int] = {}
+
+    for card in cards:
+        # 一张卡里提到的人：用来算「谁名下有几张卡」和「谁和谁一起出现过」
+        hit = sorted({name_to_id[str(e).strip().casefold()]
+                      for e in (card.entities or [])
+                      if str(e).strip().casefold() in name_to_id})
+        for cid in hit:
+            counters[cid][0] += 1
+            if card.kind == "event":
+                counters[cid][1] += 1
+        for i, a in enumerate(hit):
+            for b in hit[i + 1:]:
+                pair_weight[(a, b)] = pair_weight.get((a, b), 0) + 1
+
+    nodes = [
+        GraphNode(id=cid, name=card.canonical_name or "",
+                  subtype=card.subtype or "person",
+                  description=card.content or "",
+                  cards=counters[cid][0], events=counters[cid][1])
+        for cid, card in sorted(node_card.items(), key=lambda kv: -counters[kv[0]][0])
+    ]
+    links = [GraphLink(source=a, target=b, weight=w)
+             for (a, b), w in sorted(pair_weight.items(), key=lambda kv: -kv[1]) if w >= 2]
+    return GraphResponse(nodes=nodes, links=links,
+                         stats={"cards": len(cards), "nodes": len(nodes), "links": len(links)})
+
+
 @router.get("/{card_id}", response_model=CardDetail)
 async def get_memory(card_id: int, session: AsyncSession = Depends(get_session)):
     """单卡详情：卡 + 双向相关边（含剪断标记）+ 版本历史链 + 当前取代者。"""
@@ -198,11 +269,21 @@ async def get_memory(card_id: int, session: AsyncSession = Depends(get_session))
         None,
     )
     versions = await _collect_versions(session, card_id)
+    # 来源原文（审计）：卡片是有损抽象，这里把它的原件一并带出——
+    # 用户看到错卡时能直接判断"是抽错了还是原文就错了"。
+    src_ids = list(card.source_message_ids or [])
+    sources: list[SourceMessage] = []
+    if src_ids:
+        msgs = (await session.execute(
+            select(Message).where(Message.id.in_(src_ids)).order_by(Message.id)
+        )).scalars().all()
+        sources = [SourceMessage.model_validate(m) for m in msgs]
     return CardDetail(
         **CardItem.model_validate(card).model_dump(),
         edges=[EdgeItem.model_validate(e) for e in edges],
         superseded_by=superseded_by,
         versions=[CardItem.model_validate(c) for c in versions],
+        sources=sources,
     )
 
 

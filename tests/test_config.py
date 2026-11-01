@@ -23,7 +23,7 @@ def test_required_fields_missing(monkeypatch):
 def test_defaults():
     """主干参数默认值（改这里 = 改系统行为，须同步 .env.example）。"""
     s = make_settings(LLM_API_KEY="k", DATABASE_URL="sqlite+aiosqlite:///./x.db")
-    assert s.WINDOW_SIZE == 10
+    assert s.WINDOW_SIZE == 20
     assert s.GATE_THRESHOLD == 0.35
     assert s.INJECT_MAX_CARDS == 8
     assert s.SOURCE_SCAN_LIMIT == 200

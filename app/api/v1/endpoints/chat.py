@@ -38,7 +38,8 @@ async def chat_endpoint(request: ChatRequest, fastapi_request: Request = None):
         memory_meta = None
         try:
             outcome = await asyncio.wait_for(
-                chat_pipeline.handle_message(request.session_id, request.message, trace_id=trace_id),
+                chat_pipeline.handle_message(request.session_id, request.message, trace_id=trace_id,
+                                             use_rerank=request.use_rerank),
                 timeout=TURN_TIMEOUT,
             )
             reply = outcome.reply

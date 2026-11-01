@@ -138,7 +138,7 @@ async def test_retrieve_memory_context_wires_three_stages(monkeypatch):
         calls["retrieve"] = (query, session)
         return retriever.RetrievalResult(candidates=["C1"], trace={"triage": "fault"})
 
-    async def fake_rerank(query, candidates):
+    async def fake_rerank(query, candidates, **kwargs):
         calls["rerank"] = (query, candidates)
         return reranker.RerankResult(kept=["K1"], trace={"judged": 1})
 

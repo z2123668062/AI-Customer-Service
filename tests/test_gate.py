@@ -1,4 +1,4 @@
-"""判定器单测（E7）：五方向 fail-safe / 降级链 / 确定性前置 / 三层校验 / 分档 / 旁路。
+"""判定器单测（E7）：取代/回填/精筛三向 fail-safe / 降级链 / 三层校验 / 分档。
 
 验收对应（工程路线 E7）："降级路径测试全绿；五个 API 有 fail-safe 单测"。
 策略：全部零真实调用——`_call_model` 用 AsyncMock 替换（分档行为直测）；
@@ -56,15 +56,6 @@ def model_mock(monkeypatch):
 # ================================
 
 @pytest.mark.asyncio
-async def test_page_fault_failsafe_yes(model_mock):
-    model_mock.side_effect = RuntimeError("boom")
-    r = await gate.judge_page_fault(_NEUTRAL_Q)
-    assert (r.decision, r.origin) == ("yes", gate.ORIGIN_FAILSAFE)  # 宁多回忆
-    assert model_mock.await_count == 2                              # 1 次 + 重试 1 次
-    assert "兜底" in r.reason and r.confidence == 0.0
-
-
-@pytest.mark.asyncio
 async def test_supersede_failsafe_coexist(model_mock):
     model_mock.side_effect = RuntimeError("boom")
     r = await gate.judge_supersede("用户住在上海", "用户搬到了北京")
@@ -85,24 +76,9 @@ async def test_shortlist_failsafe_low(model_mock):
     assert (r.decision, r.origin) == ("low", gate.ORIGIN_FAILSAFE)  # 宁不注入
 
 
-@pytest.mark.asyncio
-async def test_ownership_archive_without_model_call(model_mock):
-    r = await gate.judge_ownership("明天提醒我开会")
-    assert (r.decision, r.origin) == ("archive", gate.ORIGIN_FAILSAFE)  # V1 恒归档案
-    assert model_mock.await_count == 0
-
-
 # ================================
 # 正常路径与三层校验
 # ================================
-
-@pytest.mark.asyncio
-async def test_model_decision_adopted(model_mock):
-    model_mock.return_value = _ok("no", 0.92)
-    r = await gate.judge_page_fault(_NEUTRAL_Q)
-    assert (r.decision, r.confidence, r.origin) == ("no", 0.92, gate.ORIGIN_MODEL)
-    assert model_mock.await_count == 1
-
 
 @pytest.mark.asyncio
 async def test_fenced_json_accepted(model_mock):
@@ -181,21 +157,6 @@ async def test_json_mode_failure_retries_as_pure_prompt(monkeypatch):
 # ================================
 
 @pytest.mark.asyncio
-async def test_low_confidence_flips_to_conservative(model_mock):
-    model_mock.return_value = _ok("no", 0.3)                           # 模型说"不回源"但没把握
-    r = await gate.judge_page_fault(_NEUTRAL_Q)
-    assert (r.decision, r.origin) == ("yes", gate.ORIGIN_FAILSAFE)
-    assert r.confidence == 0.3 and "低置信" in r.reason
-
-
-@pytest.mark.asyncio
-async def test_low_confidence_same_direction_is_harmless(model_mock):
-    model_mock.return_value = _ok("yes", 0.2)                          # 与保守方向同向
-    r = await gate.judge_page_fault(_NEUTRAL_Q)
-    assert (r.decision, r.origin) == ("yes", gate.ORIGIN_FAILSAFE)
-
-
-# ================================
 # 升级档（可选，D19）
 # ================================
 
@@ -218,45 +179,3 @@ async def test_upgrade_failure_goes_failsafe(model_mock, monkeypatch):
     assert model_mock.await_count == 3
 
 
-# ================================
-# 确定性前置（少而准；仅缺页；宁漏勿误）
-# ================================
-
-@pytest.mark.asyncio
-async def test_prefilter_hook_shortcut_yes(model_mock):
-    for q in ("你还记得我上次说的搬家计划吗？",
-              "我之前说过我喜欢吃辣",
-              "咱们上次聊的那家餐厅叫什么",
-              "我们说好了周末去露营"):
-        r = await gate.judge_page_fault(q)
-        assert (r.decision, r.origin) == ("yes", gate.ORIGIN_PREFILTER), q
-        assert r.confidence == 1.0 and r.latency_ms == 0.0
-    assert model_mock.await_count == 0
-
-
-@pytest.mark.asyncio
-async def test_prefilter_smalltalk_shortcut_no(model_mock):
-    for q in ("你好", "你好！", "谢谢啦", "嗯嗯", "哈哈哈", "hello", "好的"):
-        r = await gate.judge_page_fault(q)
-        assert (r.decision, r.origin) == ("no", gate.ORIGIN_PREFILTER), q
-    assert model_mock.await_count == 0
-
-
-@pytest.mark.asyncio
-async def test_prefilter_hook_beats_smalltalk(model_mock):
-    r = await gate.judge_page_fault("你好，还记得上次那家餐厅吗？")
-    assert (r.decision, r.origin) == ("yes", gate.ORIGIN_PREFILTER)
-    assert model_mock.await_count == 0
-
-
-@pytest.mark.asyncio
-async def test_prefilter_not_greedy(model_mock):
-    """非高置信模式不短路（宁漏勿误）：含"好"的普通句、形近时间词均交模型。"""
-    model_mock.return_value = _ok("yes")
-    r = await gate.judge_page_fault("我上个星期去了上海")              # "上个"≠"上次"
-    assert (r.decision, r.origin) == ("yes", gate.ORIGIN_MODEL)
-
-    model_mock.return_value = _ok("no")
-    r2 = await gate.judge_page_fault("好，那我们继续刚才说的")           # 非纯寒暄整句
-    assert (r2.decision, r2.origin) == ("no", gate.ORIGIN_MODEL)
-    assert model_mock.await_count == 2

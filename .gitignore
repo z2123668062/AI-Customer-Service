@@ -31,3 +31,10 @@ qa_v1/records/
 
 #忽略docker相关文件
 docker-compose.yml
+
+# 前端依赖与构建产物（web/ 是 Vue 前端）
+web/node_modules/
+web/dist/
+web/.vite/
+web/dev.log
+web/dev.err

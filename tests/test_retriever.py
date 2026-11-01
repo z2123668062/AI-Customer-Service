@@ -38,11 +38,9 @@ def _fake(card_id, content=None, kind="entity", entities=(), event_time=None,
 
 
 def _gate(monkeypatch, decision="yes"):
-    """替身分诊（读路径不真调 LLM）；契约与 gate.GateResult 同形。"""
-    async def fake(query):
-        return gate.GateResult(decision=decision, confidence=1.0, reason="test",
-                               origin="prefilter", latency_ms=0.5)
-    monkeypatch.setattr(gate, "judge_page_fault", fake)
+    """分诊已删除（L12）：检索不再有总闸，这个替身留成空函数让老用例不必逐个改。"""
+    _ = (monkeypatch, decision)
+    return None
 
 
 def _semantic(monkeypatch, hits=()):
@@ -143,27 +141,6 @@ def test_build_l2_keywords_stop_chars_english_dedup_and_limit():
     assert build_l2_keywords("abcdefg test abcdefg", []) == ["abcdefg", "test"]  # 英文≥3 + 去重
     kws = build_l2_keywords("一二三四五六七八九十甲乙丙丁戊己", [])
     assert len(kws) <= 8                                   # 上限截断
-
-
-# ================================
-# 分诊短路（skip）
-# ================================
-
-@pytest.mark.asyncio
-async def test_full_skip_touches_neither_pool_nor_db(db_session, monkeypatch):
-    _gate(monkeypatch, decision="no")
-
-    def boom(*args, **kwargs):
-        raise AssertionError("skip 档不应触碰快表 / 回源")
-    monkeypatch.setattr(pool, "known_entities", boom)
-    monkeypatch.setattr(pool, "by_entities", boom)
-    monkeypatch.setattr(pool, "by_time_range", boom)
-
-    result = await retrieve("今天天气怎么样", session=db_session, now=NOW)
-    assert result.candidates == []
-    assert result.trace["triage"] == "skip"
-    assert result.trace["gate"]["decision"] == "no"
-    assert result.trace["merged_count"] == 0
 
 
 # ================================

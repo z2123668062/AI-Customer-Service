@@ -659,22 +659,17 @@ async def retrieve(query: str, *, session: AsyncSession,
 
 async def _retrieve_full(query: str, session: AsyncSession,
                          now: datetime) -> tuple[list[Candidate], dict]:
-    """完整检索链：分诊 → 抽线索 → 扫快表 → （缺页）两级回源 → 回填 → 顺线 → 排序。"""
+    """完整检索链：抽线索 → 扫快表 → （缺页）两级回源 → 回填 → 顺线 → 排序。
+
+    分诊已在 L12 删除。它在真实对话上把「看起来像通用问题、其实指向用户自己」的查询
+    判成 skip，直接关掉整条检索，模型随后用常识编答案——实测「记忆卡片写入成本」一题，
+    正确证据语义分 0.846 排第一，却因为 skip 一张没进上下文。
+    省下的 1.2 秒不值这个代价，而且链路一旦压到 2 秒量级，它的盈亏点会反转成「必删」。
+    """
     trace = _empty_trace()
+    t_start = time.perf_counter()
 
-    # ① 分诊（总闸）：判"不查"连快表都不碰（闲聊零成本退出）
-    verdict = await gate.judge_page_fault(query)
-    trace["gate"] = {"decision": verdict.decision, "origin": verdict.origin,
-                     "confidence": verdict.confidence, "reason": verdict.reason,
-                     "latency_ms": verdict.latency_ms}
-    trace["stage_ms"]["triage"] = verdict.latency_ms
-    t_after_triage = time.perf_counter()
-    if verdict.decision != "yes":
-        trace["triage"] = "skip"
-        trace["stage_ms"]["retrieval"] = round((time.perf_counter() - t_after_triage) * 1000, 1)
-        return [], trace
-
-    # ② 抽线索（纯确定性；零 LLM、零 IO）
+    # ① 抽线索（纯确定性；零 LLM、零 IO）
     entities, window = _extract_clues(query, now)
     trace["entities"] = entities
     if window is not None:
@@ -746,5 +741,5 @@ async def _retrieve_full(query: str, session: AsyncSession,
         counts[best] += 1
     trace["candidates"] = counts
     trace["merged_count"] = len(candidates)
-    trace["stage_ms"]["retrieval"] = round((time.perf_counter() - t_after_triage) * 1000, 1)
+    trace["stage_ms"]["retrieval"] = round((time.perf_counter() - t_start) * 1000, 1)
     return candidates, trace

@@ -62,19 +62,6 @@ class GateResult:
 
 # ============ 判定模式（与 D19 定案一致：极简 prompt + 枚举写死 + 边界反例 + fail-safe 方向）============
 
-_PAGE_FAULT_SYSTEM = """你是个人助手的记忆检索分诊判定器。只做一件事：判断"用户这句话"是否需要回顾历史记忆（回源检索）才能正确回应。
-
-判定标准：
-- yes（需要回源）：句子引用了过去发生的事或用户说过的信息（如"上次""之前""还记得""我提过"）；句子需要用户的个人信息才能回答（名字、住址、偏好、目标、人际关系、经历等）。
-- no（不需要回源）：寒暄闲聊、通用知识问答、当场可完成的生成/翻译/计算任务。
-
-判断示例：
-- 输入"你还记得我上次说的搬家计划吗？" → yes（引用历史）
-- 输入"今天天气怎么样？" → no（闲聊，无需记忆）
-
-只输出一个 json 对象，不要输出任何其他文字。格式：
-{"decision": "yes 或 no", "confidence": 0到1之间的小数, "reason": "一句话理由"}"""
-
 _SUPERSEDE_SYSTEM = """你是记忆写入系统的去重裁决器。给你一张已存在的旧卡片和一条从新对话中抽出的新信息，判断两者的关系：
 - unrelated：主题不同，互不影响
 - coexist：新信息是补充或新增，两者可同时成立（如又养了第二只宠物、学会新技能）
@@ -114,13 +101,6 @@ _SHORTLIST_SYSTEM = """你是记忆注入前的精筛判定器。给你用户当
 理由只进日志、不参与判定，越短越好（L6：输出 token 占单次调用成本的六成，压缩它是最省的一刀）。"""
 
 _TASKS: dict[str, dict] = {
-    "page_fault": {
-        "label": "缺页判定（是否需要回源）",
-        "system": _PAGE_FAULT_SYSTEM,
-        "user_template": "用户消息：{query}",
-        "options": ("yes", "no"),
-        "failsafe": "yes",
-    },
     "supersede": {
         "label": "取代判定（无关/并存/取代）",
         "system": _SUPERSEDE_SYSTEM,
@@ -144,7 +124,6 @@ _TASKS: dict[str, dict] = {
     },
 }
 
-_OWNERSHIP_FAILSAFE = "archive"  # 归属判定 fail-safe：归档案（任务卡后置，V1 不启用）
 
 
 # ============ 三层校验（格式 → schema → 语义；与 spike 定案口径逐字一致）============
@@ -185,42 +164,6 @@ def _three_layer_check(task_key: str, raw: str) -> tuple[dict | None, str | None
         return None, "semantic: reason 为空"
     return {"decision": decision.strip().lower(), "confidence": round(conf, 4),
             "reason": obj["reason"].strip()}, None
-
-
-# ============ 确定性前置（"少而准"：共 4 条高置信模式；仅缺页判定）============
-# 设计原则：宁漏勿误——命中即短路（省一次模型调用），不命中一律交模型。
-# 钩子模式优先级高于寒暄模式：含历史钩子的消息即使形似寒暄也走 yes（宁多勿漏）。
-
-_HOOK_RE = re.compile(
-    r"还记得"
-    r"|我(?:之前|上次|以前|上回)(?:说|讲|提|问|定|买|约|告诉|聊)"
-    r"|(?:我们|咱们)(?:之前|上次|说好|约定|商量)"
-    # L6：补英文钩子。原来只有中文，英文问题一律落到模型判定，这条确定性前置形同虚设。
-    r"|do you (remember|recall)"
-    r"|(did|have) i (tell|told|mention|mentioned|say|said) you"
-    r"|i (told|mentioned to) you"
-    r"|last time (we|i) (talked|spoke|met)"
-    r"|as i (said|mentioned|told you)",
-    re.IGNORECASE,
-)
-
-_SMALLTALK_RE = re.compile(
-    r"\s*(?:你好|您好|hi|hello|哈喽|哈啰|在吗|早上好|下午好|晚上好|晚安|谢谢|谢啦|"
-    r"好的|好呀|好嘞|行|嗯+|哈哈+|嘿)[啊呀呢啦嘛！!。.？?~～\s]*",
-    re.IGNORECASE,
-)
-
-
-def _prefilter_page_fault(query: str) -> GateResult | None:
-    """确定性前置：高置信模式短路（仅缺页）。返回 None = 未命中，交模型判定。"""
-    text = query.strip()
-    if _HOOK_RE.search(text):
-        return GateResult("yes", 1.0, "确定性前置：显式历史钩子（宁多勿漏）",
-                          ORIGIN_PREFILTER)
-    if _SMALLTALK_RE.fullmatch(text):
-        return GateResult("no", 1.0, "确定性前置：纯寒暄/致意（无需记忆）",
-                          ORIGIN_PREFILTER)
-    return None
 
 
 # ============ 模型调用与分档主循环 ============
@@ -311,15 +254,10 @@ async def _run_judgement(task_key: str, inputs: dict,
     return fallback(last_error)
 
 
-# ============ 五个对外判定函数（单一出口的接口契约）============
-
-async def judge_page_fault(query: str) -> GateResult:
-    """缺页判定：这句话要不要回源检索记忆？（yes=回源；fail-safe=yes，宁多勿漏）
-
-    调用方：retriever（E9）。置信门槛与前置短路见模块头。
-    """
-    return await _run_judgement("page_fault", {"query": query},
-                                prefilter=lambda: _prefilter_page_fault(query))
+# ============ 对外判定函数（单一出口的接口契约）============
+# 原有的缺页判定 judge_page_fault 已在 L12 删除：它在真实对话上会把
+# "看起来像通用问题、其实指向用户自己"的查询判成 no，整条检索被跳过，
+# 随后模型用常识编答案。检索不再设总闸，代价是闲聊也走一次检索（毫秒级）。
 
 
 async def judge_supersede(old_card: str, new_info: str) -> GateResult:
@@ -346,13 +284,3 @@ async def judge_shortlist(query: str, card: str) -> GateResult:
     return await _run_judgement("shortlist", {"query": query, "card": card})
 
 
-async def judge_ownership(text: str) -> GateResult:
-    """任务/档案归属：这条信息属于任务卡还是档案？（task / archive；fail-safe=archive）
-
-    V1 不启用（任务卡后置，系统设计 §7）——恒返回 fail-safe 方向（归档案），
-    签名保留为接口契约（五判断点单一出口），实现随任务卡机制一并后置。
-    """
-    _ = text  # 参数保留为接口契约（E12+ 任务卡实现时启用）
-    return GateResult(_OWNERSHIP_FAILSAFE, 0.0,
-                      "归属判定 V1 未启用（任务卡后置，系统设计 §7）；按 fail-safe 归档案",
-                      ORIGIN_FAILSAFE)
