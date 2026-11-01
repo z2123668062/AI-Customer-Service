@@ -25,6 +25,9 @@ logs/
 *.sqlite
 *.mysql
 data/
+# 例外：评测数据集要随仓库走（否则 clone 下来跑不了 bench）
+!bench/data/
+!bench/data/**
 
 #忽略 QA 运行产物（跑一次生成一次，正式结论以 qa_v1/ANALYSIS.md 为准）
 qa_v1/records/
