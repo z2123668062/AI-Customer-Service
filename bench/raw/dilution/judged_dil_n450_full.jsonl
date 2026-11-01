@@ -1,0 +1,65 @@
+{"qid": 0, "label": "WRONG", "reason": "The assistant refused/claimed it was not mentioned instead of giving the date 7 May 2023."}
+{"qid": 1, "label": "WRONG", "reason": "The assistant refuses with 'not mentioned' while the reference answer is 2022."}
+{"qid": 2, "label": "WRONG", "reason": "The assistant refused to answer, whereas the reference states psychology and counseling certification."}
+{"qid": 3, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' while the reference answer is 'Adoption agencies'."}
+{"qid": 4, "label": "WRONG", "reason": "The assistant refused/claimed it was not mentioned instead of answering that Caroline is a transgender woman."}
+{"qid": 5, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' instead of giving the reference date, the Sunday before 25 May 2023."}
+{"qid": 6, "label": "WRONG", "reason": "The assistant refused to answer instead of giving the reference date of June 2023."}
+{"qid": 7, "label": "WRONG", "reason": "The assistant claims the status is not mentioned, while the reference answer states she is single."}
+{"qid": 8, "label": "WRONG", "reason": "The assistant claims it is not mentioned, contradicting the reference answer that gives the week before 9 June 2023."}
+{"qid": 9, "label": "WRONG", "reason": "The assistant refused to answer, while the reference specifies the week before 9 June 2023."}
+{"qid": 10, "label": "WRONG", "reason": "The assistant refused as not mentioned, while the reference answer states 4 years."}
+{"qid": 11, "label": "WRONG", "reason": "The assistant refused to answer, whereas the reference states Caroline moved from Sweden."}
+{"qid": 12, "label": "WRONG", "reason": "The assistant refused to answer, whereas the reference states Caroline's 18th birthday was 10 years ago."}
+{"qid": 13, "label": "WRONG", "reason": "The assistant says it is not mentioned, while the reference specifies counseling or mental health for transgender people."}
+{"qid": 14, "label": "WRONG", "reason": "The assistant refused with \"not mentioned\" instead of answering that she likely would not want to pursue counseling without that support."}
+{"qid": 16, "label": "WRONG", "reason": "The assistant claims the information is not mentioned, while the reference answer gives a specific date (2 July 2023)."}
+{"qid": 17, "label": "WRONG", "reason": "The assistant refused to answer, while the reference states July 2023."}
+{"qid": 19, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference answer specifies dinosaurs and nature."}
+{"qid": 20, "label": "WRONG", "reason": "The assistant refused to answer, while the reference gives the date 5 July 2023."}
+{"qid": 21, "label": "WRONG", "reason": "The assistant claims it is not mentioned, while the reference gives the week before 6 July 2023."}
+{"qid": 22, "label": "WRONG", "reason": "The assistant refused as not mentioned, while the reference indicates yes because Caroline collects classic children's books."}
+{"qid": 23, "label": "WRONG", "reason": "The assistant refused and said nothing was mentioned, while the reference lists two books Melanie read."}
+{"qid": 24, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' instead of giving the reference answer of running and pottery."}
+{"qid": 25, "label": "WRONG", "reason": "The reference gives a specific date (10 July 2023), but the assistant claims it is not mentioned."}
+{"qid": 26, "label": "WRONG", "reason": "The assistant refuses with 'not mentioned' instead of giving the reference answer 2022."}
+{"qid": 27, "label": "WRONG", "reason": "The assistant refused as not mentioned, while the reference states she likely would not pursue writing because she wants to be a counselor."}
+{"qid": 28, "label": "WRONG", "reason": "The assistant refused instead of giving the date (the Friday before 15 July 2023)."}
+{"qid": 29, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference gives a specific date."}
+{"qid": 31, "label": "WRONG", "reason": "The assistant refused to answer, claiming it was not mentioned, while the reference gives the week before 27 June 2023."}
+{"qid": 32, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference lists Pride parade, school speech, and support group."}
+{"qid": 33, "label": "WRONG", "reason": "The assistant refused to answer, saying it was not mentioned, while the reference gives the week before 3 July 2023."}
+{"qid": 82, "label": "WRONG", "reason": "The assistant claims it is not mentioned, while the reference answer is mental health."}
+{"qid": 83, "label": "WRONG", "reason": "The assistant refused to answer, while the reference states Melanie realized self-care is important."}
+{"qid": 84, "label": "WRONG", "reason": "The assistant refused with 'Not mentioned' instead of giving the reference answer about daily me-time for running, reading, or violin."}
+{"qid": 85, "label": "WRONG", "reason": "The assistant refused to answer, while the reference states her plan is researching adoption agencies."}
+{"qid": 86, "label": "WRONG", "reason": "The assistant refused to answer instead of stating LGBTQ+ individuals as the reference requires."}
+{"qid": 87, "label": "WRONG", "reason": "The assistant refused to answer instead of giving the reference reason (inclusivity and LGBTQ+ support)."}
+{"qid": 88, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' instead of stating that Caroline is excited about creating a family for kids who need one."}
+{"qid": 89, "label": "WRONG", "reason": "The assistant claims it was not mentioned, while the reference states Melanie thinks Caroline is doing something amazing and will be an awesome mom."}
+{"qid": 90, "label": "WRONG", "reason": "The assistant refused to answer, while the reference states 5 years."}
+{"qid": 91, "label": "WRONG", "reason": "The assistant says it was not mentioned, while the reference answer states the necklace symbolizes love, faith, and strength."}
+{"qid": 92, "label": "WRONG", "reason": "The reference answer is Sweden, but the assistant claims it is not mentioned."}
+{"qid": 93, "label": "WRONG", "reason": "The assistant refused/claimed it was not mentioned, while the reference answer is necklace."}
+{"qid": 94, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, contradicting the reference answer of art and self-expression."}
+{"qid": 95, "label": "WRONG", "reason": "The assistant refused because it said it was not mentioned, contradicting the reference answer that lists camping activities."}
+{"qid": 96, "label": "WRONG", "reason": "The assistant claims it is not mentioned, while the reference states Caroline wants to work with trans people on self-acceptance and mental health support."}
+{"qid": 97, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference specifies an LGBTQ+ counseling workshop."}
+{"qid": 98, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference states the workshop covered therapeutic methods and working with trans people."}
+{"qid": 99, "label": "WRONG", "reason": "The assistant refused to answer, claiming it was not mentioned, while the reference gives a clear motivation."}
+{"qid": 100, "label": "WRONG", "reason": "The assistant refused to answer instead of giving the reference's 'safe and inviting place for people to grow'."}
+{"qid": 101, "label": "WRONG", "reason": "The reference answer is Yes, but the assistant says it is not mentioned."}
+{"qid": 102, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference specifies kids' books including classics, multicultural stories, and educational books."}
+{"qid": 103, "label": "WRONG", "reason": "The assistant refused with \"Not mentioned\" instead of giving the reference answer \"Charlotte's Web\"."}
+{"qid": 104, "label": "WRONG", "reason": "The assistant refused, saying it was not mentioned, while the reference answer is \"Becoming Nicole\"."}
+{"qid": 105, "label": "WRONG", "reason": "The assistant refused/claimed it was not mentioned, whereas the reference gives self-acceptance and finding support as the takeaways."}
+{"qid": 106, "label": "WRONG", "reason": "The assistant refused with \"not mentioned\" while the reference answer is running."}
+{"qid": 107, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference gives de-stressing and clearing her mind."}
+{"qid": 108, "label": "WRONG", "reason": "The assistant claims it is not mentioned, while the reference answer states running has been great for her mental health."}
+{"qid": 109, "label": "WRONG", "reason": "The reference says they made pots, while the assistant incorrectly says it was not mentioned."}
+{"qid": 110, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference answer specifies a cup with a dog face on it."}
+{"qid": 111, "label": "WRONG", "reason": "The assistant says it is not mentioned, while the reference answer is painting."}
+{"qid": 112, "label": "WRONG", "reason": "The assistant refused, saying it was not mentioned, while the reference states they painted a sunset with a palm tree."}
+{"qid": 113, "label": "WRONG", "reason": "The assistant refused to answer, claiming it was not mentioned, while the reference states she saw many people wanting to create loving homes for children in need."}
+{"qid": 114, "label": "WRONG", "reason": "The assistant refused/claimed it was not mentioned, while the reference says sunflowers represent warmth and happiness."}
+{"qid": 115, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference provides specific reasons flowers are important to Melanie."}

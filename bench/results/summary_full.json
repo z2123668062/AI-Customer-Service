@@ -1,0 +1,89 @@
+{
+  "cond": "full",
+  "mode": "full",
+  "window": 419,
+  "n_questions": 199,
+  "n_judged": 199,
+  "n_error": 0,
+  "overall_normal(cat1-4)": {
+    "n": 152,
+    "accuracy": 0.5526,
+    "avg_f1": 0.4465,
+    "f1_ge_05": 0.4474,
+    "context_hit": 0.9803,
+    "avg_latency_s": 1.89,
+    "avg_prompt_tokens": 14548.9,
+    "avg_total_tokens": 14720.7,
+    "injection_rate": 0.0
+  },
+  "by_category": {
+    "multi-hop": {
+      "n": 32,
+      "accuracy": 0.5625,
+      "avg_f1": 0.4735,
+      "f1_ge_05": 0.4688,
+      "context_hit": 0.9688,
+      "avg_latency_s": 2.53,
+      "avg_prompt_tokens": 14547.4,
+      "avg_total_tokens": 14832.4,
+      "injection_rate": 0.0
+    },
+    "temporal": {
+      "n": 37,
+      "accuracy": 0.0541,
+      "avg_f1": 0.1445,
+      "f1_ge_05": 0.0541,
+      "context_hit": 1.0,
+      "avg_latency_s": 1.57,
+      "avg_prompt_tokens": 14548.5,
+      "avg_total_tokens": 14667.9,
+      "injection_rate": 0.0
+    },
+    "open-domain": {
+      "n": 13,
+      "accuracy": 0.4615,
+      "avg_f1": 0.2399,
+      "f1_ge_05": 0.1538,
+      "context_hit": 0.8462,
+      "avg_latency_s": 1.97,
+      "avg_prompt_tokens": 14550.9,
+      "avg_total_tokens": 14737.3,
+      "injection_rate": 0.0
+    },
+    "single-hop": {
+      "n": 70,
+      "accuracy": 0.8286,
+      "avg_f1": 0.6321,
+      "f1_ge_05": 0.7,
+      "context_hit": 1.0,
+      "avg_latency_s": 1.75,
+      "avg_prompt_tokens": 14549.4,
+      "avg_total_tokens": 14694.5,
+      "injection_rate": 0.0
+    },
+    "adversarial": {
+      "n": 47,
+      "accuracy(refusal)": 0.8298,
+      "hallucination_rate": 0.0426,
+      "other_rate": 0.1277,
+      "avg_latency_s": 1.84,
+      "injection_rate": 0.0
+    }
+  },
+  "adversarial(cat5)": {
+    "n": 47,
+    "refusal_rate": 0.8298,
+    "hallucination_rate": 0.0426,
+    "other_rate": 0.1277
+  },
+  "diagnostics": {
+    "triage_dist": {
+      "n/a": 152
+    },
+    "gate_origin_dist": {
+      "n/a": 152
+    },
+    "abstain_rate_on_normal": 0.1053
+  },
+  "qid_filter": 199
+}

@@ -1,0 +1,89 @@
+{
+  "cond": "s0rag",
+  "mode": "ragwin",
+  "window": 10,
+  "n_questions": 199,
+  "n_judged": 199,
+  "n_error": 0,
+  "overall_normal(cat1-4)": {
+    "n": 152,
+    "accuracy": 0.3355,
+    "avg_f1": 0.3085,
+    "f1_ge_05": 0.2961,
+    "context_hit": 0.0,
+    "avg_latency_s": 1.3,
+    "avg_prompt_tokens": 794.7,
+    "avg_total_tokens": 909.6,
+    "injection_rate": 0.0
+  },
+  "by_category": {
+    "multi-hop": {
+      "n": 32,
+      "accuracy": 0.1875,
+      "avg_f1": 0.2005,
+      "f1_ge_05": 0.2188,
+      "context_hit": 0.0,
+      "avg_latency_s": 1.53,
+      "avg_prompt_tokens": 774.2,
+      "avg_total_tokens": 931.3,
+      "injection_rate": 0.0
+    },
+    "temporal": {
+      "n": 37,
+      "accuracy": 0.027,
+      "avg_f1": 0.0793,
+      "f1_ge_05": 0.0,
+      "context_hit": 0.0,
+      "avg_latency_s": 1.3,
+      "avg_prompt_tokens": 809.6,
+      "avg_total_tokens": 925.4,
+      "injection_rate": 0.0
+    },
+    "open-domain": {
+      "n": 13,
+      "accuracy": 0.3846,
+      "avg_f1": 0.2303,
+      "f1_ge_05": 0.1538,
+      "context_hit": 0.0,
+      "avg_latency_s": 1.2,
+      "avg_prompt_tokens": 772.5,
+      "avg_total_tokens": 860.8,
+      "injection_rate": 0.0
+    },
+    "single-hop": {
+      "n": 70,
+      "accuracy": 0.5571,
+      "avg_f1": 0.4935,
+      "f1_ge_05": 0.5143,
+      "context_hit": 0.0,
+      "avg_latency_s": 1.22,
+      "avg_prompt_tokens": 800.4,
+      "avg_total_tokens": 900.4,
+      "injection_rate": 0.0
+    },
+    "adversarial": {
+      "n": 47,
+      "accuracy(refusal)": 0.8085,
+      "hallucination_rate": 0.0213,
+      "other_rate": 0.1702,
+      "avg_latency_s": 1.36,
+      "injection_rate": 0.0
+    }
+  },
+  "adversarial(cat5)": {
+    "n": 47,
+    "refusal_rate": 0.8085,
+    "hallucination_rate": 0.0213,
+    "other_rate": 0.1702
+  },
+  "diagnostics": {
+    "triage_dist": {
+      "n/a": 152
+    },
+    "gate_origin_dist": {
+      "n/a": 152
+    },
+    "abstain_rate_on_normal": 0.2632
+  },
+  "qid_filter": 199
+}

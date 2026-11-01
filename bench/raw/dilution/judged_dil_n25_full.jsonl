@@ -1,0 +1,65 @@
+{"qid": 0, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' instead of giving the date 7 May 2023."}
+{"qid": 1, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' instead of giving the reference answer 2022."}
+{"qid": 2, "label": "WRONG", "reason": "The reference specifies psychology and counseling certification, while the assistant mentions only counseling/mental health and omits psychology."}
+{"qid": 3, "label": "CORRECT", "reason": "The answer includes the key fact 'adoption agencies' from the reference, with additional non-contradictory detail."}
+{"qid": 4, "label": "CORRECT", "reason": "The assistant answer matches the reference exactly: Transgender woman."}
+{"qid": 5, "label": "WRONG", "reason": "The assistant refused to answer instead of giving the reference date, the Sunday before 25 May 2023."}
+{"qid": 6, "label": "WRONG", "reason": "The assistant refused to answer, while the reference gives June 2023."}
+{"qid": 7, "label": "CORRECT", "reason": "The assistant answer matches the reference answer exactly: Single."}
+{"qid": 8, "label": "WRONG", "reason": "The assistant uses a relative time expression ('Last week') instead of the absolute date anchor in the reference ('the week before 9 June 2023')."}
+{"qid": 9, "label": "WRONG", "reason": "The assistant gave a relative time (\"Last week\") instead of the absolute date \"the week before 9 June 2023.\""}
+{"qid": 10, "label": "CORRECT", "reason": "The assistant answer matches the reference answer of 4 years."}
+{"qid": 11, "label": "CORRECT", "reason": "The assistant answer matches the reference answer, Sweden."}
+{"qid": 12, "label": "CORRECT", "reason": "The assistant states ten years ago, matching the reference answer of 10 years ago."}
+{"qid": 13, "label": "CORRECT", "reason": "The assistant states counseling/mental health working with trans people, matching the reference."}
+{"qid": 14, "label": "CORRECT", "reason": "Unlikely conveys the same meaning as Likely no."}
+{"qid": 16, "label": "WRONG", "reason": "The assistant gives a relative time ('Yesterday') instead of the absolute date 2 July 2023."}
+{"qid": 17, "label": "WRONG", "reason": "The reference gives an absolute date (July 2023), while the assistant only says \"This month,\" which is a relative expression not equivalent."}
+{"qid": 19, "label": "WRONG", "reason": "It includes unsupported extra items like pottery and painting, not just the reference's dinosaurs and nature."}
+{"qid": 20, "label": "WRONG", "reason": "The assistant gave a relative expression (\"yesterday\") instead of the absolute date 5 July 2023."}
+{"qid": 21, "label": "WRONG", "reason": "The assistant gave a relative time expression ('Last week') instead of the absolute timeframe in the reference answer."}
+{"qid": 22, "label": "CORRECT", "reason": "The assistant answers yes, matching the reference answer's key information."}
+{"qid": 23, "label": "WRONG", "reason": "It names only Charlotte's Web and fails to name the second book, \"Nothing is Impossible\"."}
+{"qid": 24, "label": "WRONG", "reason": "The reference lists two activities (running and pottery), but the assistant mentions only running."}
+{"qid": 25, "label": "WRONG", "reason": "The assistant gives only a relative expression ('two days ago') instead of the absolute date 10 July 2023."}
+{"qid": 26, "label": "WRONG", "reason": "The reference gives the absolute year 2022, while the assistant only says \"Last year,\" which is a relative time expression."}
+{"qid": 27, "label": "WRONG", "reason": "The assistant refused with 'not mentioned' instead of answering that she likely would not pursue writing and wants to be a counselor."}
+{"qid": 28, "label": "WRONG", "reason": "The assistant uses the relative expression \"Last Friday\" instead of the absolute reference date."}
+{"qid": 29, "label": "WRONG", "reason": "The assistant gives a relative time ('Last Friday') instead of the required absolute date anchor (the Friday before 15 July 2023)."}
+{"qid": 31, "label": "WRONG", "reason": "The assistant refused to answer, claiming it was not mentioned, whereas the reference gives the week before 27 June 2023."}
+{"qid": 32, "label": "WRONG", "reason": "It names the pride parade and school speech, but adds an unsupported transgender/LGBTQ conference and replaces the support group with a counseling workshop, so it does not match the reference list."}
+{"qid": 33, "label": "WRONG", "reason": "The reference gives an absolute anchor (the week before 3 July 2023), but the assistant only says the relative \"last week\"."}
+{"qid": 82, "label": "WRONG", "reason": "The reference answer is mental health, but the assistant claims it was not mentioned."}
+{"qid": 83, "label": "WRONG", "reason": "The assistant refused by saying it was not mentioned, while the reference answer states self-care is important."}
+{"qid": 84, "label": "WRONG", "reason": "The assistant omits the core answer of carving out daily me-time and cites pottery instead of the reference activities like reading or violin."}
+{"qid": 85, "label": "WRONG", "reason": "The assistant refused to answer, while the reference states her plan is researching adoption agencies."}
+{"qid": 86, "label": "CORRECT", "reason": "The assistant states LGBTQ+ people, matching the reference answer LGBTQ+ individuals."}
+{"qid": 87, "label": "CORRECT", "reason": "The assistant states the agency's inclusivity and support for LGBTQ+ individuals, matching the reference."}
+{"qid": 88, "label": "CORRECT", "reason": "The assistant answer matches the reference answer, expressing that Caroline is excited about creating/making a family for kids who need one."}
+{"qid": 89, "label": "CORRECT", "reason": "The assistant conveys that Melanie finds Caroline's adoption amazing and believes she will be an awesome mom."}
+{"qid": 90, "label": "CORRECT", "reason": "The assistant states 5 years, matching the reference answer exactly."}
+{"qid": 91, "label": "CORRECT", "reason": "The assistant answer matches the reference exactly in meaning: love, faith, and strength."}
+{"qid": 92, "label": "CORRECT", "reason": "The assistant answer 'Sweden' matches the reference answer exactly."}
+{"qid": 93, "label": "CORRECT", "reason": "The assistant states grandma's gift was a necklace, matching the reference."}
+{"qid": 94, "label": "WRONG", "reason": "The assistant refused to answer, while the reference answer states the bowl is a reminder of art and self-expression."}
+{"qid": 95, "label": "CORRECT", "reason": "The assistant lists all three activities: explored nature, roasted marshmallows, and went on a hike."}
+{"qid": 96, "label": "CORRECT", "reason": "The assistant's answer matches the reference answer verbatim."}
+{"qid": 97, "label": "CORRECT", "reason": "The assistant answer matches the reference answer exactly: LGBTQ+ counseling workshop."}
+{"qid": 98, "label": "CORRECT", "reason": "The assistant conveys the same key information as the reference: therapeutic methods and working with trans people."}
+{"qid": 99, "label": "CORRECT", "reason": "It captures her own journey/struggles and the support she received as motivation, matching the core of the reference."}
+{"qid": 100, "label": "CORRECT", "reason": "The assistant's answer matches the reference almost word for word."}
+{"qid": 101, "label": "CORRECT", "reason": "The assistant answers Yes, matching the reference."}
+{"qid": 102, "label": "CORRECT", "reason": "The assistant lists the classics, stories from different cultures, and educational books, matching the key categories in the reference."}
+{"qid": 103, "label": "CORRECT", "reason": "The assistant answer matches the reference answer exactly."}
+{"qid": 104, "label": "CORRECT", "reason": "The assistant names the same book, \"Becoming Nicole,\" with an added author detail."}
+{"qid": 105, "label": "CORRECT", "reason": "The assistant conveys the key lessons of self-acceptance and finding support, with additional supportive phrasing that does not contradict the reference."}
+{"qid": 106, "label": "CORRECT", "reason": "The assistant states the shoes are used for running, matching the reference answer."}
+{"qid": 107, "label": "CORRECT", "reason": "The assistant's answer exactly matches the reference: to de-stress and clear her mind."}
+{"qid": 108, "label": "CORRECT", "reason": "The assistant states her mental health, matching the reference answer."}
+{"qid": 109, "label": "CORRECT", "reason": "The assistant answer states they made their own pots, matching the reference answer 'pots'."}
+{"qid": 110, "label": "WRONG", "reason": "The assistant omits the key detail that the cup had a dog face on it."}
+{"qid": 111, "label": "CORRECT", "reason": "The assistant states painting, matching the reference answer."}
+{"qid": 112, "label": "WRONG", "reason": "The assistant says they painted flowers, but the reference answer specifies a sunset with a palm tree."}
+{"qid": 113, "label": "CORRECT", "reason": "The assistant conveys the same key information as the reference answer."}
+{"qid": 114, "label": "CORRECT", "reason": "The assistant answer states 'warmth and happiness', matching the reference exactly."}
+{"qid": 115, "label": "CORRECT", "reason": "The answer includes both key points from the reference: reminding her to appreciate small moments and being part of her wedding decor."}

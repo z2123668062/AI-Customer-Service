@@ -1,0 +1,90 @@
+{
+  "cond": "s0d",
+  "mode": "sut",
+  "window": 10,
+  "n_questions": 199,
+  "n_judged": 199,
+  "n_error": 0,
+  "overall_normal(cat1-4)": {
+    "n": 152,
+    "accuracy": 0.5395,
+    "avg_f1": 0.414,
+    "f1_ge_05": 0.3816,
+    "context_hit": 0.2368,
+    "avg_latency_s": 11.07,
+    "avg_prompt_tokens": 770.1,
+    "avg_total_tokens": 868.0,
+    "injection_rate": 0.9671
+  },
+  "by_category": {
+    "multi-hop": {
+      "n": 32,
+      "accuracy": 0.375,
+      "avg_f1": 0.3883,
+      "f1_ge_05": 0.4062,
+      "context_hit": 0.3438,
+      "avg_latency_s": 11.02,
+      "avg_prompt_tokens": 774.3,
+      "avg_total_tokens": 885.6,
+      "injection_rate": 0.9688
+    },
+    "temporal": {
+      "n": 37,
+      "accuracy": 0.5676,
+      "avg_f1": 0.3929,
+      "f1_ge_05": 0.2973,
+      "context_hit": 0.1892,
+      "avg_latency_s": 10.84,
+      "avg_prompt_tokens": 759.8,
+      "avg_total_tokens": 848.8,
+      "injection_rate": 0.9459
+    },
+    "open-domain": {
+      "n": 13,
+      "accuracy": 0.3846,
+      "avg_f1": 0.2303,
+      "f1_ge_05": 0.1538,
+      "context_hit": 0.2308,
+      "avg_latency_s": 11.72,
+      "avg_prompt_tokens": 774.7,
+      "avg_total_tokens": 890.4,
+      "injection_rate": 1.0
+    },
+    "single-hop": {
+      "n": 70,
+      "accuracy": 0.6286,
+      "avg_f1": 0.471,
+      "f1_ge_05": 0.4571,
+      "context_hit": 0.2143,
+      "avg_latency_s": 11.1,
+      "avg_prompt_tokens": 772.8,
+      "avg_total_tokens": 866.0,
+      "injection_rate": 0.9714
+    },
+    "adversarial": {
+      "n": 47,
+      "accuracy(refusal)": 0.8511,
+      "hallucination_rate": 0.0426,
+      "other_rate": 0.1064,
+      "avg_latency_s": 13.58,
+      "injection_rate": 0.8936
+    }
+  },
+  "adversarial(cat5)": {
+    "n": 47,
+    "refusal_rate": 0.8511,
+    "hallucination_rate": 0.0426,
+    "other_rate": 0.1064
+  },
+  "diagnostics": {
+    "triage_dist": {
+      "hit": 149,
+      "fault": 3
+    },
+    "gate_origin_dist": {
+      "model": 152
+    },
+    "abstain_rate_on_normal": 0.1974
+  },
+  "qid_filter": 199
+}
