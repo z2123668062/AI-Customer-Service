@@ -39,38 +39,56 @@ def _key(session_id: str) -> str:
 
 
 async def add_message(session_id: str, role: Literal["user", "assistant"], content: str) -> ChatMessage:
+    """写一条消息进窗口。Redis 故障只降级（窗口缺失），不打断本轮对话。"""
     message = ChatMessage(role=role, content=content)
     redis_key = _key(session_id)
     msg_json = message.model_dump_json()
-    await redis_client.rpush(redis_key, msg_json)
-    await redis_client.ltrim(redis_key, -SLIDING_WINDOW_SIZE, -1)
+    try:
+        await redis_client.rpush(redis_key, msg_json)
+        await redis_client.ltrim(redis_key, -SLIDING_WINDOW_SIZE, -1)
+    except Exception as e:  # noqa: BLE001 —— 热层是加速层，挂了退化为"无窗口"
+        logger.warning(f"热层写入失败（会话 {session_id}，窗口降级）: {e}")
     return message
 
 
 async def get_history(session_id: str) -> List[ChatMessage]:
+    """读窗口（最近 SLIDING_WINDOW_SIZE 条）。Redis 故障返回空表——对话退化为单轮，不失败。"""
     redis_key = _key(session_id)
-    raw_messages = await redis_client.lrange(redis_key, 0, -1)
+    try:
+        raw_messages = await redis_client.lrange(redis_key, 0, -1)
+    except Exception as e:  # noqa: BLE001 —— 降级是设计的一部分（系统设计 §8）
+        logger.warning(f"热层读取失败（会话 {session_id}，退化为单轮）: {e}")
+        return []
     history = []
     for raw in raw_messages:
-        data = json.loads(raw)
-        history.append(ChatMessage(**data))
+        try:
+            history.append(ChatMessage(**json.loads(raw)))
+        except Exception as e:  # noqa: BLE001 —— 坏行跳过：窗口是易失层，不值得中断对话
+            logger.warning(f"热层消息解析失败（已跳过）: {e}")
     return history
 
 
 async def get_history_count(session_id: str) -> int:
     redis_key = _key(session_id)
-    return await redis_client.llen(redis_key)
+    try:
+        return await redis_client.llen(redis_key)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"热层计数失败（会话 {session_id}，按 0 处理）: {e}")
+        return 0
 
 
 async def undo_last_turn(session_id: str) -> None:
-    """撤销最后一轮对话（用户 + 助手各一条）"""
+    """撤销最后一轮对话（用户 + 助手各一条）；Redis 故障静默降级。"""
     redis_key = _key(session_id)
-    count = await redis_client.llen(redis_key)
-    if count < 2:
-        logger.warning(f"会话 {session_id} 中没有足够的消息来撤销。")
-        return
-    await redis_client.rpop(redis_key)
-    await redis_client.rpop(redis_key)
+    try:
+        count = await redis_client.llen(redis_key)
+        if count < 2:
+            logger.warning(f"会话 {session_id} 中没有足够的消息来撤销。")
+            return
+        await redis_client.rpop(redis_key)
+        await redis_client.rpop(redis_key)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"热层撤销失败（会话 {session_id}）: {e}")
 
 
 # ============================================================

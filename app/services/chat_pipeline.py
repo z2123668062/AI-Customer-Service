@@ -18,6 +18,7 @@
 import asyncio
 import time
 import uuid
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -30,17 +31,30 @@ from app.services.history_service import save_record_to_db
 from app.services.long_term_memory import (consolidator, explicit, injector, reranker, retriever,
                                            store)
 
-# 会话级进程内锁：同会话请求串行（替代原 Redis 分布式锁；单用户单进程场景足够）
-_session_locks: dict[str, asyncio.Lock] = {}
+# 会话级进程内锁：同会话请求串行（替代原 Redis 分布式锁；单用户单进程场景足够）。
+# 引用计数（持有者 + 排队者）归零即删条目——锁对象本身随最后一个使用者释放，
+# 不按会话永久驻留（否则每个会话 id 都留下一个死锁对象）。
+_session_locks: dict[str, list] = {}
 
 # 前端 meta 事件的卡片摘要长度（"本轮记忆"可视化用）
 _PREVIEW_CHARS = 30
 
 
-def _lock_for(session_id: str) -> asyncio.Lock:
-    if session_id not in _session_locks:
-        _session_locks[session_id] = asyncio.Lock()
-    return _session_locks[session_id]
+@asynccontextmanager
+async def _session_lock(session_id: str):
+    """取会话锁 + 引用计数（取用与计数之间无 await，单事件循环下无竞态）。"""
+    entry = _session_locks.get(session_id)
+    if entry is None:
+        entry = [asyncio.Lock(), 0]
+        _session_locks[session_id] = entry
+    entry[1] += 1
+    try:
+        async with entry[0]:
+            yield
+    finally:
+        entry[1] -= 1
+        if entry[1] <= 0 and _session_locks.get(session_id) is entry:
+            _session_locks.pop(session_id, None)
 
 
 # ============================================================
@@ -80,25 +94,29 @@ async def _retrieve_memory_context(session_id: str, user_message: str, *,
     判重取"历史窗口"（window_texts 由调用方取热层窗口，本轮用户消息尚未入窗）。
     降级纪律：检索链路内建（gate / 语义路不抛）；DB 异常向上抛（底座问题必须暴露）。
     """
+    injector_trace: dict[str, Any] = {}
     async with AsyncSessionLocal() as session:
         retrieval = await retriever.retrieve(user_message, session=session)
         reranked = await reranker.rerank(user_message, retrieval.candidates,
                                          use_rerank=use_rerank)
-        # 访问记账：只记真正被注入的卡——"被读到就续命"记的应当是进入模型视野的那些。
-        # 原实现里这个函数一次没被调用过，于是淘汰时的 last_accessed_at 永远为空，
-        # 偏好卡的衰减一直从入库时间起算。记账是旁路：失败只告警，不影响回答。
+        # 注入段先渲染：只有真正进入注入文本的卡才算"被读到"——窗口判重跳过的、
+        # 被注入上限截掉的都不该续命（否则偏好卡会因为"被检索到"而永不衰减）。
+        # 记账是旁路：失败只告警，不影响回答。
+        text = injector.render(reranked.kept, window_texts=window_texts, trace=injector_trace)
+        injected = {ref for ref in (injector_trace.get("injected") or ())
+                    if isinstance(ref, int)}
         if session is not None:
-            for scored in getattr(reranked, "kept", None) or []:
+            for scored in reranked.kept:
                 candidate = getattr(scored, "candidate", None)
                 if candidate is None or candidate.kind == "raw":
                     continue                  # 原文候选是 messages.id，不是卡片，不记
+                if candidate.ref_id not in injected:
+                    continue                  # 没进模型视野：不续命
                 try:
                     await store.bump_access(session, candidate.ref_id)
                 except Exception as e:        # noqa: BLE001 —— 记账失败不影响回答
                     logger.warning(f"[pipeline] 访问记账失败 ref_id={candidate.ref_id}: {e}")
             await session.commit()
-    injector_trace: dict[str, Any] = {}
-    text = injector.render(reranked.kept, window_texts=window_texts, trace=injector_trace)
     logger.debug(f"[pipeline] 记忆读取完成（会话 {session_id}）：候选 {len(retrieval.candidates)}，"
                  f"注入 {len(injector_trace.get('injected') or [])}")
     return MemoryContext(
@@ -177,8 +195,9 @@ def _compose_cost(mem: MemoryContext, generate_ms: float,
             "total": round((time.perf_counter() - t0) * 1000, 1),
         },
         "llm_calls": {
-            # gate 近似口径：模型/升级档采纳 ≈ 1 次判定调用；prefilter / disabled / 兜底 = 0
+            # gate 已随分诊一并删除（L12），此处恒 0——字段保留只为兼容历史 telemetry
             "gate": 1 if gate.get("origin") in ("model", "upgrade") else 0,
+            # judged = 真正发生的逐卡判定次数；关精排时为 0（由 reranker 置位）
             "rerank": rerank.get("judged", 0),
             "generate": 1,
         },
@@ -237,7 +256,7 @@ async def handle_message(session_id: str, user_message: str, *,
     trace_id = trace_id or uuid.uuid4().hex
     t0 = time.perf_counter()
 
-    async with _lock_for(session_id):
+    async with _session_lock(session_id):
         # ① 显式指令识别（零成本正则；暂存随归档——push_explicit 需要 message_id）
         explicit_hit = explicit.is_explicit(user_message)
 

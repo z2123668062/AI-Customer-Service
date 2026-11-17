@@ -22,6 +22,11 @@ router = APIRouter()
 # 单轮总超时（含记忆读取 + LLM 生成 + 归档）
 TURN_TIMEOUT = 30.0
 
+# 打字机效果的节流：单字符最长 10ms，且整段回放的追加延迟不超过 1.2s。
+# 固定 10ms/字符时，500 字的回答会凭空多等 5 秒（首字时间本来已等于整段生成时间）。
+_TYPE_DELAY_MAX = 0.01
+_TYPE_BUDGET_SECONDS = 1.2
+
 
 def _sse(event: str, content="") -> str:
     """构造一条 SSE 事件（JSON 序列化，天然转义引号与换行；content 可为对象）。"""
@@ -55,10 +60,11 @@ async def chat_endpoint(request: ChatRequest, fastapi_request: Request = None):
         if memory_meta:
             yield _sse("meta", memory_meta)
 
-        # 逐字符推送（保留原系统的打字机视觉效果）
+        # 逐字符推送（保留打字机视觉）；长回复压缩节流，追加延迟封顶
+        delay = min(_TYPE_DELAY_MAX, _TYPE_BUDGET_SECONDS / max(len(reply), 1))
         for char in reply:
             yield _sse("message", char)
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(delay)
         yield _sse("done")
 
     return StreamingResponse(stream_generator(), media_type="text/event-stream")

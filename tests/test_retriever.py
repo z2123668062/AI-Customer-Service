@@ -1,9 +1,9 @@
-"""读路径单测（E9）：分档调度 / 分诊短路 / 抽线索 / 扫快表 / 缺页两级回源 / 回填 / 顺线 / trace 归因。
+"""读路径单测（E9）：命中/缺页调度 / 抽线索 / 扫快表 / 缺页两级回源 / 回填 / 顺线 / trace 归因。
 
 策略：
 - 纯函数（时间词 / 反向匹配 / L2 关键词）零依赖直测；
-- 全链用例恒 monkeypatch gate.judge_page_fault（读路径不真调 LLM）与 retriever._semantic_search
-  （隔离 embedding/Qdrant 外设）——链路编排才是本文件的被测对象；
+- 全链用例恒 monkeypatch retriever._semantic_search / _semantic_raw（隔离 embedding/Qdrant
+  外设）——链路编排才是本文件的被测对象（分诊已于 L12 删除，读路径不再调 gate）；
 - 池内数据用 pool.on_store_write 直塞假卡（零 DB）；DB 侧数据走 db_session。
 """
 from datetime import datetime, timezone

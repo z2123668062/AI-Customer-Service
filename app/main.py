@@ -49,10 +49,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# 单用户、无 Cookie 鉴权：通配来源 + 不带凭据。二者不能同时为 True
+# （浏览器会拒绝 Access-Control-Allow-Origin: * 与 Allow-Credentials: true 的组合）。
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -169,6 +169,17 @@ async def test_concurrency_bounded_by_semaphore(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_bypass_reports_zero_llm_calls(monkeypatch):
+    """关精排：零次 LLM 判定（judged=0），候选仍按兜底分过门——埋点不虚报调用。"""
+    monkeypatch.setattr(settings, "RERANK_ENABLED", False)
+    result = await reranker.rerank("q", [_cand(1), _cand(2)])
+    assert result.trace["bypass"] is True
+    assert result.trace["judged"] == 0
+    assert result.trace["injected"] == 2
+    assert {s.origin for s in result.kept} == {"bypass"}
+
+
+@pytest.mark.asyncio
 async def test_trace_fields_complete(monkeypatch):
     """trace 骨架全字段（E12 埋点按此并 chain 组）。"""
     _stub(monkeypatch, _by_content({"卡1": "high", "卡2": "low"}))

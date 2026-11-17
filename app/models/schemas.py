@@ -16,6 +16,15 @@ class ChatRequest(BaseModel):
     use_rerank: Optional[bool] = Field(
         default=None, description="是否启用精排逐卡判定；不传则用服务端默认")
 
+    @field_validator("message")
+    @classmethod
+    def _message_must_not_be_blank(cls, value: str) -> str:
+        """纯空白消息挡在入口：min_length 只数长度，"   " 会穿透到生成侧（用户轮为空）。"""
+        value = value.strip()
+        if not value:
+            raise ValueError("message 不能为空白")
+        return value
+
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant"] = Field(description="消息角色")

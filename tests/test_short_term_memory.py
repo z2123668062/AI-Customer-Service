@@ -51,6 +51,29 @@ async def test_get_history_with_messages(mock_redis):
 
 
 @pytest.mark.asyncio
+async def test_get_history_skips_corrupt_line(mock_redis):
+    """坏行跳过：窗口是易失层，一条解析失败不该让整轮对话失败。"""
+    mock_redis.lrange.return_value = [
+        "not-json",
+        json.dumps({"role": "user", "content": "你好"}),
+    ]
+    with patch("app.core.short_term_memory.redis_client", mock_redis):
+        history = await memory.get_history(session_id="session_1")
+    assert [m.content for m in history] == ["你好"]
+
+
+@pytest.mark.asyncio
+async def test_redis_down_degrades_instead_of_raising(fake_redis):
+    """Redis 故障降级（系统设计 §8 / N3）：读空窗口、写不打断，对话退化为单轮。"""
+    fake_redis.fail = True
+    with patch("app.core.short_term_memory.redis_client", fake_redis):
+        assert await memory.get_history("session_down") == []
+        assert await memory.get_history_count("session_down") == 0
+        message = await memory.add_message("session_down", "user", "你好")
+    assert message.content == "你好"
+
+
+@pytest.mark.asyncio
 async def test_get_history_count(mock_redis):
     """测试获取历史条数"""
     mock_redis.llen.return_value = 5

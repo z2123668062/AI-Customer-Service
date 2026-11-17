@@ -14,12 +14,17 @@ from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
 from app.core.config import settings
+from app.core.logging import logger
 from app.core.short_term_memory import ContextPackage
 
 client = AsyncOpenAI(
     api_key=settings.LLM_API_KEY,
     base_url=settings.LLM_BASE_URL
 )
+
+# 兜底话术：不暴露内部异常（旧实现把 str(e) 拼进回复，既泄露给用户、又被当作
+# 助手发言归档）。评测脚本按「走神」标记识别失败行，文案保留该词。
+_FALLBACK_REPLY = "不好意思，我刚才走神了，你能再说一遍吗？"
 
 
 @dataclass
@@ -64,11 +69,17 @@ async def generate_reply(package: ContextPackage) -> GenerationResult:
             temperature=0.7
         )
         usage = response.usage
+        reply = (response.choices[0].message.content or "").strip()
+        if not reply:
+            # 空回复会让 ChatMessage(content min_length=1) 校验失败，连带整轮被丢弃
+            logger.warning("[generation] 模型返回空内容，已替换为兜底话术")
+            reply = _FALLBACK_REPLY
         return GenerationResult(
-            reply=response.choices[0].message.content or "",
+            reply=reply,
             prompt_tokens=getattr(usage, "prompt_tokens", None),
             completion_tokens=getattr(usage, "completion_tokens", None),
             total_tokens=getattr(usage, "total_tokens", None),
         )
-    except Exception as e:
-        return GenerationResult(reply=f"不好意思，我刚才走神了，你能再说一遍吗？崩溃原因：{str(e)}")
+    except Exception as e:  # noqa: BLE001 —— 生成失败由兜底话术保底，不让整轮 500
+        logger.error(f"[generation] 生成失败: {type(e).__name__}: {e}")
+        return GenerationResult(reply=_FALLBACK_REPLY)

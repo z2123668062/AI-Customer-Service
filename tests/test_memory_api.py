@@ -114,6 +114,21 @@ async def test_patch_creates_new_version(api, db_session):
 
 
 @pytest.mark.asyncio
+async def test_patch_preserves_node_identity_and_provenance(api, db_session):
+    """修订继承身份字段：节点卡改内容后仍是节点（canonical_name），来源原文不丢。"""
+    old = await _mk(db_session, "Caroline 在特殊教育学校工作", subtype="person",
+                    canonical_name="Caroline", source_message_ids=[11, 12])
+    await db_session.commit()
+
+    resp = await api.patch(f"/api/v1/memory/{old.id}",
+                           json={"content": "Caroline 在一所特殊教育学校当老师"})
+    assert resp.status_code == 200
+    new_card = await store.get_card(db_session, resp.json()["new_card_id"])
+    assert new_card.canonical_name == "Caroline"
+    assert new_card.source_message_ids == [11, 12]
+
+
+@pytest.mark.asyncio
 async def test_patch_rejects_non_active(api, db_session):
     old = await _mk(db_session, "旧")
     new = await _mk(db_session, "新")

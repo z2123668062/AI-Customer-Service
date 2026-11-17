@@ -307,6 +307,10 @@ async def edit_memory(card_id: int, body: CardUpdateRequest,
         entities=list(old.entities) if old.entities else None,
         event_time=old.event_time, source=old.source,
         source_session_id=old.source_session_id, importance=old.importance,
+        # 两列必须随版本继承：canonical_name 丢了节点卡就退化成普通属性卡
+        # （星图少一个人、led_to 找不回端点）；source_message_ids 丢了审计链条就断。
+        canonical_name=old.canonical_name,
+        source_message_ids=list(old.source_message_ids) if old.source_message_ids else None,
     )
     edge = await store.supersede_card(session, new_card_id=new_card.id, old_card_id=old.id)
     await store.commit_and_sync(session, upsert_cards=[new_card], upsert_edges=[edge])

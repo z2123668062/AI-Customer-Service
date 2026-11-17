@@ -1,23 +1,22 @@
 # app/services/long_term_memory/retriever.py
 """读路径：一次检索 = 一次缺页处理（系统设计.md §4）。
 
-链路：
-    分诊（gate.judge_page_fault——正则两档前置 + 模型兜底）
-      ├─ no  → skip：不读，连快表都不碰（闲聊零成本退出）
-      └─ yes → 抽线索（实体反向匹配 + 引号启发式 + 时间词表；零 LLM、零 IO）
-            → 扫快表（by_entities + by_time_range；零 IO）
-            ├─ 有收获（≥1）→ hit：本地候选，不回源
-            └─ 全空 → fault（缺页）：
-                  L1 = DB 实体路 + DB 时间路（共用一次扫描，SOURCE_SCAN_LIMIT 封顶）
-                       ∥ 语义路（embed + Qdrant top-k，相似度下限采信）
-                  L1 全空 → L2 = 原文关键词兜底（search_messages；候选 kind="raw"）
-            回填（fault）：refill 卡 + 恢复边
+链路（L12 起无分诊总闸——每轮必检索）：
+    抽线索（实体反向匹配 + 引号启发式 + 时间词表；零 LLM、零 IO）
+      → 扫快表（by_entities + by_time_range；零 IO）
+        ├─ 有收获（≥1）→ hit：本地候选，不回源；补一趟语义分做粗排
+        └─ 全空 → fault（缺页）：
+              L1 = DB 实体路 + DB 时间路（共用一次扫描，SOURCE_SCAN_LIMIT 封顶）
+                   ∥ 语义路（embed + Qdrant top-k，相似度下限采信）
+              L1 全空 → L2 = 原文关键词兜底（search_messages；候选 kind="raw"）
+        回填（fault）：refill 卡 + 恢复边
+      → 粗排预算（按语义分截断至 RETRIEVAL_COARSE_TOPK）
       → 顺线一跳（只顺因果线；池内免费全收 + 池外小预算预取）
-      → 粗排（入口优先级 → 语义分 → id 新优先）→ 交精筛
+      → 原文通道（命中路径补带相关原文）→ 交精筛
 
 设计要点：
-- **分诊在抽线索之前**：判"不查"就什么都不碰；钩子话术归 gate 前置正则，
-  E9 不维护第二套钩子检测（单一出口原则）。
+- **分诊已删除（L12）**：真实对话上它把"看起来像通用问题、其实指向用户自己"的查询判成
+  skip，整条检索被关掉、模型随后用常识编答案；省下的 1.2 秒不值这个代价。
 - **"够格"口径 = 本地任一入口有收获（≥1）即 hit**：不回源；好坏由精筛兜底。
 - **快表只做确定性索引**（实体倒排 + 时间轴，微秒级）。
 - **语义路两种时机（L1 定稿 2026-10-30）**：① 缺页回源时做，决定"L1 是否算空 / 是否下探 L2"；
@@ -301,8 +300,8 @@ def _empty_trace() -> dict[str, Any]:
     原 has_hook 字段随"分诊在前"修订并入 gate 详情（D24——钩子话术单归 gate 前置正则）。
     """
     return {
-        "triage": None,            # skip / hit / fault（总闸裁决）
-        "gate": None,              # 分诊详情（异常兜底时为 None）
+        "triage": None,            # hit（快表命中）/ fault（缺页回源）——仅观测口径
+        "gate": None,              # 分诊已删（L12），字段恒 None——保留以兼容旧 telemetry
         "entities": [],            # 抽到的实体线索（含引号启发式）
         "entities_missing": [],    # 快表未收录的实体（一级缺页线索）
         "time_window": None,       # [start_iso, end_iso]

@@ -180,7 +180,9 @@ async def rerank(query: str, candidates: Sequence[Candidate], *,
     passed = [s for s in scored if s.score >= settings.GATE_THRESHOLD]
     kept = passed[:settings.INJECT_MAX_CARDS]
 
-    trace["judged"] = len(scored)
+    # judged = 实际发生的 LLM 判定次数（埋点 cost.llm_calls 直接读它）。
+    # 关精排时一张都没判，记 0；候选总量另由 items/truncated 体现。
+    trace["judged"] = len(scored) if enabled else 0
     for s in scored:
         if s.tier in trace["tiers"]:
             trace["tiers"][s.tier] += 1
