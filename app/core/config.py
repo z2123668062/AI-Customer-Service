@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
+    # Redis 故障快速降级：连接/读写超时（秒）。容器/网络不可达时 1s 内失败，
+    # 避免整轮对话等 OS 级超时（实测未设时 30s 才触发兜底）。
+    REDIS_CONNECT_TIMEOUT: float = 1.0
+    REDIS_SOCKET_TIMEOUT: float = 1.0
     API_TIMEOUT: float = 10.0
 
     # ================= 热层窗口 =================

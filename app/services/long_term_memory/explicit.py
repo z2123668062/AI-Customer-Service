@@ -53,9 +53,9 @@ async def push_explicit(*, session_id: str, message_id: int, content: str) -> bo
     entry = json.dumps({"message_id": message_id, "session_id": session_id,
                         "content": content or ""}, ensure_ascii=False)
     try:
-        await _redis.rpush(CACHE_KEY, entry)
-        await _redis.ltrim(CACHE_KEY, -CACHE_MAX, -1)
-        await _redis.expire(CACHE_KEY, CACHE_TTL_SECONDS)
+        await short_term_memory.redis_call(_redis.rpush(CACHE_KEY, entry))
+        await short_term_memory.redis_call(_redis.ltrim(CACHE_KEY, -CACHE_MAX, -1))
+        await short_term_memory.redis_call(_redis.expire(CACHE_KEY, CACHE_TTL_SECONDS))
         return True
     except Exception as e:  # noqa: BLE001 —— 缓存是尽力而为的加速器，不阻断主链路
         logger.warning(f"显式消息暂存失败（降级为批抽取兜底）: {e}")
@@ -65,7 +65,7 @@ async def push_explicit(*, session_id: str, message_id: int, content: str) -> bo
 async def list_pending(session_id: str | None = None) -> list[dict[str, Any]]:
     """取回待处理条目（可按会话过滤）；损坏条目跳过；Redis 故障返回空表。"""
     try:
-        raw = await _redis.lrange(CACHE_KEY, 0, -1)
+        raw = await short_term_memory.redis_call(_redis.lrange(CACHE_KEY, 0, -1))
     except Exception as e:  # noqa: BLE001
         logger.warning(f"显式缓存读取失败: {e}")
         return []
@@ -92,7 +92,7 @@ async def clear_entries(message_ids: Iterable[int]) -> int:
     if not target:
         return 0
     try:
-        raw = await _redis.lrange(CACHE_KEY, 0, -1)
+        raw = await short_term_memory.redis_call(_redis.lrange(CACHE_KEY, 0, -1))
     except Exception as e:  # noqa: BLE001
         logger.warning(f"显式缓存清理失败: {e}")
         return 0
@@ -108,10 +108,10 @@ async def clear_entries(message_ids: Iterable[int]) -> int:
         else:
             keep.append(item)
     try:
-        await _redis.delete(CACHE_KEY)
+        await short_term_memory.redis_call(_redis.delete(CACHE_KEY))
         if keep:
-            await _redis.rpush(CACHE_KEY, *keep)
-            await _redis.expire(CACHE_KEY, CACHE_TTL_SECONDS)
+            await short_term_memory.redis_call(_redis.rpush(CACHE_KEY, *keep))
+            await short_term_memory.redis_call(_redis.expire(CACHE_KEY, CACHE_TTL_SECONDS))
     except Exception as e:  # noqa: BLE001
         logger.warning(f"显式缓存重写失败: {e}")
         return 0
