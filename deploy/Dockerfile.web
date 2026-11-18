@@ -19,6 +19,9 @@ FROM ${NGINX_IMAGE}
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/.htpasswd /etc/nginx/.htpasswd
+# nginx worker 以 nginx 用户运行，必须能读；宿主机上的源文件是 600，COPY 会原样保留权限，
+# 不在这里放宽就会变成 500 而不是 401（worker 打不开鉴权文件）
+RUN chmod 644 /etc/nginx/.htpasswd
 COPY --from=build /web/dist /usr/share/nginx/html
 
 EXPOSE 80
