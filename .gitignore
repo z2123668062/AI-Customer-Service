@@ -32,8 +32,18 @@ data/
 #忽略 QA 运行产物（跑一次生成一次，正式结论以 qa_v1/ANALYSIS.md 为准）
 qa_v1/records/
 
-#忽略docker相关文件
-docker-compose.yml
+# 只忽略仓库根目录的旧 compose；deploy/ 下的部署编排要入库
+/docker-compose.yml
+
+# 私人文档与工具产物（不入库）
+design/
+bench/docs/PAPER_DRAFT.md
+.mimosa/
+web/.mimosa/
+deploy/.env.docker.local
+deploy/Dockerfile.web.local
+# 鉴权密码文件（含哈希），不入库；CVM 上用命令现生成
+deploy/.htpasswd
 
 # 前端依赖与构建产物（web/ 是 Vue 前端）
 web/node_modules/
